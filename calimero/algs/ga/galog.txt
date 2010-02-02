@@ -1,0 +1,52 @@
+
+ GA_float4 OUTPUT OF BEST GENOTYP (Fitness and Gene Values) PER GENERATION 
+
+     1 fitness=  2.130  genes:  0.616  1.256 -0.415
+     2 fitness=  2.089  genes:  0.305  1.246 -0.666
+     3 fitness=  2.047  genes:  0.225  1.246 -0.666
+     4 fitness=  0.861  genes:  0.225  0.606 -0.666
+     5 fitness=  0.861  genes:  0.225  0.606 -0.666
+     6 fitness=  0.861  genes:  0.225  0.606 -0.666
+     7 fitness=  0.770  genes:  0.225  0.526 -0.666
+     8 fitness=  0.770  genes:  0.225  0.526 -0.666
+     9 fitness=  0.757  genes:  0.225  0.526 -0.656
+    10 fitness=  0.757  genes:  0.225  0.526 -0.656
+    11 fitness=  0.757  genes:  0.225  0.526 -0.656
+    12 fitness=  0.757  genes:  0.225  0.526 -0.656
+    13 fitness=  0.757  genes:  0.225  0.526 -0.656
+    14 fitness=  0.757  genes:  0.225  0.526 -0.656
+    15 fitness=  0.757  genes:  0.225  0.526 -0.656
+    16 fitness=  0.722  genes: -0.045  0.145 -0.836
+    17 fitness=  0.722  genes: -0.045  0.145 -0.836
+    18 fitness=  0.722  genes: -0.045  0.145 -0.836
+    19 fitness=  0.722  genes: -0.045  0.145 -0.836
+    20 fitness=  0.722  genes: -0.045  0.145 -0.836
+    21 fitness=  0.722  genes: -0.045  0.145 -0.836
+    22 fitness=  0.722  genes: -0.045  0.145 -0.836
+    23 fitness=  0.722  genes: -0.045  0.145 -0.836
+    24 fitness=  0.722  genes: -0.045  0.145 -0.836
+    25 fitness=  0.722  genes: -0.045  0.145 -0.836
+    26 fitness=  0.722  genes: -0.045  0.145 -0.836
+    27 fitness=  0.722  genes: -0.045  0.145 -0.836
+    28 fitness=  0.722  genes: -0.045  0.145 -0.836
+    29 fitness=  0.201  genes:  0.335  0.285  0.085
+    30 fitness=  0.201  genes:  0.335  0.285  0.085
+    31 fitness=  0.087  genes:  0.145  0.075 -0.245
+    32 fitness=  0.087  genes:  0.145  0.075 -0.245
+    33 fitness=  0.087  genes:  0.145  0.075 -0.245
+    34 fitness=  0.087  genes:  0.145  0.075 -0.245
+    35 fitness=  0.087  genes:  0.145  0.075 -0.245
+    36 fitness=  0.087  genes:  0.145  0.075 -0.245
+    37 fitness=  0.087  genes:  0.145  0.075 -0.245
+    38 fitness=  0.087  genes:  0.145  0.075 -0.245
+    39 fitness=  0.087  genes:  0.145  0.075 -0.245
+    40 fitness=  0.087  genes:  0.145  0.075 -0.245
+
+ Simulation completed 
+
+ Best member 
+
+ var(1) =    0.14514
+ var(2) =    0.07507
+ var(3) =   -0.24524
+ Best fitness =  0.087

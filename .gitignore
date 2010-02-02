@@ -1,0 +1,9 @@
+ui_*.h
+*.pro.user
+*.o
+*~
+.svn
+moc_*
+Makefile
+calimero/calimero
+bin

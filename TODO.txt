@@ -1,0 +1,22 @@
+========== TODO LIST - CALIMERO ===========
+GUI:
+/- advanced button -> bei externen programmeinstellungen
+/- iteration-exec auch in vorlagen editor einbauen
+/- Gruppen einstellungen nuch sichtbar machen wenn mehrere gruppen im system
+  vorhanden sind
+- Namensgebung (mit Manfred und Michael) überarbeiten
+
+SONSTIGES:
+- Datum evtl. einbauen bei vectoren
+- Parameter von-bis -> von datum - und dann x zeilen
+- Parametergewichtung
+
+Calimero2.0
+- Residuen / Ganglinien anzeigen
+- Sensitivitätsanalyse für Parameter verbesseren
+- Neue statistische darstellungen der ergebnisse (Boxplot,...)
+
+
+ALLGEMEIN:
+- Grundlagenvorschung: Bestehende kalibrierungsalg. testen und in calimero umsetzen (wenn alg. es zulässt parallelisieren)
+- Versuch: TCP/IP staukontrolle für autokaliebrierung in calimero zu verwenden (:-) Nur eine idee)
