@@ -6,4 +6,7 @@ ui_*.h
 moc_*
 Makefile
 calimero/calimero
+CMakeLists.txt.user
+build
+*.bat
 bin

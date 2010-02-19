@@ -1,7 +1,7 @@
 #ifndef CALIBRATIONEDITGUI_H_INCLUDED
 #define CALIBRATIONEDITGUI_H_INCLUDED
 
-#include "../ui_calibrationedit.h"
+#include "ui_calibrationedit.h"
 #include "../core/Model.h"
 #include "../qtscript/ScriptLibary.h"
 #include "./qtscript/scripteditwidget.h"

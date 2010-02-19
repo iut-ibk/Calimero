@@ -3,7 +3,7 @@
 
 #include <QFileDialog>
 #include "../core/Model.h"
-#include "../ui_parameterfiles.h"
+#include <ui_parameterfiles.h>
 
 using namespace Ui;
 

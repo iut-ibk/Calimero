@@ -1,7 +1,7 @@
 #ifndef MAINWINDOW_H_INCLUDED
 #define MAINWINDOW_H_INCLUDED
 
-#include "../ui_mainwindow.h"
+#include "ui_mainwindow.h"
 #include "../core/Model.h"
 
 using namespace Ui;

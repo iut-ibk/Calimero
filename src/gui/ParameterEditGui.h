@@ -4,7 +4,7 @@
 #include <QtCore>
 #include <QtGui>
 #include <QAction>
-#include "../ui_parameteredit.h"
+#include "ui_parameteredit.h"
 #include "../core/Model.h"
 
 using namespace Ui;
