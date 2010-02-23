@@ -12,7 +12,14 @@ using namespace std;
 void printHelp()
 {
     QString output =  "Usage: calimero [OPTION]\n";
-            output += "Report bugs to <michael.mair@uibk.ac.at>";
+            output +=  "\nCalimero options:\n";
+            output +=  "-h\t\tprint this help message\n";
+            output +=  "-d arg\t\tstore all debug messages in a file\n";
+            output +=  "-l arg\t\tloads a calimero project from a file\n";
+            output +=  "-c\t\trun calimero without graphical user interface\n";
+            output +=  "-v\t\tprint all debug messages to the current terminal\n";
+            output +=  "-r\t\trun autocalibration after loading a calimero project\n";
+            output += "\nReport bugs to <michael.mair@uibk.ac.at>";
 
     std::cout << output.toStdString() << std::endl;
 }

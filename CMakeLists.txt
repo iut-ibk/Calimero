@@ -1,6 +1,7 @@
-cmake_minimum_required(VERSION 2.6)
-project(calimero)
-add_subdirectory(src)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+PROJECT(calimero)
+ADD_SUBDIRECTORY(src)
+
 
 
 
