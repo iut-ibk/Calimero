@@ -1,16 +1,13 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 2.8)
 
-find_package(Qt4 COMPONENTS QtCore QtGui QtXml QtScript QtScriptTools REQUIRED)
-find_library(QT_QTSCRIPTTOOLS_LIBRARY NAMES QtScriptTools PATHS ${QT_LIBRARY_DIR} )
-find_path(QT_SCRIPTTOOLS_INCLUDE_DIR NAMES qscriptenginedebugger.h PATHS ${QT_INCLUDE_DIR}/QtScriptTools )
-include_directories(${QT_INCLUDES} ${QT_SCRIPTTOOLS_INCLUDE_DIR})
+FIND_PACKAGE(Qt4 COMPONENTS QtCore QtGui QtXml QtScript QtScriptTools QtSvg REQUIRED)
 
-set(QT_USE_QTXML 1)
-set(QT_USE_QTSCRIPT 1)
-set(QT_USE_QTSVG 1)
-set(QT_USE_QTSCRIPT_TOOLS 1)
+SET(QT_USE_QTXML 1)
+SET(QT_USE_QTSCRIPT 1)
+SET(QT_USE_QTSVG 1)
+SET(QT_USE_QTSCRIPTTOOLS 1)
 
-include(${QT_USE_FILE})
+INCLUDE(${QT_USE_FILE})
 INCLUDE_DIRECTORIES(	${CMAKE_CURRENT_SOURCE_DIR}/persistence 
 			${CMAKE_CURRENT_SOURCE_DIR}/gui 
 			${CMAKE_CURRENT_SOURCE_DIR}/algs 
@@ -92,14 +89,24 @@ QT4_WRAP_UI(CALIMERO_UIS_H ${CALIMERO_UIS})
 QT4_WRAP_CPP(CALIMERO_MOC_SRCS ${CALIMERO_MOC_H})
 
 add_executable(calimero ${CALIMERO_SRCS} ${CALIMERO_UIS_H} ${CALIMERO_MOC_SRCS})
-target_link_libraries(calimero ${QT_LIBRARIES} ${QT_QTSCRIPTTOOLS_LIBRARY})
+target_link_libraries(calimero ${QT_LIBRARIES})
 
+INCLUDE(InstallRequiredSystemLibraries)
 IF(WIN32 AND NOT UNIX)
 	INSTALL(PROGRAMS "${CMAKE_CURRENT_BINARY_DIR}/calimero.exe" DESTINATION bin)
+	FILE(GLOB QTDLLS	"${QT_BINARY_DIR}/QtCore4.dll" 
+				"${QT_BINARY_DIR}/QtGui4.dll" 
+				"${QT_BINARY_DIR}/QtXml4.dll" 
+				"${QT_BINARY_DIR}/QtScript4.dll" 
+				"${QT_BINARY_DIR}/QtScriptTools4.dll" 
+				"${QT_BINARY_DIR}/libgcc*.dll" 
+				"${QT_BINARY_DIR}/mingw*.dll" 
+				"${QT_BINARY_DIR}/QtXmlPatterns4.dll"
+				"${QT_BINARY_DIR}/QtSvg4.dll") 
+	INSTALL(FILES ${QTDLLS} DESTINATION bin)
 ELSE(WIN32 AND NOT UNIX)
 	INSTALL(PROGRAMS "${CMAKE_CURRENT_BINARY_DIR}/calimero" DESTINATION bin)	 
 ENDIF(WIN32 AND NOT UNIX)
-
 
 FILE(GLOB CALIBRATIONSCRIPTS "${calimero_SOURCE_DIR}/testdaten/calimerohome/calibrationscripts/default/*.qs")
 INSTALL(FILES ${CALIBRATIONSCRIPTS} DESTINATION calimerohome/calibrationscripts/default)
@@ -108,9 +115,10 @@ INSTALL(FILES ${COMPARESCRIPTS} DESTINATION calimerohome/comparescripts/default)
 FILE(GLOB LANGUAGE "${calimero_SOURCE_DIR}/src/*.qm")
 INSTALL(FILES ${LANGUAGE} DESTINATION calimerohome/language)
 
-INCLUDE(InstallRequiredSystemLibraries)
+
 
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Calimero")
+SET(CPACK_RESOURCE_FILE_LICENSE "${calimero_SOURCE_DIR}/src/license/gpl-3.0.txt")
 SET(CPACK_PACKAGE_VENDOR "Michael Mair")
 SET(CPACK_PACKAGE_VERSION_MAJOR "1")
 SET(CPACK_PACKAGE_VERSION_MINOR "0")
@@ -119,10 +127,10 @@ SET(CPACK_PACKAGE_INSTALL_DIRECTORY "calimero_${CPACK_PACKAGE_VERSION_MAJOR}.${C
 IF(WIN32 AND NOT UNIX)
   SET(CPACK_NSIS_DISPLAY_NAME "${CPACK_PACKAGE_INSTALL_DIRECTORY}")
   SET(CPACK_NSIS_CONTACT "michael.mair@uibk.ac.at")
-  SET(CPACK_NSIS_MODIFY_PATH ON)
 ELSE(WIN32 AND NOT UNIX)
   SET(CPACK_GENERATOR "DEB")
-  SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "Michael Mair <michael.mair@uibk.ac.at>")	 
+  SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "Michael Mair <michael.mair@uibk.ac.at>")
+  SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libqt4-core, libqt4-gui, libqt4-xml, libqt4-svg, libqt4-scripttools, libqt4-script")	 
 ENDIF(WIN32 AND NOT UNIX)
 SET(CPACK_PACKAGE_EXECUTABLES "Calimero" "Calimero")
 INCLUDE(CPack)
