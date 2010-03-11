@@ -57,11 +57,11 @@ void CalibrationVariable::setValues( QVector<double> vec)
             result.append(vec.at(index));
         }
 
-        if(isnan(result.at(index)))
+        /*if(isnan(result.at(index)))
         {
             qWarning("CalibrationVariable::setValues() Calibrationalg. wanted to set NaN");
             return;
-        }
+        }*/
     }
 
     values.clear();
