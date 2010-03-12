@@ -89,7 +89,7 @@ QT4_WRAP_UI(CALIMERO_UIS_H ${CALIMERO_UIS})
 QT4_WRAP_CPP(CALIMERO_MOC_SRCS ${CALIMERO_MOC_H})
 
 add_executable(calimero WIN32 ${CALIMERO_SRCS} ${CALIMERO_UIS_H} ${CALIMERO_MOC_SRCS})
-target_link_libraries(calimero ${QT_LIBRARIES})
+target_link_libraries(calimero ${QT_LIBRARIES} ${QT_QTMAIN_LIBRARY})
 
 INCLUDE(InstallRequiredSystemLibraries)
 IF(WIN32 AND NOT UNIX)
