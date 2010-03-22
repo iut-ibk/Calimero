@@ -2,6 +2,7 @@
 #include "../qtscript/ScriptLibary.h"
 #include <QMutex>
 #include <QMutexLocker>
+#include <boost/python.hpp>
 
 
 CalculationVariable::CalculationVariable(QString Name) : Variable(Name, QVector<double>(),Variable::CALCULATIONVARIABLE)
@@ -338,6 +339,18 @@ void CalculationVariable::calc(Variable *client)
     delete engine;
     needupdate=false;
     qDebug() << "CalculationVariable::calc() DONE First element of result vector=" << values.at(0);
+
+    using namespace boost::python;
+
+    try {
+        Py_Initialize();
+        object main_module = import("__main__");
+        object main_namespace = main_module.attr("__dict__");
+        object ignored = exec("print 'Hallo Welt from python'\n",
+                          main_namespace);
+    } catch(error_already_set const &) {
+        PyErr_Print();
+    }
 }
 
 double CalculationVariable::getCurrentValue()
