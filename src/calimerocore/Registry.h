@@ -93,7 +93,7 @@ template <typename T> void Registry<T>::addNativePlugin(const std::string &plugi
             return;
         }
 
-        regProto regFunction;
+        regProto regFunction = 0;
         switch(getType())
         {
         case OBJECTIVEFUNCTION:
