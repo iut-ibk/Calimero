@@ -64,7 +64,7 @@ bool Calibration::startCalibration()
     //TODO implement
     Logger(Debug) << "startCalibration not correct implemented yet";
 
-    ICalibrationAlg *tmpalg = Registry<ICalibrationAlg>::getInstance()->getFunction(alg);
+    ICalibrationAlg *tmpalg = creg->getFunction(alg);
     tmpalg->start();
     delete tmpalg;
 
@@ -94,7 +94,7 @@ Calibration* Calibration::getInstance()
 
 bool Calibration::setCalibrationAlg(string ca)
 {   
-    if(!Registry<ICalibrationAlg>::getInstance()->contains(ca))
+    if(!creg->contains(ca))
     {
         Logger(Error) <<  "No calibration algorithm registered with name \"" << ca << "\"";
         return false;
@@ -405,4 +405,25 @@ Variable* Calibration::cloneParameter(Variable* old)
     }
 
     return result;
+}
+
+Registry<IObjectiveFunction>* Calibration::getObjectiveFunctionReg()
+{
+    if(!oreg)
+        oreg = new Registry<IObjectiveFunction>();
+    return oreg;
+}
+
+Registry<IModelSimulator>* Calibration::getModelSimulatorReg()
+{
+    if(!mreg)
+        mreg = new Registry<IModelSimulator>();
+    return mreg;
+}
+
+Registry<ICalibrationAlg>* Calibration::getCalibrationAlgReg()
+{
+    if(!creg)
+        creg = new Registry<ICalibrationAlg>();
+    return creg;
 }

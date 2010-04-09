@@ -10,6 +10,7 @@
 #include <QLibrary>
 #include <QString>
 #include <IFunction.h>
+#include <boost/noncopyable.hpp>
 
 using namespace std;
 
@@ -17,22 +18,17 @@ class IFunctionFactory;
 
 template <typename T> class Registry;
 
-template <typename T> class Registry
+template <typename T> class Registry : private boost::noncopyable
 {
     typedef void (*regProto) (Registry<T> *reg);
     typedef map<string, IFunctionFactory*> factorymap;
     private:
         IFUNCTIONTYPE type;
         factorymap registered_factories;
-        static Registry* instance;
-
-    private:
-        Registry();
-        Registry(const Registry& cc);
 
     public:
+        Registry();
         ~Registry();
-        static Registry* getInstance();
         IFUNCTIONTYPE getType();
         bool registerFunction(IFunctionFactory* factory);
         void addNativePlugin(const std::string &plugin_path);
@@ -40,11 +36,10 @@ template <typename T> class Registry
         bool contains(string name);
 };
 
-template <typename T> Registry<T>* Registry<T>::instance = 0;
-
 template <typename T> Registry<T>::Registry()
 {
     type = T::getType();
+    Logger(Error) << "Registry instance of type: " << type;
 
     if(type==NOTYPE)
     {
@@ -82,6 +77,10 @@ template <typename T> T*  Registry<T>::getFunction(string name)
 
 template <typename T> bool Registry<T>::contains(string name)
 {
+    std::pair<string, IFunctionFactory*> p;
+    BOOST_FOREACH(p,registered_factories)
+            Logger(Debug) << p.first;
+
     return registered_factories.find(name)!=registered_factories.end();
 }
 
@@ -117,15 +116,6 @@ template <typename T> void Registry<T>::addNativePlugin(const std::string &plugi
                 Logger(Warning) << plugin_path << " has no function register hook";
         }
 }
-
-
-template <typename T> Registry<T>* Registry<T>::getInstance()
-{
-  if( !instance )
-        instance = new Registry();
-
-  return instance;
-};
 
 template <typename T> IFUNCTIONTYPE Registry<T>::getType()
 {

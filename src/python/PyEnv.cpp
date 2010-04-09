@@ -81,7 +81,15 @@ PyEnv::PyEnv() {
 }
 
 PyEnv::~PyEnv() {
+        if(!Py_IsInitialized())
+            Py_Finalize();
         delete priv;
+}
+
+void PyEnv::destroy()
+{
+    if(instance != 0)
+        delete instance;
 }
 
 PyEnv *PyEnv::getInstance() {

@@ -9,8 +9,11 @@
 #include <CalibrationVariable.h>
 #include <ObjectiveFunctionVariable.h>
 #include <IterationResult.h>
+#include <Registry.h>
+#include <IModelSimulator.h>
+#include <ICalibrationAlg.h>
 
-class Calibration
+class CALIMERO_PUBLIC Calibration
 {
 public:
     enum CALIBRATIONSTATE{CALIBRATIONINIT=0, CALIBRATIONRUNNING=1, CALIBRATIONSHUTDOWN=2, CALIBRATIONNOTRUNNING=3};
@@ -27,6 +30,9 @@ private:
     set<ObjectiveFunctionVariable*> enabledobjectivefunctionparameters;
     string alg;
     CALIBRATIONSTATE calstate;
+    Registry<IObjectiveFunction>* oreg;
+    Registry<IModelSimulator>* mreg;
+    Registry<ICalibrationAlg>* creg;
 
 private:
     Calibration();
@@ -70,6 +76,9 @@ public:
     int getNumOfComplete();
     vector<IterationResult*> getIterationResult();
     string getCalibrationAlg();
+    Registry<IObjectiveFunction>* getObjectiveFunctionReg();
+    Registry<IModelSimulator>* getModelSimulatorReg();
+    Registry<ICalibrationAlg>* getCalibrationAlgReg();
 
     //destroy
     void clear();

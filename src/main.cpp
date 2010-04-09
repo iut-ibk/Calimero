@@ -23,25 +23,29 @@ int main()
     Log::init(new OStreamLogSink(*out),Debug);
     Logger() << "starting";
 
+    //Calibration init
+    Calibration *cal = Calibration::getInstance();
+
+
     //Python test
     PyEnv *env = PyEnv::getInstance();
-    env->addPythonPath("/home/csae6550/Desktop/calimerocoredev/build/Debug/");
-    env->addPythonPath("/home/csae6550/Desktop/calimerocoredev/scripts/");
-    Registry<IObjectiveFunction>::getInstance()->addNativePlugin("/home/csae6550/Desktop/calimerocoredev/build/Debug/calimeronativefunctions.so");
-    Registry<ICalibrationAlg>::getInstance()->addNativePlugin("/home/csae6550/Desktop/calimerocoredev/build/Debug/calimeronativefunctions.so");
-    Registry<IModelSimulator>::getInstance()->addNativePlugin("/home/csae6550/Desktop/calimerocoredev/build/Debug/calimeronativefunctions.so");
-    IObjectiveFunction *testof = Registry<IObjectiveFunction>::getInstance()->getFunction("TestOFunction");
+    env->addPythonPath("./");
+    env->addPythonPath("../scripts/");
+    cal->getObjectiveFunctionReg()->addNativePlugin("calimeronativefunctions.dll");
+    cal->getCalibrationAlgReg()->addNativePlugin("calimeronativefunctions.dll");
+    cal->getModelSimulatorReg()->addNativePlugin("calimeronativefunctions.dll");
+    IObjectiveFunction *testof = cal->getObjectiveFunctionReg()->getFunction("TestOFunction");
     delete testof;
 
 
 
-    env->registerFunctions(Registry<IObjectiveFunction>::getInstance(),"testcali");
-    env->registerFunctions(Registry<IObjectiveFunction>::getInstance(),"testcali");
-    env->registerFunctions(Registry<ICalibrationAlg>::getInstance(),"testcalibration");
+    env->registerFunctions(cal->getObjectiveFunctionReg(),"testcali");
+    env->registerFunctions(cal->getObjectiveFunctionReg(),"testcali");
+    env->registerFunctions(cal->getCalibrationAlgReg(),"testcalibration");
 
 
     //test registry
-    if(Registry<IObjectiveFunction>::getInstance()->contains("MyOF1"))
+    if(cal->getObjectiveFunctionReg()->contains("MyOF1"))
         Logger(Debug) << "Registry test DONE";
     else
         Logger(Debug) << "Registry test FAILED";
@@ -53,7 +57,13 @@ int main()
     ObjectiveFunctionVariable objectf4("var4");
     ObjectiveFunctionVariable objectf5("var5");
     ObjectiveFunctionVariable objectf6("var6");
-    objectf.setObjectiveFunction("MyOF1");
+
+    if(cal->getObjectiveFunctionReg()->contains("TestOFunction"))
+        Logger(Debug) << "Registry test DONE";
+    else
+        Logger(Debug) << "Registry test FAILED";
+
+    objectf.setObjectiveFunction("TestOFunction");
     objectf2.addParameter(&objectf);
     objectf3.addParameter(&objectf2);
     objectf4.addParameter(&objectf3);
@@ -79,17 +89,18 @@ int main()
     delete pvar;
     objectf6.getValues();
 
-    //Calibration test
-    Calibration *calibrationmodel = Calibration::getInstance();
-    calibrationmodel->startCalibration();
-    calibrationmodel->setCalibrationAlg("TestCalibrationAlg");
-    calibrationmodel->startCalibration();
-    calibrationmodel->addDisabledGroup("test");
-    calibrationmodel->addParameter(&objectf5);
-    calibrationmodel->addParameter(&objectf5);
-    calibrationmodel->addGroup("group1");
-    calibrationmodel->clear();
-    calibrationmodel->removeParameter(&objectf5);
+    //calibration test
+    cal->startCalibration();
+    cal->setCalibrationAlg("TestCalibrationAlg");
+    cal->startCalibration();
+    cal->addDisabledGroup("test");
+    cal->addParameter(&objectf5);
+    cal->addParameter(&objectf5);
+    cal->addGroup("group1");
+    cal->clear();
+    cal->removeParameter(&objectf5);
 
-    return 0;
+    PyEnv::destroy();
+    Logger() << "main finished";
+    exit(1);
 }

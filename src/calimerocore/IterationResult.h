@@ -4,6 +4,7 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <CalimeroGlob.h>
 
 class ObjectiveFunctionVariable;
 class Variable;
@@ -11,7 +12,7 @@ class CalibrationVariable;
 
 using namespace std;
 
-class IterationResult
+class CALIMERO_PUBLIC IterationResult
 {
 private:
     bool complete;

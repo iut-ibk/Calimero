@@ -2,6 +2,7 @@
 #define LOGGER_H
 
 #include <Log.h>
+#include <CalimeroGlob.h>
 
 using namespace boost;
 
@@ -11,7 +12,7 @@ class QString;
 class LogSink;
 class Variable;
 
-class Logger {
+class CALIMERO_PUBLIC Logger {
 public:
         Logger(LogLevel level = Standard);
         virtual ~Logger();

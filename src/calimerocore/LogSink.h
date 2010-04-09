@@ -3,10 +3,11 @@
 
 #include <string>
 #include <ostream>
+#include <CalimeroGlob.h>
 
 class LSEndl {};
 
-class LogSink
+class CALIMERO_PUBLIC LogSink
 {
 public:
         virtual ~LogSink() {}
@@ -17,7 +18,7 @@ public:
         virtual LogSink &operator<<(LSEndl) = 0;
 };
 
-class OStreamLogSink : public LogSink {
+class CALIMERO_PUBLIC OStreamLogSink : public LogSink {
 public:
         OStreamLogSink(std::ostream &ostream);
 

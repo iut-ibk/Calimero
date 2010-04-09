@@ -4,6 +4,7 @@
 #include <boost/lexical_cast.hpp>
 #include <iostream>
 #include <string>
+#include <CalimeroGlob.h>
 
 using namespace std;
 
@@ -23,7 +24,7 @@ enum LogLevel {
         if (level <= max) return *this;\
         out << logLevel() << ": " << "\n"
 
-class Log
+class CALIMERO_PUBLIC Log
 {
 public:
         static void init(LogSink *sink, LogLevel max = Debug);

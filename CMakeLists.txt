@@ -12,8 +12,7 @@ if (${CMAKE_CXX_COMPILER_ID} STREQUAL GNU)
 endif()
 
 
-INCLUDE_DIRECTORIES(/usr/include/python2.6
-                    src/calimerocore
+INCLUDE_DIRECTORIES(src/calimerocore
                     src/python
                     src/nativefunctions
                     #src/calimerohelper
@@ -21,9 +20,7 @@ INCLUDE_DIRECTORIES(/usr/include/python2.6
 
 FIND_PACKAGE(Qt4 REQUIRED)
 
-LINK_LIBRARIES(boost_python)
-
-FIND_PACKAGE(Boost 1.41.0 COMPONENTS signals program_options thread python date_time REQUIRED)
+FIND_PACKAGE(Boost 1.42.0 COMPONENTS python REQUIRED)
 #SET(Boost_USE_STATIC_LIBS ON)
 ADD_DEFINITIONS(${Boost_LIB_DIAGNOSTIC_DEFINITIONS})
 SET(Boost_USE_MULTITHREADED ON)
@@ -31,6 +28,7 @@ INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 
 FIND_PACKAGE(PythonLibs REQUIRED)
+include_directories(${PYTHON_INCLUDE_PATH})
 
 if (CMAKE_BUILD_TYPE STREQUAL Debug)
         MESSAGE(STATUS Debug)
@@ -53,6 +51,12 @@ ADD_SUBDIRECTORY(src/nativefunctions)
 #ADD_SUBDIRECTORY(src/calimerohelper)
 
 
-ADD_EXECUTABLE(calimero WIN32 ./src/main.cpp)
-TARGET_LINK_LIBRARIES(calimero pycalimero ${BOOST_PYTHON_LIBRARY} ${PYTHON_LIBRARIES})
+add_executable(calimero ./src/main.cpp)
+if (${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
+    target_link_libraries(calimero pycalimero calimerocore)
+else()
+    target_link_libraries(calimero pycalimero calimerocore ${Boost_PROGRAM_OPTIONS_LIBRARY} ${Boost_DATE_TIME_LIBRARY})
+endif()
+
+INSTALL(TARGETS calimero RUNTIME DESTINATION bin)
 
