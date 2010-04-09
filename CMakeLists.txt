@@ -1,0 +1,58 @@
+CMAKE_MINIMUM_REQUIRED (VERSION 2.8)
+PROJECT(calimero)
+
+if (${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
+        MESSAGE(STATUS "Using Visual C compilers")
+        SET(CMAKE_CXX_FLAGS "/EHsc")
+endif()
+
+if (${CMAKE_CXX_COMPILER_ID} STREQUAL GNU)
+        MESSAGE(STATUS "Using GNU compilers")
+        SET(CMAKE_CXX_FLAGS "-g -Wall")
+endif()
+
+
+INCLUDE_DIRECTORIES(/usr/include/python2.6
+                    src/calimerocore
+                    src/python
+                    src/nativefunctions
+                    #src/calimerohelper
+                    )
+
+FIND_PACKAGE(Qt4 REQUIRED)
+
+LINK_LIBRARIES(boost_python)
+
+FIND_PACKAGE(Boost 1.41.0 COMPONENTS signals program_options thread python date_time REQUIRED)
+#SET(Boost_USE_STATIC_LIBS ON)
+ADD_DEFINITIONS(${Boost_LIB_DIAGNOSTIC_DEFINITIONS})
+SET(Boost_USE_MULTITHREADED ON)
+INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
+LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
+
+FIND_PACKAGE(PythonLibs REQUIRED)
+
+if (CMAKE_BUILD_TYPE STREQUAL Debug)
+        MESSAGE(STATUS Debug)
+        ADD_DEFINITIONS(-DDEBUG)
+else ()
+        MESSAGE(STATUS Release)
+endif()
+
+MESSAGE(STATUS ${CMAKE_CXX_COMPILER_ID})
+SET(QT_USE_QTXML true)
+SET(QT_NOTUSE_QTGUI true)
+ADD_DEFINITIONS(-DQT_NO_KEYWORDS)
+INCLUDE(${QT_USE_FILE})
+SET(LIBRARY_OUTPUT_PATH ${calimero_BINARY_DIR})
+SET(EXECUTABLE_OUTPUT_PATH ${calimero_BINARY_DIR})
+
+ADD_SUBDIRECTORY(src/calimerocore)
+ADD_SUBDIRECTORY(src/python)
+ADD_SUBDIRECTORY(src/nativefunctions)
+#ADD_SUBDIRECTORY(src/calimerohelper)
+
+
+ADD_EXECUTABLE(calimero WIN32 ./src/main.cpp)
+TARGET_LINK_LIBRARIES(calimero pycalimero ${BOOST_PYTHON_LIBRARY} ${PYTHON_LIBRARIES})
+
