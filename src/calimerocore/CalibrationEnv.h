@@ -7,8 +7,9 @@
 #include <ICalibrationAlg.h>
 #include <Calibration.h>
 #include <QThread>
+#include <CalimeroGlob.h>
 
-class CalibrationEnv : public QThread
+class CALIMERO_PUBLIC CalibrationEnv : public QThread
 {
 public:
     enum CALIBRATIONSTATE{CALIBRATIONINIT=0, CALIBRATIONRUNNING=1, CALIBRATIONSHUTDOWN=2, CALIBRATIONNOTRUNNING=3};
