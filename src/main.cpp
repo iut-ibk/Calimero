@@ -13,6 +13,7 @@
 #include <LogSink.h>
 #include <Calibration.h>
 #include <IModelSimulator.h>
+#include <CalibrationEnv.h>
 
 int main()
 {
@@ -24,20 +25,18 @@ int main()
     Logger() << "starting";
 
     //Calibration init
-    Calibration *cal = Calibration::getInstance();
+    CalibrationEnv *cal = CalibrationEnv::getInstance();
 
 
     //Python test
     PyEnv *env = PyEnv::getInstance();
     env->addPythonPath("./");
-    env->addPythonPath("../scripts/");
-    cal->getObjectiveFunctionReg()->addNativePlugin("calimeronativefunctions.dll");
-    cal->getCalibrationAlgReg()->addNativePlugin("calimeronativefunctions.dll");
-    cal->getModelSimulatorReg()->addNativePlugin("calimeronativefunctions.dll");
+    env->addPythonPath("../../scripts/");
+    cal->getObjectiveFunctionReg()->addNativePlugin("calimeronativefunctions.so");
+    cal->getCalibrationAlgReg()->addNativePlugin("calimeronativefunctions.so");
+    cal->getModelSimulatorReg()->addNativePlugin("calimeronativefunctions.so");
     IObjectiveFunction *testof = cal->getObjectiveFunctionReg()->getFunction("TestOFunction");
     delete testof;
-
-
 
     env->registerFunctions(cal->getObjectiveFunctionReg(),"testcali");
     env->registerFunctions(cal->getObjectiveFunctionReg(),"testcali");
@@ -90,15 +89,24 @@ int main()
     objectf6.getValues();
 
     //calibration test
+    Calibration *testcali = new Calibration();
+    CalibrationEnv::getInstance()->setCalibration(testcali);
+
+    //cal->startCalibration();
+    CalibrationEnv::getInstance()->getCalibration()->setCalibrationAlg("TestCalibrationAlg");
+
+    Logger(Debug) << "Calibration started";
     cal->startCalibration();
-    cal->setCalibrationAlg("TestCalibrationAlg");
-    cal->startCalibration();
-    cal->addDisabledGroup("test");
-    cal->addParameter(&objectf5);
-    cal->addParameter(&objectf5);
-    cal->addGroup("group1");
-    cal->clear();
-    cal->removeParameter(&objectf5);
+
+    while(cal->isCalibrationRunning())
+        sleep(1);
+    Logger(Debug) << "Calibration finished";
+    CalibrationEnv::getInstance()->getCalibration()->addDisabledGroup("test");
+    CalibrationEnv::getInstance()->getCalibration()->addParameter(&objectf5);
+    CalibrationEnv::getInstance()->getCalibration()->addParameter(&objectf5);
+    CalibrationEnv::getInstance()->getCalibration()->addGroup("group1");
+    CalibrationEnv::getInstance()->getCalibration()->clear();
+    CalibrationEnv::getInstance()->getCalibration()->removeParameter(&objectf5);
 
     PyEnv::destroy();
     Logger() << "main finished";

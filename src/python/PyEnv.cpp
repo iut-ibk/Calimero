@@ -6,6 +6,7 @@
 #include <PyCalibrationAlgWrapper.h>
 #include <PyVariableWrapper.h>
 #include <PyIModelSimulatorWrapper.h>
+#include <PyCalibrationEnvWrapper.h>
 #include <PyIterationResultWrapper.h>
 #include <PyFunctionFactory.cpp>
 #include <iostream>
@@ -19,6 +20,7 @@
 #include <LogSink.h>
 #include <Logger.h>
 #include <PyIFunctionWrapper.h>
+#include <boost/python/scope.hpp>
 
 using namespace boost::python;
 

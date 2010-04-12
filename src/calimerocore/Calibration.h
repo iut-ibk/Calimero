@@ -15,10 +15,8 @@
 
 class CALIMERO_PUBLIC Calibration
 {
-public:
-    enum CALIBRATIONSTATE{CALIBRATIONINIT=0, CALIBRATIONRUNNING=1, CALIBRATIONSHUTDOWN=2, CALIBRATIONNOTRUNNING=3};
+
 private:
-    static Calibration* calibration;
     set<CalibrationVariable*> calibrationparameters;
     set<Variable*> iterationparameters;
     set<Variable*> observedparameters;
@@ -29,29 +27,15 @@ private:
     vector<IterationResult*> iterationresults;
     set<ObjectiveFunctionVariable*> enabledobjectivefunctionparameters;
     string alg;
-    CALIBRATIONSTATE calstate;
-    Registry<IObjectiveFunction>* oreg;
-    Registry<IModelSimulator>* mreg;
-    Registry<ICalibrationAlg>* creg;
 
 private:
-    Calibration();
     vector<CalibrationVariable*> evalCalibrationParameters();
     vector<ObjectiveFunctionVariable*> evalObjectiveParameters();
 
 public:
     //create
+    Calibration();
     ~Calibration();
-    static Calibration* getInstance();
-
-    //calibration
-    bool startCalibration();
-    void stopCalibration();
-    bool exec(vector<CalibrationVariable*> calibrationparameters,
-              vector<Variable*> observedparameters,
-              vector<Variable*> iterationparameters,
-              vector<ObjectiveFunctionVariable*> objectivefunctionparameters);
-    Variable* cloneParameter(Variable* old);
 
     //setup
     bool setCalibrationAlg(string ca);
@@ -72,13 +56,16 @@ public:
     bool containsGroup(std::string groupname);
     bool containsParameter(Variable *var);
 
+    //calibration
+    bool exec(vector<CalibrationVariable*> calibrationparameters,
+              vector<Variable*> observedparameters,
+              vector<Variable*> iterationparameters,
+              vector<ObjectiveFunctionVariable*> objectivefunctionparameters);
+
     //getter
     int getNumOfComplete();
-    vector<IterationResult*> getIterationResult();
     string getCalibrationAlg();
-    Registry<IObjectiveFunction>* getObjectiveFunctionReg();
-    Registry<IModelSimulator>* getModelSimulatorReg();
-    Registry<ICalibrationAlg>* getCalibrationAlgReg();
+    vector<IterationResult*> getIterationResult();
 
     //destroy
     void clear();

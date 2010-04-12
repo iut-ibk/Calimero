@@ -5,6 +5,7 @@
 #include <Logger.h>
 #include <Registry.h>
 #include <Calibration.h>
+#include <CalibrationEnv.h>
 
 using namespace std;
 
@@ -121,7 +122,7 @@ bool ObjectiveFunctionVariable::calc()
         return false;
     }
 
-    IObjectiveFunction *tmpfunction =Calibration::getInstance()->getObjectiveFunctionReg()->getFunction(function);
+    IObjectiveFunction *tmpfunction =CalibrationEnv::getInstance()->getObjectiveFunctionReg()->getFunction(function);
 
     vector<Variable*> iterationvector;
     vector<Variable*> observedvector;
@@ -155,7 +156,7 @@ bool ObjectiveFunctionVariable::setValues(vector<double> value)
 
 bool ObjectiveFunctionVariable::setObjectiveFunction(std::string ofunction)
 {
-    if(!Calibration::getInstance()->getObjectiveFunctionReg()->contains(ofunction))
+    if(!CalibrationEnv::getInstance()->getObjectiveFunctionReg()->contains(ofunction))
     {
         Logger(Error) << this << "No objective function registered with name: " << ofunction << "-";
         return false;

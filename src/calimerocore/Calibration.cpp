@@ -6,13 +6,11 @@
 #include <string>
 #include <boost/foreach.hpp>
 #include <Registry.h>
-
-Calibration* Calibration::calibration = 0;
+#include <CalibrationEnv.h>
 
 Calibration::Calibration()
 {
     alg = "";
-    calstate=CALIBRATIONNOTRUNNING;
 }
 
 Calibration::~Calibration()
@@ -47,54 +45,9 @@ void Calibration::clear()
     clearIterationResults();
 }
 
-bool Calibration::startCalibration()
-{
-    if(alg=="")
-    {
-        Logger(Error) << "No calibration algorithm set";
-        return false;
-    }
-
-    if(calstate!=CALIBRATIONNOTRUNNING)
-    {
-        Logger(Error) << "Calibration is already started";
-        return false;
-    }
-
-    //TODO implement
-    Logger(Debug) << "startCalibration not correct implemented yet";
-
-    ICalibrationAlg *tmpalg = creg->getFunction(alg);
-    tmpalg->start();
-    delete tmpalg;
-
-
-
-    return true;
-}
-
-void Calibration::stopCalibration()
-{
-    if(calstate==CALIBRATIONNOTRUNNING)
-    {
-        Logger(Standard) << "No calibration running";
-        return;
-    }
-
-    calstate=CALIBRATIONSHUTDOWN;
-}
-
-Calibration* Calibration::getInstance()
-{
-    if(!calibration)
-        calibration = new Calibration();
-
-    return calibration;
-}
-
 bool Calibration::setCalibrationAlg(string ca)
 {   
-    if(!creg->contains(ca))
+    if(!CalibrationEnv::getInstance()->getCalibrationAlgReg()->contains(ca))
     {
         Logger(Error) <<  "No calibration algorithm registered with name \"" << ca << "\"";
         return false;
@@ -373,57 +326,6 @@ bool Calibration::exec(vector<CalibrationVariable*> calibrationparameters,
           vector<Variable*> iterationparameters,
           vector<ObjectiveFunctionVariable*> objectivefunctionparameters)
 {
-
-
-
-
-
     Logger(Error) << "Calibration::exec not implemented yet";
     return false;
-}
-
-Variable* Calibration::cloneParameter(Variable* old)
-{
-    Variable *result;
-
-    switch(old->getType())
-    {
-    case Variable::ITERATIONVARIABLE:
-        result = new Variable(old->getName(),old->getValues(),old->getType());
-        break;
-    case Variable::CALIBRATIONVARIABLE:
-        result = new CalibrationVariable(old->getName(), old->getValues());
-        break;
-    case Variable::OBSERVEDVARIABLE:
-        result = new Variable(old->getName(),old->getValues(),old->getType());
-        break;
-    case Variable::OBJECTIVEFUNCTIONVARIABLE:
-        ObjectiveFunctionVariable *tmp = new ObjectiveFunctionVariable(old->getName());
-        tmp->setObjectiveFunction(dynamic_cast<ObjectiveFunctionVariable*>(old)->getObjectiveFunction());
-        result=tmp;
-        break;
-    }
-
-    return result;
-}
-
-Registry<IObjectiveFunction>* Calibration::getObjectiveFunctionReg()
-{
-    if(!oreg)
-        oreg = new Registry<IObjectiveFunction>();
-    return oreg;
-}
-
-Registry<IModelSimulator>* Calibration::getModelSimulatorReg()
-{
-    if(!mreg)
-        mreg = new Registry<IModelSimulator>();
-    return mreg;
-}
-
-Registry<ICalibrationAlg>* Calibration::getCalibrationAlgReg()
-{
-    if(!creg)
-        creg = new Registry<ICalibrationAlg>();
-    return creg;
 }
