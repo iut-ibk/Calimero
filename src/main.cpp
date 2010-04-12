@@ -98,8 +98,8 @@ int main()
     Logger(Debug) << "Calibration started";
     cal->startCalibration();
 
-    while(cal->isCalibrationRunning())
-        sleep(1);
+    //while(cal->isCalibrationRunning())
+    //    sleep(1);
     Logger(Debug) << "Calibration finished";
     CalibrationEnv::getInstance()->getCalibration()->addDisabledGroup("test");
     CalibrationEnv::getInstance()->getCalibration()->addParameter(&objectf5);
