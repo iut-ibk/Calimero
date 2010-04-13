@@ -16,7 +16,6 @@ public:
               vector<Variable*> observedparameters,
               vector<Variable*> iterationparameters,
               vector<ObjectiveFunctionVariable*> objectivefunctionparameters, IterationResult *result);
-    void stop();
 };
 
 #endif // MODELSIMULATORHANDLER_H

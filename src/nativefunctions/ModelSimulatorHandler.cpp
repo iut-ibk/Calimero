@@ -21,8 +21,3 @@ bool ModelSimulatorHandler::exec(vector<CalibrationVariable*> calibrationparamet
     Logger(Error) << "ModelSimulatorHandler not implemented";
     return false;
 }
-
-void ModelSimulatorHandler::stop()
-{
-    Logger(Error) << "ModelSimulatorHandler not implemented";
-}

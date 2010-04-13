@@ -16,13 +16,14 @@ class CALIMERO_PUBLIC IterationResult
 {
 private:
     bool complete;
+    int iterationnumber;
     map<string, vector<double> > calibrationparameters;
     map<string, vector<double> > iterationparameters;
     map<string, vector<double> > objectivefucntionparameters;
     map<string, vector<double> > observedparameters;
 
 public:
-    IterationResult();
+    IterationResult(int iterationnum);
     void setObjectiveFunctionParameterResults(vector<ObjectiveFunctionVariable*> *results);
     void setCalibrationPararameterResults(vector<CalibrationVariable*> *results);
     void setObservedParameterResults(vector<Variable*> *results);

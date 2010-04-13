@@ -15,6 +15,7 @@ class CALIMERO_PUBLIC ObjectiveFunctionVariable : public Variable
         set<ObjectiveFunctionVariable*> objectivefunctionparameters;
         bool needupdate;
         std::string function;
+        std::map<string,string> functionsettings;
 
     public:
         ObjectiveFunctionVariable(string Name);
@@ -26,9 +27,10 @@ class CALIMERO_PUBLIC ObjectiveFunctionVariable : public Variable
         set<ObjectiveFunctionVariable*>* getObjectiveFunctionParameters();
         vector<double> getValues();
         virtual void fireUpdate();
-        bool setObjectiveFunction(std::string ofunction);
+        bool setObjectiveFunction(std::string ofunction, map<string,string> settings);
         std::string getObjectiveFunction();
         bool containsParameter(Variable* var);
+        map<string,string> getObjectiveFunctionSettings();
 
     private:
         bool setValues(vector<double> value);

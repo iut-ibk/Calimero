@@ -5,7 +5,7 @@
 
 void wrapIterationResult()
 {
-        class_<IterationResult, boost::noncopyable>("IterationResult")
+        class_<IterationResult, boost::noncopyable>("IterationResult",init<int>())
                 .def("setObjectiveFunctionParameterResults" , &IterationResult::setObjectiveFunctionParameterResults)
                 .def("setCalibrationPararameterResults" , &IterationResult::setCalibrationPararameterResults)
                 .def("setObservedParameterResults" , &IterationResult::setObservedParameterResults)
@@ -17,9 +17,5 @@ void wrapIterationResult()
                 .def("getObjectiveFunctionParameterResults" , &IterationResult::getObjectiveFunctionParameterResults)
                 ;
 }
-
-
-
-
 
 #endif // PYITERATIONRESULTWRAPPER_H

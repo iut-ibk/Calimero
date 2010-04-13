@@ -51,6 +51,8 @@ BOOST_PYTHON_MODULE(pycalimero)
 
         class_<std::vector<Variable*> >("variablevector")
                 .def(vector_indexing_suite<std::vector<Variable*> >());
+
+        wrapCalibrationEnv();
         wrapIFunction();
         wrapIterationResult();
         wrapIModelSimulator();

@@ -27,6 +27,9 @@ private:
     vector<IterationResult*> iterationresults;
     set<ObjectiveFunctionVariable*> enabledobjectivefunctionparameters;
     string alg;
+    map<string,string> algsettings;
+    string simulator;
+    map<string,string> modelsimulatorsettings;
 
 private:
     vector<CalibrationVariable*> evalCalibrationParameters();
@@ -38,7 +41,8 @@ public:
     ~Calibration();
 
     //setup
-    bool setCalibrationAlg(string ca);
+    bool setCalibrationAlg(string ca, map<string,string> settings);
+    bool setModelSimulator(string ms, map<string,string> settings);
     bool addParameter(Variable *parameter);
     bool removeParameter(Variable *parameter);
     bool addGroup(std::string name);
@@ -51,20 +55,18 @@ public:
     bool removeDisableGroup(std::string groupname);
     bool addEnabledOParameter(ObjectiveFunctionVariable* parameter);
     bool removeEnabledOParameter(ObjectiveFunctionVariable* parameter);
+    IterationResult* newIterationResult();
 
     //contains
     bool containsGroup(std::string groupname);
     bool containsParameter(Variable *var);
 
-    //calibration
-    bool exec(vector<CalibrationVariable*> calibrationparameters,
-              vector<Variable*> observedparameters,
-              vector<Variable*> iterationparameters,
-              vector<ObjectiveFunctionVariable*> objectivefunctionparameters);
-
     //getter
     int getNumOfComplete();
     string getCalibrationAlg();
+    string getModelSimulator();
+    map<string,string> getCalibrationAlgSettings();
+    map<string,string> getModelSimulatorSettings();
     vector<IterationResult*> getIterationResult();
 
     //destroy

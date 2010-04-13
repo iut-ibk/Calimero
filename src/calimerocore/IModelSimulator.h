@@ -115,7 +115,6 @@ class CALIMERO_PUBLIC IModelSimulator : public IFunction
                           vector<Variable*> observedparameters,
                           vector<Variable*> iterationparameters,
                           vector<ObjectiveFunctionVariable*> objectivefunctionparameters, IterationResult *result) = 0;
-        virtual void stop() = 0;
 };
 
 #endif // IMODELSIMULATOR_H

@@ -33,13 +33,13 @@ template <typename T> class Registry : private boost::noncopyable
         bool registerFunction(IFunctionFactory* factory);
         void addNativePlugin(const std::string &plugin_path);
         T* getFunction(string name);
+        map<string,DATATYPE> getSettingTypes(string name);
         bool contains(string name);
 };
 
 template <typename T> Registry<T>::Registry()
 {
     type = T::getType();
-    Logger(Error) << "Registry instance of type: " << type;
 
     if(type==NOTYPE)
     {
@@ -74,6 +74,20 @@ template <typename T> T*  Registry<T>::getFunction(string name)
     Logger(Error) << "[" << name << "] does not exist -> return null pointer";
     return 0;
 }
+
+
+template <typename T> map<string,DATATYPE> Registry<T>::getSettingTypes(string name)
+{
+    if(!contains(name))
+        abort();
+
+    T* fun = getFunction(name);
+    map<string,string> result = ((IFunction*)fun)->getDataTypes();
+    delete fun;
+    return result;
+}
+
+
 
 template <typename T> bool Registry<T>::contains(string name)
 {

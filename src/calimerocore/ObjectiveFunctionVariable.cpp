@@ -122,7 +122,12 @@ bool ObjectiveFunctionVariable::calc()
         return false;
     }
 
-    IObjectiveFunction *tmpfunction =CalibrationEnv::getInstance()->getObjectiveFunctionReg()->getFunction(function);
+    IObjectiveFunction *tmpfunction = CalibrationEnv::getInstance()->getObjectiveFunctionReg()->getFunction(function);
+
+    std::pair<string,string> p;
+
+    BOOST_FOREACH(p, functionsettings)
+            tmpfunction->setValueOfParameter(p.first,p.second);
 
     vector<Variable*> iterationvector;
     vector<Variable*> observedvector;
@@ -154,7 +159,7 @@ bool ObjectiveFunctionVariable::setValues(vector<double> value)
     return false;
 }
 
-bool ObjectiveFunctionVariable::setObjectiveFunction(std::string ofunction)
+bool ObjectiveFunctionVariable::setObjectiveFunction(std::string ofunction, map<string,string> settings)
 {
     if(!CalibrationEnv::getInstance()->getObjectiveFunctionReg()->contains(ofunction))
     {
@@ -162,9 +167,26 @@ bool ObjectiveFunctionVariable::setObjectiveFunction(std::string ofunction)
         return false;
     }
 
+    IObjectiveFunction *testofunc = CalibrationEnv::getInstance()->getObjectiveFunctionReg()->getFunction(ofunction);
+
+    std::pair<string,string> p;
+    BOOST_FOREACH(p,settings)
+            if(!testofunc->containsParameter(p.first))
+            {
+                delete testofunc;
+                Logger(Error) <<  "Wrong values for \"" << ofunction << "\"";
+                return false;
+            }
+
+    functionsettings=settings;
     function=ofunction;
 
     return true;
+}
+
+map<string,string> ObjectiveFunctionVariable::getObjectiveFunctionSettings()
+{
+    return functionsettings;
 }
 
 std::string ObjectiveFunctionVariable::getObjectiveFunction()

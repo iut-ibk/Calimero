@@ -5,8 +5,15 @@
 #include <Logger.h>
 #include <Variable.h>
 
-IterationResult::IterationResult()
+IterationResult::IterationResult(int iterationnum)
 {
+    if(iterationnum < 0)
+    {
+       Logger(Error) << "Iteration number invalid";
+       abort();
+    }
+
+    iterationnumber=iterationnum;
 }
 
 void IterationResult::setObjectiveFunctionParameterResults(vector<ObjectiveFunctionVariable*> *results)

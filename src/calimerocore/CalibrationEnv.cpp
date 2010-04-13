@@ -6,10 +6,12 @@ CalibrationEnv* CalibrationEnv::instance = 0;
 CalibrationEnv::CalibrationEnv()
 {
     stopthread=false;
+    calstate=CALIBRATIONNOTRUNNING;
     oreg = new Registry<IObjectiveFunction>();
     mreg = new  Registry<IModelSimulator>();
     creg = new Registry<ICalibrationAlg>();
-    calstate=CALIBRATIONNOTRUNNING;
+    threadpool = 0;
+    numthread=1;
 }
 
 CalibrationEnv::~CalibrationEnv()
@@ -71,7 +73,8 @@ Variable* CalibrationEnv::cloneParameter(Variable* old)
         break;
     case Variable::OBJECTIVEFUNCTIONVARIABLE:
         ObjectiveFunctionVariable *tmp = new ObjectiveFunctionVariable(old->getName());
-        tmp->setObjectiveFunction(dynamic_cast<ObjectiveFunctionVariable*>(old)->getObjectiveFunction());
+        tmp->setObjectiveFunction(dynamic_cast<ObjectiveFunctionVariable*>(old)->getObjectiveFunction(),
+                                  dynamic_cast<ObjectiveFunctionVariable*>(old)->getObjectiveFunctionSettings());
         result=tmp;
         break;
     }
@@ -116,6 +119,30 @@ bool CalibrationEnv::setCalibration(Calibration *cal)
     return true;
 }
 
+int CalibrationEnv::getNumThreads()
+{
+    return numthread;
+}
+
+bool CalibrationEnv::setNumThreads(int num)
+{
+    if(calstate!=CALIBRATIONNOTRUNNING)
+    {
+        Logger(Error) << "Already running calibration - could not set number of threads";
+        return false;
+    }
+
+    if(num < 1)
+    {
+        Logger(Error) << "Number of threads must be > 0";
+        return false;
+    }
+
+    numthread=num;
+
+    return true;
+}
+
 Calibration* CalibrationEnv::getCalibration()
 {
     return calibration;
@@ -127,17 +154,19 @@ void CalibrationEnv::run()
     {
         if(calstate==CALIBRATIONINIT)
         {
+            Logger(Standard) << "Calibration started";
             runCalibration();
             calstate=CALIBRATIONNOTRUNNING;
+            Logger(Standard) << "Calibration stopped";
         }
 
-        sleep(1);
+        msleep(10);
     }
 }
 
 void CalibrationEnv::runCalibration()
 {
-    calstate=CALIBRATIONNOTRUNNING;
+    calstate=CALIBRATIONRUNNING;
 
     if(calibration->getCalibrationAlg()=="")
     {
@@ -145,15 +174,110 @@ void CalibrationEnv::runCalibration()
         return;
     }
 
-    //TODO implement
-    Logger(Debug) << "NOT IMPLEMENTED startCalibration not correct implemented yet";
+    if(calibration->getModelSimulator()=="")
+    {
+        Logger(Error) << "No model simulator set";
+        return;
+    }
 
     ICalibrationAlg *tmpalg = creg->getFunction(calibration->getCalibrationAlg());
+
+    std::pair<string,string> p;
+    BOOST_FOREACH(p, calibration->getCalibrationAlgSettings())
+            tmpalg->setValueOfParameter(p.first,p.second);
+
+    int realthreads = 0;
+
+    if(tmpalg->containsParameter("parallel"))
+        realthreads = (boost::lexical_cast<double>(tmpalg->getValueOfParameter("parallel"))) ? numthread : 1;
+    else
+        realthreads = 1;
+
+    threadpool = new ModelSimThreadPool(realthreads);
+
     tmpalg->start();
+    delete threadpool;
     delete tmpalg;
 }
 
 bool CalibrationEnv::isCalibrationRunning()
 {
     return (calstate==CALIBRATIONNOTRUNNING) ? 0 : 1;
+}
+
+bool CalibrationEnv::exec(vector<CalibrationVariable*> calibrationparameters,
+          vector<Variable*> observedparameters,
+          vector<Variable*> iterationparameters,
+          vector<ObjectiveFunctionVariable*> objectivefunctionparameters)
+{
+    if(calstate!=CALIBRATIONSHUTDOWN)
+    {
+        Logger(Error) << "Shut down running calibration";
+        return false;
+    }
+
+    //create instance of model simulator
+    IModelSimulator *tmpsim = mreg->getFunction(calibration->getModelSimulator());
+
+    std::pair<string,string> p;
+    BOOST_FOREACH(p, calibration->getModelSimulatorSettings())
+            tmpsim->setValueOfParameter(p.first,p.second);
+
+
+    Logger(Error) << "Calibration::exec not implemented";
+
+    //clone all parameters
+    vector<CalibrationVariable*> newcalibrationparameters;
+    vector<Variable*> newobservedparameters;
+    vector<Variable*> newiterationparameters;
+    vector<ObjectiveFunctionVariable*> newofunctions;
+
+    BOOST_FOREACH(void* p, calibrationparameters)
+            newcalibrationparameters.assign(1,(CalibrationVariable*)cloneParameter((Variable*)p));
+
+    BOOST_FOREACH(void* p, observedparameters)
+            newobservedparameters.assign(1,cloneParameter((Variable*)p));
+
+    BOOST_FOREACH(void* p, iterationparameters)
+            newiterationparameters.assign(1,cloneParameter((Variable*)p));
+
+    BOOST_FOREACH(void* p, objectivefunctionparameters)
+            newofunctions.assign(1,(ObjectiveFunctionVariable*)cloneParameter((Variable*)p));
+
+
+    //link all parameters
+    for(uint index = 0; index < objectivefunctionparameters.size(); index++)
+    {
+        //link ObjectiveFunctionVariable
+        BOOST_FOREACH(ObjectiveFunctionVariable* oldofun, *(objectivefunctionparameters[index]->getObjectiveFunctionParameters()))
+            BOOST_FOREACH(ObjectiveFunctionVariable* newofun, newofunctions)
+                if(oldofun->getName()==newofun->getName())
+                {
+                    newofunctions[index]->addParameter(newofun);
+                }
+
+        //link ObservedParameters
+        BOOST_FOREACH(Variable* oldofun, *(objectivefunctionparameters[index]->getObservedParameters()))
+            BOOST_FOREACH(Variable* newofun, observedparameters)
+                if(oldofun->getName()==newofun->getName())
+                {
+                    newofunctions[index]->addParameter(newofun);
+                }
+
+        //link IterationParameters
+        BOOST_FOREACH(Variable* oldofun, *(objectivefunctionparameters[index]->getIterationParameters()))
+            BOOST_FOREACH(Variable* newofun, iterationparameters)
+                if(oldofun->getName()==newofun->getName())
+                {
+                    newofunctions[index]->addParameter(newofun);
+                }
+    }
+
+    threadpool->pushIteration(newcalibrationparameters,
+                              newobservedparameters,
+                              newiterationparameters,
+                              newofunctions,
+                              calibration->newIterationResult(),
+                              tmpsim);
+    return true;
 }

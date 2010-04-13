@@ -21,7 +21,7 @@ int main()
 
     //Logging test
     ostream *out = &cout;
-    Log::init(new OStreamLogSink(*out),Debug);
+    Log::init(new OStreamLogSink(*out),Standard);
     Logger() << "starting";
 
     //Calibration init
@@ -62,7 +62,7 @@ int main()
     else
         Logger(Debug) << "Registry test FAILED";
 
-    objectf.setObjectiveFunction("TestOFunction");
+    objectf.setObjectiveFunction("TestOFunction",map<string,string>());
     objectf2.addParameter(&objectf);
     objectf3.addParameter(&objectf2);
     objectf4.addParameter(&objectf3);
@@ -91,16 +91,31 @@ int main()
     //calibration test
     Calibration *testcali = new Calibration();
     CalibrationEnv::getInstance()->setCalibration(testcali);
-
     //cal->startCalibration();
-    CalibrationEnv::getInstance()->getCalibration()->setCalibrationAlg("TestCalibrationAlg");
+    //CalibrationEnv::getInstance()->getCalibration()->setCalibrationAlg("TestCalibrationAlg",map<string,string>());
 
-    Logger(Debug) << "Calibration started";
     cal->startCalibration();
+    while(cal->isCalibrationRunning())
+    {
+        (void)env;
+    }
 
-    //while(cal->isCalibrationRunning())
-    //    sleep(1);
-    Logger(Debug) << "Calibration finished";
+    CalibrationEnv::getInstance()->getCalibration()->setCalibrationAlg("TestCalibrationAlg",map<string,string>());
+    cal->startCalibration();
+    while(cal->isCalibrationRunning())
+    {
+        (void)env;
+    }
+
+    CalibrationEnv::getInstance()->getCalibration()->setModelSimulator("ModelSimulatorHandler",map<string,string>());
+    cal->startCalibration();
+    while(cal->isCalibrationRunning())
+    {
+        (void)env;
+    }
+
+
+
     CalibrationEnv::getInstance()->getCalibration()->addDisabledGroup("test");
     CalibrationEnv::getInstance()->getCalibration()->addParameter(&objectf5);
     CalibrationEnv::getInstance()->getCalibration()->addParameter(&objectf5);

@@ -45,7 +45,7 @@ void Calibration::clear()
     clearIterationResults();
 }
 
-bool Calibration::setCalibrationAlg(string ca)
+bool Calibration::setCalibrationAlg(string ca, map<string,string>  settings)
 {   
     if(!CalibrationEnv::getInstance()->getCalibrationAlgReg()->contains(ca))
     {
@@ -53,13 +53,52 @@ bool Calibration::setCalibrationAlg(string ca)
         return false;
     }
 
+    ICalibrationAlg *testalg = CalibrationEnv::getInstance()->getCalibrationAlgReg()->getFunction(ca);
+
+    std::pair<string,string> p;
+    BOOST_FOREACH(p,settings)
+            if(!testalg->containsParameter(p.first))
+            {
+                delete testalg;
+                Logger(Error) <<  "Wrong values for \"" << ca << "\"";
+                return false;
+            }
     alg=ca;
+    algsettings=settings;
+    return true;
+}
+
+bool Calibration::setModelSimulator(string ms, map<string,string> settings)
+{
+    if(!CalibrationEnv::getInstance()->getModelSimulatorReg()->contains(ms))
+    {
+        Logger(Error) <<  "No model simulator registered with name \"" << ms << "\"";
+        return false;
+    }
+
+    IModelSimulator *testsim = CalibrationEnv::getInstance()->getModelSimulatorReg()->getFunction(ms);
+
+    std::pair<string,string> p;
+    BOOST_FOREACH(p,settings)
+            if(!testsim->containsParameter(p.first))
+            {
+                delete testsim;
+                Logger(Error) <<  "Wrong values for \"" << ms << "\"";
+                return false;
+            }
+    simulator=ms;
+    modelsimulatorsettings=settings;
     return true;
 }
 
 string Calibration::getCalibrationAlg()
 {
     return alg;
+}
+
+string Calibration::getModelSimulator()
+{
+    return simulator;
 }
 
 bool Calibration::addParameter(Variable *parameter)
@@ -92,7 +131,7 @@ bool Calibration::addParameter(Variable *parameter)
         return false;
     }
 
-    Logger(Standard) << parameter << " registered for calibration";
+    Logger(Debug) << parameter << " registered for calibration";
     return true;
 }
 
@@ -127,7 +166,7 @@ bool Calibration::removeParameter(Variable *parameter)
         calibrationparameters.erase(calibrationparameters.find(static_cast<CalibrationVariable*>(parameter)));
     }
 
-    Logger(Standard) << parameter << " removed from registered calibration";
+    Logger(Debug) << parameter << " removed from registered calibration";
     return true;
 }
 
@@ -321,11 +360,19 @@ void Calibration::clearIterationResults()
     iterationresults.clear();
 }
 
-bool Calibration::exec(vector<CalibrationVariable*> calibrationparameters,
-          vector<Variable*> observedparameters,
-          vector<Variable*> iterationparameters,
-          vector<ObjectiveFunctionVariable*> objectivefunctionparameters)
+map<string,string> Calibration::getCalibrationAlgSettings()
 {
-    Logger(Error) << "Calibration::exec not implemented yet";
-    return false;
+    return algsettings;
 }
+
+map<string,string> Calibration::getModelSimulatorSettings()
+{
+    return modelsimulatorsettings;
+}
+
+IterationResult* Calibration::newIterationResult()
+ {
+     IterationResult* result = new IterationResult(iterationresults.size());
+     iterationresults.assign(1,result);
+     return result;
+ }
