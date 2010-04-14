@@ -16,12 +16,7 @@ ModelSimThreadPool::~ModelSimThreadPool()
 {
 }
 
-bool ModelSimThreadPool::pushIteration( vector<CalibrationVariable*> calibrationparameters,
-                    vector<Variable*> observedparameters,
-                    vector<Variable*> iterationparameters,
-                    vector<ObjectiveFunctionVariable*> objectivefunctionparameters,
-                    IterationResult *result,
-                    IModelSimulator *sim)
+bool ModelSimThreadPool::pushIteration( vector<CalibrationVariable*> calibrationparameters)
 {
     Logger(Error) << "TODO ==================== pushIteration not implemented in ModelSimThreadPool";
     return false;

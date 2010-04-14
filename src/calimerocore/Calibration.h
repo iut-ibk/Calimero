@@ -68,6 +68,7 @@ public:
     map<string,string> getCalibrationAlgSettings();
     map<string,string> getModelSimulatorSettings();
     vector<IterationResult*> getIterationResult();
+    set<CalibrationVariable*> getAllCalibrationParameters();
 
     //destroy
     void clear();

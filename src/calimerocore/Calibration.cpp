@@ -376,3 +376,8 @@ IterationResult* Calibration::newIterationResult()
      iterationresults.assign(1,result);
      return result;
  }
+
+set<CalibrationVariable*> Calibration::getAllCalibrationParameters()
+{
+    return calibrationparameters;
+}

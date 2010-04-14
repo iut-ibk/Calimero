@@ -27,7 +27,6 @@ private:
 
     CalibrationEnv();
     void runCalibration();
-    Variable* cloneParameter(Variable* old);
 
 public:
     ~CalibrationEnv();
@@ -47,10 +46,7 @@ public:
     //calibration
     bool startCalibration();
     void stopCalibration();
-    bool exec(vector<CalibrationVariable*> calibrationparameters,
-              vector<Variable*> observedparameters,
-              vector<Variable*> iterationparameters,
-              vector<ObjectiveFunctionVariable*> objectivefunctionparameters);   
+    bool exec(vector<CalibrationVariable*> calibrationparameters);
 };
 
 #endif // CALIBRATIONENV_H

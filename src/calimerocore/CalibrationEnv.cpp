@@ -56,32 +56,6 @@ Registry<ICalibrationAlg>* CalibrationEnv::getCalibrationAlgReg()
     return creg;
 }
 
-Variable* CalibrationEnv::cloneParameter(Variable* old)
-{
-    Variable *result;
-
-    switch(old->getType())
-    {
-    case Variable::ITERATIONVARIABLE:
-        result = new Variable(old->getName(),old->getValues(),old->getType());
-        break;
-    case Variable::CALIBRATIONVARIABLE:
-        result = new CalibrationVariable(old->getName(), old->getValues());
-        break;
-    case Variable::OBSERVEDVARIABLE:
-        result = new Variable(old->getName(),old->getValues(),old->getType());
-        break;
-    case Variable::OBJECTIVEFUNCTIONVARIABLE:
-        ObjectiveFunctionVariable *tmp = new ObjectiveFunctionVariable(old->getName());
-        tmp->setObjectiveFunction(dynamic_cast<ObjectiveFunctionVariable*>(old)->getObjectiveFunction(),
-                                  dynamic_cast<ObjectiveFunctionVariable*>(old)->getObjectiveFunctionSettings());
-        result=tmp;
-        break;
-    }
-
-    return result;
-}
-
 bool CalibrationEnv::startCalibration()
 {
     if(calstate!=CALIBRATIONNOTRUNNING)
@@ -205,10 +179,7 @@ bool CalibrationEnv::isCalibrationRunning()
     return (calstate==CALIBRATIONNOTRUNNING) ? 0 : 1;
 }
 
-bool CalibrationEnv::exec(vector<CalibrationVariable*> calibrationparameters,
-          vector<Variable*> observedparameters,
-          vector<Variable*> iterationparameters,
-          vector<ObjectiveFunctionVariable*> objectivefunctionparameters)
+bool CalibrationEnv::exec(vector<CalibrationVariable*> calibrationparameters)
 {
     if(calstate!=CALIBRATIONSHUTDOWN)
     {
@@ -216,68 +187,6 @@ bool CalibrationEnv::exec(vector<CalibrationVariable*> calibrationparameters,
         return false;
     }
 
-    //create instance of model simulator
-    IModelSimulator *tmpsim = mreg->getFunction(calibration->getModelSimulator());
-
-    std::pair<string,string> p;
-    BOOST_FOREACH(p, calibration->getModelSimulatorSettings())
-            tmpsim->setValueOfParameter(p.first,p.second);
-
-
-    Logger(Error) << "Calibration::exec not implemented";
-
-    //clone all parameters
-    vector<CalibrationVariable*> newcalibrationparameters;
-    vector<Variable*> newobservedparameters;
-    vector<Variable*> newiterationparameters;
-    vector<ObjectiveFunctionVariable*> newofunctions;
-
-    BOOST_FOREACH(void* p, calibrationparameters)
-            newcalibrationparameters.assign(1,(CalibrationVariable*)cloneParameter((Variable*)p));
-
-    BOOST_FOREACH(void* p, observedparameters)
-            newobservedparameters.assign(1,cloneParameter((Variable*)p));
-
-    BOOST_FOREACH(void* p, iterationparameters)
-            newiterationparameters.assign(1,cloneParameter((Variable*)p));
-
-    BOOST_FOREACH(void* p, objectivefunctionparameters)
-            newofunctions.assign(1,(ObjectiveFunctionVariable*)cloneParameter((Variable*)p));
-
-
-    //link all parameters
-    for(uint index = 0; index < objectivefunctionparameters.size(); index++)
-    {
-        //link ObjectiveFunctionVariable
-        BOOST_FOREACH(ObjectiveFunctionVariable* oldofun, *(objectivefunctionparameters[index]->getObjectiveFunctionParameters()))
-            BOOST_FOREACH(ObjectiveFunctionVariable* newofun, newofunctions)
-                if(oldofun->getName()==newofun->getName())
-                {
-                    newofunctions[index]->addParameter(newofun);
-                }
-
-        //link ObservedParameters
-        BOOST_FOREACH(Variable* oldofun, *(objectivefunctionparameters[index]->getObservedParameters()))
-            BOOST_FOREACH(Variable* newofun, observedparameters)
-                if(oldofun->getName()==newofun->getName())
-                {
-                    newofunctions[index]->addParameter(newofun);
-                }
-
-        //link IterationParameters
-        BOOST_FOREACH(Variable* oldofun, *(objectivefunctionparameters[index]->getIterationParameters()))
-            BOOST_FOREACH(Variable* newofun, iterationparameters)
-                if(oldofun->getName()==newofun->getName())
-                {
-                    newofunctions[index]->addParameter(newofun);
-                }
-    }
-
-    threadpool->pushIteration(newcalibrationparameters,
-                              newobservedparameters,
-                              newiterationparameters,
-                              newofunctions,
-                              calibration->newIterationResult(),
-                              tmpsim);
+    threadpool->pushIteration(calibrationparameters);
     return true;
 }

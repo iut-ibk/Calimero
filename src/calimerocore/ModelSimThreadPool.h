@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <QThreadPool>
+#include <CalimeroGlob.h>
 
 class CalibrationVariable;
 class Variable;
@@ -12,17 +13,12 @@ class IterationResult;
 
 using namespace std;
 
-class ModelSimThreadPool : private QThreadPool
+class CALIMERO_PUBLIC ModelSimThreadPool : private QThreadPool
 {
 public:
     ModelSimThreadPool(int threadnum);
     ~ModelSimThreadPool();
-    bool pushIteration( vector<CalibrationVariable*> calibrationparameters,
-                        vector<Variable*> observedparameters,
-                        vector<Variable*> iterationparameters,
-                        vector<ObjectiveFunctionVariable*> objectivefunctionparameters,
-                        IterationResult *result,
-                        IModelSimulator *sim);
+    bool pushIteration( vector<CalibrationVariable*> calibrationparameters);
 };
 
 #endif // MODELSIMTHREADPOOL_H
