@@ -13,7 +13,7 @@ class IModelSimulator;
 
 using namespace std;
 
-class CALIMERO_PUBLIC CModelSimRunnable : public QRunnable
+class CALIMERO_PUBLIC ModelSimRunnable : public QRunnable
 {
 private:
     vector<CalibrationVariable*> calibrationparameters;
