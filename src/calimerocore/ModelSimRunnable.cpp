@@ -28,12 +28,15 @@ Variable* ModelSimRunnable::cloneParameter(Variable* old)
     case Variable::OBSERVEDVARIABLE:
         result = new Variable(old->getName(),old->getValues(),old->getType());
         break;
-    case Variable::OBJECTIVEFUNCTIONVARIABLE:
+    case Variable::OBJECTIVEFUNCTIONVARIABLE:{
         ObjectiveFunctionVariable *tmp = new ObjectiveFunctionVariable(old->getName());
         tmp->setObjectiveFunction(dynamic_cast<ObjectiveFunctionVariable*>(old)->getObjectiveFunction(),
                                   dynamic_cast<ObjectiveFunctionVariable*>(old)->getObjectiveFunctionSettings());
         result=tmp;
         break;
+        }
+    default:
+        abort();
     }
 
     return result;
@@ -44,8 +47,8 @@ void ModelSimRunnable::run()
 {
     //init run of one iteration
     //search for not recognized calibration parameters
-    vector<CalibrationVariable*> newcal;
-    set<CalibrationVariable*> allcalp = CalibrationEnv::getInstance()->getCalibration()->getAllCalibrationParameters();    
+    //vector<CalibrationVariable*> newcal;
+    //set<CalibrationVariable*> allcalp = CalibrationEnv::getInstance()->getCalibration()->getAllCalibrationParameters();
     //CalibrationVariable *oldvar = allcalp.begin();
 
    /* while (oldvar != allcalp.end())

@@ -33,7 +33,7 @@ Logger &Logger::operator <<(const Variable *var) {
 
         switch(var->getType())
         {
-        case Variable::CALIBRATIONVARIABLE:
+        case Domain::CALIBRATIONVARIABLE:
             sink << " CalibrationParameter[" << var->getName() << "] ";
             break;
         case Variable::OBJECTIVEFUNCTIONVARIABLE:

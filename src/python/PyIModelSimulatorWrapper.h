@@ -21,11 +21,7 @@ struct IModelSimulatorWrapper : IModelSimulator, wrapper<IModelSimulator> {
 
     virtual ~IModelSimulatorWrapper()
     {
-    }
-
-    void operator delete(void *p)
-    {
-        Py_DECREF(((IModelSimulatorWrapper*)(p))->self);
+        Py_DECREF(self);
     }
 
     bool exec(vector<CalibrationVariable*> calibrationparameters,
@@ -48,13 +44,7 @@ private:
 
 void wrapIModelSimulator()
 {
-        class_<IModelSimulator, auto_ptr<IModelSimulatorWrapper>, boost::noncopyable>("IModelSimulator")
+        class_<IModelSimulator, bases<IFunction>, auto_ptr<IModelSimulatorWrapper>, boost::noncopyable>("IModelSimulator")
                 .def("exec", pure_virtual(&IModelSimulatorWrapper::exec))
-                .def("stop", pure_virtual(&IModelSimulatorWrapper::stop))
-                .def("containsParameter", &IModelSimulator::containsParameter)
-                .def("setValueOfParameter", &IModelSimulator::setValueOfParameter)
-                .def("getDataTypes", &IModelSimulator::getDataTypes)
-                .def("getVauleOfParameter", &IModelSimulator::getValueOfParameter)
-                .def("setDataType", &IModelSimulator::setDataType)
                 ;
 }

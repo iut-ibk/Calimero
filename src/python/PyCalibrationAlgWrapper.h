@@ -21,11 +21,7 @@ struct CalibrationAlgWrapper : ICalibrationAlg, wrapper<ICalibrationAlg> {
 
     virtual ~CalibrationAlgWrapper()
     {
-    }
-
-    void operator delete(void *p)
-    {
-        Py_DECREF(((CalibrationAlgWrapper*)(p))->self);
+        Py_DECREF(self);
     }
 
     bool start()
@@ -39,13 +35,8 @@ private:
 
 void wrapCalAlgFunction()
 {
-        class_<ICalibrationAlg, auto_ptr<CalibrationAlgWrapper>, boost::noncopyable>("ICalibrationAlg")
+        class_<ICalibrationAlg, bases<IFunction>, auto_ptr<CalibrationAlgWrapper>, boost::noncopyable>("ICalibrationAlg")
                 .def("start", pure_virtual(&CalibrationAlgWrapper::start))
-                .def("containsParameter", &ICalibrationAlg::containsParameter)
-                .def("setValueOfParameter", &ICalibrationAlg::setValueOfParameter)
-                .def("getDataTypes", &ICalibrationAlg::getDataTypes)
-                .def("getVauleOfParameter", &ICalibrationAlg::getValueOfParameter)
-                .def("setDataType", &ICalibrationAlg::setDataType)
                 ;
 }
 #endif // PYCALIBRATIONALGWRAPPER_H

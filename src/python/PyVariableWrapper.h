@@ -6,21 +6,13 @@
 #include <Variable.h>
 #include <CalibrationVariable.h>
 #include <ObjectiveFunctionVariable.h>
+#include <Domain.h>
 
 using namespace boost::python;
 
 void wrapVariable()
 {
-        enum_<Variable::VARTYPE>("VARTYPE")
-                .value("CALIBRATIONVARIABLE", Variable::CALIBRATIONVARIABLE)
-                .value("OBJECTIVEFUNCTIONVARIABLE", Variable::OBJECTIVEFUNCTIONVARIABLE)
-                .value("ITERATIONVARIABLE", Variable::ITERATIONVARIABLE)
-                .value("OBSERVEDVARIABLE", Variable::OBSERVEDVARIABLE)
-                ;
-
-        class_<Variable>("Variable",init<std::string, vector<double>, Variable::VARTYPE>())
-                .def("getType",&Variable::getType)
-                .add_property("name", &Variable::getName, &Variable::setName)
+        class_<Variable, bases<Domain> >("Variable",init<std::string, vector<double>, Domain::DOMAINTYPE>())
                 .def("getValues", &Variable::getValues)
                 .def("setValues", &Variable::setValues)
                 ;

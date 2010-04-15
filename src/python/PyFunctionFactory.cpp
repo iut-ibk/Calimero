@@ -34,7 +34,10 @@ template <typename T> PyFunctionFactory<T>::~PyFunctionFactory() {
 template <typename T> T *PyFunctionFactory<T>::createFunction() const {
         try {
                 object function = priv->klass();
-                return extract<T*>(function);
+                auto_ptr<T> apf = extract<auto_ptr<T> >(function);
+                T* f = apf.get();
+                apf.release();
+                return f;
         } catch(error_already_set const &) {
                 PyErr_Print();
                 abort();

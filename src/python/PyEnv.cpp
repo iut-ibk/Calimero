@@ -9,6 +9,7 @@
 #include <PyCalibrationEnvWrapper.h>
 #include <PyIterationResultWrapper.h>
 #include <PyFunctionFactory.cpp>
+#include <PyDomainWrapper.h>
 #include <iostream>
 #include <boost/foreach.hpp>
 #include <list>
@@ -52,6 +53,14 @@ BOOST_PYTHON_MODULE(pycalimero)
         class_<std::vector<Variable*> >("variablevector")
                 .def(vector_indexing_suite<std::vector<Variable*> >());
 
+        enum_<Domain::DOMAINTYPE>("DOMAINTYPE")
+                .value("CALIBRATIONVARIABLE", Domain::CALIBRATIONVARIABLE)
+                .value("OBJECTIVEFUNCTIONVARIABLE", Domain::OBJECTIVEFUNCTIONVARIABLE)
+                .value("ITERATIONVARIABLE", Domain::ITERATIONVARIABLE)
+                .value("OBSERVEDVARIABLE", Domain::OBSERVEDVARIABLE)
+                ;
+
+        wrapDomain();
         wrapCalibrationEnv();
         wrapIFunction();
         wrapIterationResult();
@@ -59,6 +68,7 @@ BOOST_PYTHON_MODULE(pycalimero)
         wrapOFunction();
         wrapVariable();
         wrapCalAlgFunction();
+
         def("init", ::init, "must be called first\n initializes the logger");
         def("log", logdebug);
         def("log", logwithlevel);

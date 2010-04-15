@@ -21,10 +21,10 @@ private:
     set<Variable*> iterationparameters;
     set<Variable*> observedparameters;
     set<ObjectiveFunctionVariable*> objectivefunctionparameters;
-    set<set<CalibrationVariable*>* > enabledgroups;
-    set<set<CalibrationVariable*>* > disabledgroups;
-    map<std::string, set<CalibrationVariable*>* > groups;
-    vector<IterationResult*> iterationresults;
+    set<set<CalibrationVariable* >*> enabledgroups;
+    set<set<CalibrationVariable* >*> disabledgroups;
+    map<string, set<CalibrationVariable* >* > groups;
+     vector<IterationResult*> iterationresults;
     set<ObjectiveFunctionVariable*> enabledobjectivefunctionparameters;
     string alg;
     map<string,string> algsettings;

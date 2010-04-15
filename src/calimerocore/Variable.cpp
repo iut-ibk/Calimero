@@ -1,33 +1,24 @@
-#include "Variable.h"
-#include "ObjectiveFunctionVariable.h"
+#include <Variable.h>
+#include <ObjectiveFunctionVariable.h>
+#include <Domain.h>
 #include <string>
 #include <vector>
 #include <list>
 #include <boost/foreach.hpp>
+#include <assert.h>
 
 using namespace std;
 
-Variable::Variable(string Name, vector<double> value, VARTYPE TYPE)
+Variable::Variable(string Name, vector<double> value, Domain::DOMAINTYPE TYPE) : Domain(Name,TYPE)
 {
-    name = Name;
+    assert(TYPE <= 3);
     values = value;
-    type = TYPE;
 }
 
 Variable::~Variable()
 {
     BOOST_FOREACH( ObjectiveFunctionVariable* variable ,successors )
             variable->removeParameter(this);
-}
-
-string Variable::getName() const
-{
-    return name;
-}
-
-void Variable::setName(string name)
-{
-    this->name=name;
 }
 
 vector<double> Variable::getValues()
@@ -41,11 +32,6 @@ bool Variable::setValues(vector<double> value)
     values=value;
     fireUpdate();
     return true;
-}
-
-Variable::VARTYPE Variable::getType() const
-{
-    return type;
 }
 
 bool Variable::addSuccessor(ObjectiveFunctionVariable *var)

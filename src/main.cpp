@@ -21,7 +21,7 @@ int main()
 
     //Logging test
     ostream *out = &cout;
-    Log::init(new OStreamLogSink(*out),Standard);
+    Log::init(new OStreamLogSink(*out),Debug);
     Logger() << "starting";
 
     //Calibration init

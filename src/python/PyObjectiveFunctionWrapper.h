@@ -19,11 +19,7 @@ struct ObjectiveFunctionInterfaceWrapper : public IObjectiveFunction, wrapper<IO
 
     virtual ~ObjectiveFunctionInterfaceWrapper()
     {
-    }
-
-    void operator delete(void *p)
-    {
-        Py_DECREF(((ObjectiveFunctionInterfaceWrapper*)(p))->self);
+        Py_DECREF(self);
     }
 
     std::vector<double> eval(std::vector<Variable*>* iterationparameters,
@@ -39,12 +35,7 @@ private:
 
 void wrapOFunction()
 {
-        class_<IObjectiveFunction, auto_ptr<ObjectiveFunctionInterfaceWrapper>, boost::noncopyable>("IObjectiveFunction")
+        class_<IObjectiveFunction, bases<IFunction>, auto_ptr<ObjectiveFunctionInterfaceWrapper>, boost::noncopyable>("IObjectiveFunction")
                 .def("eval", pure_virtual(&ObjectiveFunctionInterfaceWrapper::eval))
-                .def("containsParameter", &IObjectiveFunction::containsParameter)
-                .def("setValueOfParameter", &IObjectiveFunction::setValueOfParameter)
-                .def("getDataTypes", &IObjectiveFunction::getDataTypes)
-                .def("getValueOfParameter", &IObjectiveFunction::getValueOfParameter)
-                .def("setDataType", &IObjectiveFunction::setDataType)
                 ;
 }

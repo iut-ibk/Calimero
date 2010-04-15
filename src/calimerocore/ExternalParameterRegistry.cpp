@@ -47,21 +47,8 @@ bool ExternalParameterRegistry::registerParameter(Variable* parameter, string te
 
     if(parameter->getType()==Variable::OBJECTIVEFUNCTIONVARIABLE)
     {
-        set<Variable*>* iterationpar = (static_cast<ObjectiveFunctionVariable*>(parameter))->getIterationParameters();
-        set<Variable*>* observedpar = (static_cast<ObjectiveFunctionVariable*>(parameter))->getObservedParameters();
-        set<ObjectiveFunctionVariable*>* objectivepar = (static_cast<ObjectiveFunctionVariable*>(parameter))->getObjectiveFunctionParameters();
-
-        set<Variable*>::const_iterator cii;
-        set<ObjectiveFunctionVariable*>::const_iterator ci;
-        for(cii=observedpar->begin(); cii!=observedpar->end(); cii++)
-            registerParameter(*cii,templatename,regfile);
-
-        for(cii=iterationpar->begin(); cii!=iterationpar->end(); cii++)
-            registerParameter(*cii,templatename,regfile);
-
-        for(ci=objectivepar->begin(); ci!=objectivepar->end(); ci++)
-            registerParameter(*ci,templatename,regfile);
-
+        Logger(Error) << "Not possible to register objective function parameter -> EXIT";
+        abort();
     }
 
     regparameters[templatename][regfile][parameter->getName()]=parameter;

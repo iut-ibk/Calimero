@@ -5,28 +5,20 @@
 #include <vector>
 #include <set>
 #include <CalimeroGlob.h>
+#include <Domain.h>
 
 using namespace std;
-
 class ObjectiveFunctionVariable;
 
-class CALIMERO_PUBLIC Variable
+class CALIMERO_PUBLIC Variable : public Domain
 {
-    public:
-        enum VARTYPE {CALIBRATIONVARIABLE, OBJECTIVEFUNCTIONVARIABLE, OBSERVEDVARIABLE, ITERATIONVARIABLE};
-
     protected:
-        string name;
-        VARTYPE type;
         set<ObjectiveFunctionVariable* > successors;
         vector<double> values;
 
     public:
-        Variable(string Name, vector<double> value, VARTYPE TYPE);
+        Variable(string Name, vector<double> value, Domain::DOMAINTYPE TYPE);
         ~Variable();
-        string getName() const;
-        VARTYPE getType() const;
-        void setName(const string name);
         virtual vector<double> getValues();
         virtual bool setValues(const vector<double> values);
         virtual bool addSuccessor(ObjectiveFunctionVariable* var);
