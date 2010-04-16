@@ -3,6 +3,7 @@
 #include <boost/foreach.hpp>
 #include <Variable.h>
 #include <ObjectiveFunctionVariable.h>
+#include <CalibrationVariable.h>
 
 Domain::Domain(){
 }
@@ -37,4 +38,28 @@ bool Domain::contains(string var)
         return false;
 
     return true;
+}
+
+Domain::Domain(const Domain &olddomain)
+{
+    std::pair<string, Variable*>p;
+    BOOST_FOREACH(p, olddomain.members)
+    {
+        const Variable *oldvar = p.second;
+        Variable *newvar;
+
+        switch(oldvar->getType())
+        {
+        case OBJECTIVEFUNCTIONVARIABLE:
+                newvar = new ObjectiveFunctionVariable(*(static_cast<const ObjectiveFunctionVariable*>(oldvar)));
+                break;
+        case CALIBRATIONVARIABLE:
+                newvar = new CalibrationVariable(*(static_cast<const CalibrationVariable*>(oldvar)));
+                break;
+        default:
+                newvar = new Variable(*oldvar);
+                break;
+        }
+        setPar(newvar);
+    }
 }

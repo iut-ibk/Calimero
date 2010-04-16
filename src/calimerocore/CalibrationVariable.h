@@ -15,6 +15,7 @@ class CALIMERO_PUBLIC CalibrationVariable : public Variable
 
     public:
         CalibrationVariable(string Name, vector<double> value);
+        CalibrationVariable(const CalibrationVariable &oldvar);
         ~CalibrationVariable();
         vector<double> getInitValues();
         void setInitValues(vector<double> value);

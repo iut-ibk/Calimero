@@ -15,6 +15,7 @@ private:
     map<string, Variable*> members;
 public:
     Domain();
+    Domain(const Domain &olddomain);
     ~Domain();
     Variable* getPar(const string &name);
     bool contains(string var);

@@ -15,6 +15,16 @@ ObjectiveFunctionVariable::ObjectiveFunctionVariable(string Name) : Variable(Nam
     function="";
 }
 
+ObjectiveFunctionVariable::ObjectiveFunctionVariable(const ObjectiveFunctionVariable &oldvar) : Variable(oldvar)
+{
+    needupdate = true;
+    function=oldvar.function;
+    functionsettings=oldvar.functionsettings;
+    iterationparameters=oldvar.iterationparameters;
+    objectivefunctionparameters=oldvar.objectivefunctionparameters;
+    observedparameters=oldvar.observedparameters;
+}
+
 ObjectiveFunctionVariable::~ObjectiveFunctionVariable()
 {
     BOOST_FOREACH(string variable, iterationparameters)

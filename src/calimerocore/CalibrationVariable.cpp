@@ -15,6 +15,14 @@ CalibrationVariable::CalibrationVariable(string Name, vector<double> values) : V
     max = 0;
 }
 
+
+CalibrationVariable::CalibrationVariable(const CalibrationVariable &oldvar) : Variable(oldvar)
+{
+    initvalues=oldvar.initvalues;
+    min = oldvar.min;
+    max = oldvar.max;
+}
+
 CalibrationVariable::~CalibrationVariable()
 {}
 

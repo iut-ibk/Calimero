@@ -16,6 +16,13 @@ Variable::Variable(string Name, vector<double> value, VARTYPE TYPE)
     values = value;
 }
 
+Variable::Variable(const Variable &oldvar)
+{
+    name=oldvar.name;
+    type=oldvar.type;
+    values=oldvar.values;
+}
+
 Variable::~Variable()
 {
     BOOST_FOREACH( string var ,successors )

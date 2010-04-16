@@ -19,6 +19,7 @@ class CALIMERO_PUBLIC ObjectiveFunctionVariable : public Variable
         std::map<string,string> functionsettings;
 
     public:
+        ObjectiveFunctionVariable(const ObjectiveFunctionVariable &oldvar);
         ObjectiveFunctionVariable(string Name);
         ~ObjectiveFunctionVariable();
         bool addParameter(const string &var);
