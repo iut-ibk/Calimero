@@ -17,13 +17,13 @@ ObjectiveFunctionVariable::ObjectiveFunctionVariable(string Name) : Variable(Nam
 
 ObjectiveFunctionVariable::~ObjectiveFunctionVariable()
 {
-    BOOST_FOREACH(Variable* variable, iterationparameters)
+    BOOST_FOREACH(string variable, iterationparameters)
             removeParameter(variable);
 
-    BOOST_FOREACH(Variable* variable, observedparameters)
+    BOOST_FOREACH(string variable, observedparameters)
             removeParameter(variable);
 
-    BOOST_FOREACH(ObjectiveFunctionVariable* variable, objectivefunctionparameters)
+    BOOST_FOREACH(string variable, objectivefunctionparameters)
             removeParameter(variable);
 }
 
@@ -39,73 +39,77 @@ bool ObjectiveFunctionVariable::parameterCycleCheck(ObjectiveFunctionVariable* v
     if(this==var)
             return false;
 
-    BOOST_FOREACH(ObjectiveFunctionVariable* variable, objectivefunctionparameters)
+    BOOST_FOREACH(string varname, objectivefunctionparameters)
+    {
+        ObjectiveFunctionVariable* variable = static_cast<ObjectiveFunctionVariable*>(domain->getPar(varname));
         if(variable==var || !variable->parameterCycleCheck(var))
             return false;
+    }
 
     return true;
 }
 
-bool ObjectiveFunctionVariable::addParameter(Variable* var)
+bool ObjectiveFunctionVariable::addParameter(const string &var)
 {
-    if(var==NULL)
-        return false;
-
     if(containsParameter(var))
         return false;
 
-    switch(var->getType())
+    if(!domain->contains(var))
+            return false;
+
+    Variable* varinstance = domain->getPar(var);
+
+    switch(varinstance->getType())
     {
-    case Variable::ITERATIONVARIABLE:
-        iterationparameters.insert(var);;
+    case ITERATIONVARIABLE:
+        iterationparameters.insert(var);
         break;
 
-    case Variable::OBSERVEDVARIABLE:
+    case OBSERVEDVARIABLE:
         observedparameters.insert(var);
         break;
 
-    case Variable::OBJECTIVEFUNCTIONVARIABLE:
-        if(!parameterCycleCheck(static_cast<ObjectiveFunctionVariable*>(var)))
-            objectivefunctionparameters.insert(static_cast<ObjectiveFunctionVariable*>(var));
+    case OBJECTIVEFUNCTIONVARIABLE:
+        if(!parameterCycleCheck(static_cast<ObjectiveFunctionVariable*>(varinstance)))
+            objectivefunctionparameters.insert(var);
         break;
 
-    case Variable::CALIBRATIONVARIABLE:
+    case CALIBRATIONVARIABLE:
         return false;
     }
 
-    var->addSuccessor(this);
+    varinstance->addSuccessor(name);
     fireUpdate();
 
     return true;
 }
 
-bool ObjectiveFunctionVariable::removeParameter(Variable* var)
+bool ObjectiveFunctionVariable::removeParameter(const string &var)
 {
-    if(var==NULL)
-        return false;
-
     if(!containsParameter(var))
             return false;
 
-    switch(var->getType())
+    Variable* varinstance = domain->getPar(var);
+
+    switch(varinstance->getType())
     {
-    case Variable::ITERATIONVARIABLE:
+    case ITERATIONVARIABLE:
         iterationparameters.erase(iterationparameters.find(var));
         break;
 
-    case Variable::OBSERVEDVARIABLE:
+    case OBSERVEDVARIABLE:
         observedparameters.erase(observedparameters.find(var));
         break;
 
-    case Variable::OBJECTIVEFUNCTIONVARIABLE:
-        objectivefunctionparameters.erase(objectivefunctionparameters.find(static_cast<ObjectiveFunctionVariable*>(var)));
+    case OBJECTIVEFUNCTIONVARIABLE:
+        objectivefunctionparameters.erase(objectivefunctionparameters.find(var));
         break;
 
-    case Variable::CALIBRATIONVARIABLE:
+    case CALIBRATIONVARIABLE:
         return false;
     }
 
-    var->removeSuccessor(this);
+    varinstance->removeSuccessor(name);
     fireUpdate();
 
     return true;
@@ -133,14 +137,14 @@ bool ObjectiveFunctionVariable::calc()
     vector<Variable*> observedvector;
     vector<ObjectiveFunctionVariable*> objectivevector;
 
-    BOOST_FOREACH(Variable *var, iterationparameters)
-        iterationvector.assign(1,var);
+    BOOST_FOREACH(string var, iterationparameters)
+        iterationvector.push_back(domain->getPar(var));
 
-    BOOST_FOREACH(Variable *var, observedparameters)
-        observedvector.assign(1,var);
+    BOOST_FOREACH(string var, observedparameters)
+        observedvector.push_back(domain->getPar(var));
 
-    BOOST_FOREACH(ObjectiveFunctionVariable *var, objectivefunctionparameters)
-        objectivevector.assign(1,var);
+    BOOST_FOREACH(string var, objectivefunctionparameters)
+        objectivevector.push_back(static_cast<ObjectiveFunctionVariable*>(domain->getPar(var)));
 
     values=tmpfunction->eval(&iterationvector,&observedvector,&objectivevector);
     delete tmpfunction;
@@ -194,35 +198,40 @@ std::string ObjectiveFunctionVariable::getObjectiveFunction()
     return function;
 }
 
-set<Variable*>* ObjectiveFunctionVariable::getIterationParameters()
+set<string> ObjectiveFunctionVariable::getIterationParameters()
 {
-    return &iterationparameters;
+    return iterationparameters;
 }
 
-set<Variable*>* ObjectiveFunctionVariable::getObservedParameters()
+set<string> ObjectiveFunctionVariable::getObservedParameters()
 {
-    return &observedparameters;
+    return observedparameters;
 }
 
-set<ObjectiveFunctionVariable*>* ObjectiveFunctionVariable::getObjectiveFunctionParameters()
+set<string> ObjectiveFunctionVariable::getObjectiveFunctionParameters()
 {
-    return &objectivefunctionparameters;
+    return objectivefunctionparameters;
 }
 
-bool ObjectiveFunctionVariable::containsParameter(Variable* var)
+bool ObjectiveFunctionVariable::containsParameter(const string &varname)
 {
+    if(!domain->contains(varname))
+        return false;
+
+    Variable* var = domain->getPar(varname);
+
     switch(var->getType())
     {
-    case Variable::ITERATIONVARIABLE:
-        return iterationparameters.find(var)!=iterationparameters.end();
+    case ITERATIONVARIABLE:
+        return iterationparameters.find(varname)!=iterationparameters.end();
 
-    case Variable::OBSERVEDVARIABLE:
-        return observedparameters.find(var)!=observedparameters.end();
+    case OBSERVEDVARIABLE:
+        return observedparameters.find(varname)!=observedparameters.end();
 
-    case Variable::OBJECTIVEFUNCTIONVARIABLE:
-        return objectivefunctionparameters.find(static_cast<ObjectiveFunctionVariable*>(var))!=objectivefunctionparameters.end();
+    case OBJECTIVEFUNCTIONVARIABLE:
+        return objectivefunctionparameters.find(varname)!=objectivefunctionparameters.end();
 
-    case Variable::CALIBRATIONVARIABLE:
+    case CALIBRATIONVARIABLE:
         return false;
     }
 

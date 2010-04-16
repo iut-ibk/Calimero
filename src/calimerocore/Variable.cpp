@@ -9,16 +9,17 @@
 
 using namespace std;
 
-Variable::Variable(string Name, vector<double> value, Domain::DOMAINTYPE TYPE) : Domain(Name,TYPE)
+Variable::Variable(string Name, vector<double> value, VARTYPE TYPE)
 {
-    assert(TYPE <= 3);
+    name=Name;
+    type=TYPE;
     values = value;
 }
 
 Variable::~Variable()
 {
-    BOOST_FOREACH( ObjectiveFunctionVariable* variable ,successors )
-            variable->removeParameter(this);
+    BOOST_FOREACH( string var ,successors )
+            static_cast<ObjectiveFunctionVariable*>(domain->getPar(var))->removeParameter(var);
 }
 
 vector<double> Variable::getValues()
@@ -34,29 +35,49 @@ bool Variable::setValues(vector<double> value)
     return true;
 }
 
-bool Variable::addSuccessor(ObjectiveFunctionVariable *var)
+bool Variable::addSuccessor(const string &var)
 {
-    if(var==NULL)
+    if(!domain->contains(var))
+        return false;
+
+    Variable *tmpvar = domain->getPar(var);
+
+    if(tmpvar->getType()!=OBJECTIVEFUNCTIONVARIABLE)
         return false;
 
     successors.insert(var);
-
     return true;
 }
 
-bool Variable::removeSuccessor(ObjectiveFunctionVariable *var)
+bool Variable::removeSuccessor(const string &var)
 {
-    if(var==NULL)
+    if(successors.find(var)==successors.end())
         return false;
 
-    successors.erase(successors.find(var));;
+    successors.erase(successors.find(var));
     return true;
 }
 
 void Variable::fireUpdate()
 {
-    BOOST_FOREACH(ObjectiveFunctionVariable* variable ,successors)
+    BOOST_FOREACH(string var ,successors)
     {
+        ObjectiveFunctionVariable* variable = static_cast<ObjectiveFunctionVariable*>(domain->getPar(var));
         variable->fireUpdate();
     }
+}
+
+string Variable::getName() const
+{
+    return name;
+}
+
+VARTYPE Variable::getType() const
+{
+    return type;
+}
+
+void Variable::setDomain(Domain* dom)
+{
+    domain=dom;
 }

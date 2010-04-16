@@ -111,19 +111,19 @@ bool Calibration::addParameter(Variable *parameter)
 
     switch(parameter->getType())
     {
-    case Variable::ITERATIONVARIABLE:
+    case ITERATIONVARIABLE:
         iterationparameters.insert(parameter);
         break;
 
-    case Variable::OBSERVEDVARIABLE:
+    case OBSERVEDVARIABLE:
         observedparameters.insert(parameter);
         break;
 
-    case Variable::OBJECTIVEFUNCTIONVARIABLE:
+    case OBJECTIVEFUNCTIONVARIABLE:
         objectivefunctionparameters.insert(static_cast<ObjectiveFunctionVariable*>(parameter));
         break;
 
-    case Variable::CALIBRATIONVARIABLE:
+    case CALIBRATIONVARIABLE:
         if(!groups.size())
             groups["default"] = new set<CalibrationVariable*>();
         calibrationparameters.insert(static_cast<CalibrationVariable*>(parameter));
@@ -145,20 +145,20 @@ bool Calibration::removeParameter(Variable *parameter)
 
     switch(parameter->getType())
     {
-    case Variable::ITERATIONVARIABLE:
+    case ITERATIONVARIABLE:
         iterationparameters.erase(iterationparameters.find(parameter));
         break;
 
-    case Variable::OBSERVEDVARIABLE:
+    case OBSERVEDVARIABLE:
         observedparameters.erase(observedparameters.find(parameter));
         break;
 
-    case Variable::OBJECTIVEFUNCTIONVARIABLE:
+    case OBJECTIVEFUNCTIONVARIABLE:
         removeEnabledOParameter(static_cast<ObjectiveFunctionVariable*>(parameter));
         objectivefunctionparameters.erase(objectivefunctionparameters.find(static_cast<ObjectiveFunctionVariable*>(parameter)));
         break;
 
-    case Variable::CALIBRATIONVARIABLE:
+    case CALIBRATIONVARIABLE:
         for( map<string, set<CalibrationVariable*>*>::iterator ii=groups.begin(); ii!=groups.end(); ++ii)
             if((*ii).second->find(static_cast<CalibrationVariable*>(parameter))!=(*ii).second->end())
                 (*ii).second->erase((*ii).second->find(static_cast<CalibrationVariable*>(parameter)));
@@ -193,16 +193,16 @@ bool Calibration::containsParameter(Variable* var)
 {
     switch(var->getType())
     {
-    case Variable::ITERATIONVARIABLE:
+    case ITERATIONVARIABLE:
         return iterationparameters.find(var)!=iterationparameters.end();
 
-    case Variable::OBSERVEDVARIABLE:
+    case OBSERVEDVARIABLE:
         return observedparameters.find(var)!=observedparameters.end();
 
-    case Variable::OBJECTIVEFUNCTIONVARIABLE:
+    case OBJECTIVEFUNCTIONVARIABLE:
         return objectivefunctionparameters.find(static_cast<ObjectiveFunctionVariable*>(var))!=objectivefunctionparameters.end();
 
-    case Variable::CALIBRATIONVARIABLE:
+    case CALIBRATIONVARIABLE:
         return calibrationparameters.find(static_cast<CalibrationVariable*>(var))!=calibrationparameters.end();
     }
 

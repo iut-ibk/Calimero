@@ -19,16 +19,16 @@ Variable* ModelSimRunnable::cloneParameter(Variable* old)
 
     switch(old->getType())
     {
-    case Variable::ITERATIONVARIABLE:
+    case ITERATIONVARIABLE:
         result = new Variable(old->getName(),old->getValues(),old->getType());
         break;
-    case Variable::CALIBRATIONVARIABLE:
+    case CALIBRATIONVARIABLE:
         result = new CalibrationVariable(old->getName(), old->getValues());
         break;
-    case Variable::OBSERVEDVARIABLE:
+    case OBSERVEDVARIABLE:
         result = new Variable(old->getName(),old->getValues(),old->getType());
         break;
-    case Variable::OBJECTIVEFUNCTIONVARIABLE:{
+    case OBJECTIVEFUNCTIONVARIABLE:{
         ObjectiveFunctionVariable *tmp = new ObjectiveFunctionVariable(old->getName());
         tmp->setObjectiveFunction(dynamic_cast<ObjectiveFunctionVariable*>(old)->getObjectiveFunction(),
                                   dynamic_cast<ObjectiveFunctionVariable*>(old)->getObjectiveFunctionSettings());

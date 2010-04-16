@@ -12,24 +12,33 @@ using namespace boost::python;
 
 void wrapVariable()
 {
-        class_<Variable, bases<Domain> >("Variable",init<std::string, vector<double>, Domain::DOMAINTYPE>())
-                .def("getValues", &Variable::getValues)
-                .def("setValues", &Variable::setValues)
-                ;
+    enum_<VARTYPE>("VARTYPE")
+        .value("CALIBRATIONVARIABLE", CALIBRATIONVARIABLE)
+        .value("OBJECTIVEFUNCTIONVARIABLE", OBJECTIVEFUNCTIONVARIABLE)
+        .value("ITERATIONVARIABLE", ITERATIONVARIABLE)
+        .value("OBSERVEDVARIABLE", OBSERVEDVARIABLE)
+        ;
 
-        class_<CalibrationVariable, bases<Variable> >("CalibrationVariable", init<std::string, vector<double> >())
-                .def("getInitValues", &CalibrationVariable::getInitValues)
-                .def("setInitValues", &CalibrationVariable::setInitValues)
-                .add_property("max", &CalibrationVariable::getMax, &CalibrationVariable::setMax)
-                .add_property("min", &CalibrationVariable::getMin, &CalibrationVariable::setMin)
-                ;
+    class_<Variable >("Variable",init<std::string, vector<double>, VARTYPE>())
+        .def("getValues", &Variable::getValues)
+        .def("setValues", &Variable::setValues)
+        .def("getName", &Variable::getName)
+        .def("getType", &Variable::getType)
+        ;
 
-        class_<ObjectiveFunctionVariable, bases<Variable> >("ObjectiveFunctionVariable", init<std::string>())
-                .def("addParameter", &ObjectiveFunctionVariable::addParameter)
-                .def("removeParameter", &ObjectiveFunctionVariable::removeParameter)
-                .def("getObjectiveFunction", &ObjectiveFunctionVariable::getObjectiveFunction)
-                .def("setObjectiveFunction", &ObjectiveFunctionVariable::setObjectiveFunction)
-                ;
+    class_<CalibrationVariable, bases<Variable> >("CalibrationVariable", init<std::string, vector<double> >())
+        .def("getInitValues", &CalibrationVariable::getInitValues)
+        .def("setInitValues", &CalibrationVariable::setInitValues)
+        .add_property("max", &CalibrationVariable::getMax, &CalibrationVariable::setMax)
+        .add_property("min", &CalibrationVariable::getMin, &CalibrationVariable::setMin)
+        ;
+
+    class_<ObjectiveFunctionVariable, bases<Variable> >("ObjectiveFunctionVariable", init<std::string>())
+        .def("addParameter", &ObjectiveFunctionVariable::addParameter)
+        .def("removeParameter", &ObjectiveFunctionVariable::removeParameter)
+        .def("getObjectiveFunction", &ObjectiveFunctionVariable::getObjectiveFunction)
+        .def("setObjectiveFunction", &ObjectiveFunctionVariable::setObjectiveFunction)
+        ;
 }
 
 

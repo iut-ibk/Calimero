@@ -45,7 +45,7 @@ bool ExternalParameterRegistry::registerParameter(Variable* parameter, string te
     if(containsParameter(parameter,templatename,regfile))
         return false;
 
-    if(parameter->getType()==Variable::OBJECTIVEFUNCTIONVARIABLE)
+    if(parameter->getType()==OBJECTIVEFUNCTIONVARIABLE)
     {
         Logger(Error) << "Not possible to register objective function parameter -> EXIT";
         abort();

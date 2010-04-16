@@ -33,16 +33,16 @@ Logger &Logger::operator <<(const Variable *var) {
 
         switch(var->getType())
         {
-        case Domain::CALIBRATIONVARIABLE:
+        case CALIBRATIONVARIABLE:
             sink << " CalibrationParameter[" << var->getName() << "] ";
             break;
-        case Variable::OBJECTIVEFUNCTIONVARIABLE:
+        case OBJECTIVEFUNCTIONVARIABLE:
             sink << " ObjectiveFunctionParameter[" << var->getName() << "] ";
             break;
-        case Variable::OBSERVEDVARIABLE:
+        case OBSERVEDVARIABLE:
             sink << " ObservedParameter[" << var->getName() << "] ";
             break;
-        case Variable::ITERATIONVARIABLE:
+        case ITERATIONVARIABLE:
             sink << " IterationParameter[" << var->getName() << "] ";
             break;
         }

@@ -21,7 +21,7 @@ int main()
 
     //Logging test
     ostream *out = &cout;
-    Log::init(new OStreamLogSink(*out),Debug);
+    Log::init(new OStreamLogSink(*out),Standard);
     Logger() << "starting";
 
     //Calibration init
@@ -63,6 +63,7 @@ int main()
         Logger(Debug) << "Registry test FAILED";
 
     objectf.setObjectiveFunction("TestOFunction",map<string,string>());
+    /*
     objectf2.addParameter(&objectf);
     objectf3.addParameter(&objectf2);
     objectf4.addParameter(&objectf3);
@@ -70,7 +71,7 @@ int main()
     ObjectiveFunctionVariable *pvar = new ObjectiveFunctionVariable("pvar");
     pvar->addParameter(&objectf5);
     objectf6.addParameter(pvar);
-    Variable var2("inputvar",vector<double>(4,4),Variable::ITERATIONVARIABLE);
+    Variable var2("inputvar",vector<double>(4,4),ITERATIONVARIABLE);
     objectf.addParameter(&var2);
     objectf.removeParameter(&var2);
     objectf.getValues();
@@ -81,12 +82,13 @@ int main()
     objectf6.getValues();
     objectf5.getValues();
     objectf6.getValues();
-    Variable *nvar = new Variable("nvar",vector<double>(2,2),Variable::ITERATIONVARIABLE);
+    Variable *nvar = new Variable("nvar",vector<double>(2,2),ITERATIONVARIABLE);
     objectf6.addParameter(nvar);
     objectf.addParameter(nvar);
     delete nvar;
     delete pvar;
     objectf6.getValues();
+    */
 
     //calibration test
     Calibration *testcali = new Calibration();

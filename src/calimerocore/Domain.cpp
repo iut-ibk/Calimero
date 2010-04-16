@@ -2,76 +2,39 @@
 #include <Logger.h>
 #include <boost/foreach.hpp>
 #include <Variable.h>
+#include <ObjectiveFunctionVariable.h>
 
-Domain::Domain(string name, DOMAINTYPE type)
-{
-    superdomain=0;
-    this->name=name;
-    this->type=type;
+Domain::Domain(){
 }
 
 Domain::~Domain()
 {
-    if(superdomain!=0)
-        superdomain->removeSubDomain(this);
-
-    std::pair<string,Domain*> p;
+    std::pair<string,Variable*> p;
     BOOST_FOREACH(p,members)
             delete p.second;
 }
 
-string Domain::getName() const
+void Domain::setPar(Variable* var)
 {
-    return name;
+    if(contains(var->getName()))
+        delete members[var->getName()];
+
+    members[var->getName()]=var;
+    var->setDomain(this);
 }
 
-Domain::DOMAINTYPE Domain::getType() const
-{
-    return type;
-}
-
-void Domain::setSuperDomain(Domain *super)
-{
-    if(!super->addSubDomain(this))
-        Logger(Error) << "Domain conflict with [" << getName() << "] in [" << super->getName() << "]";
-}
-
-bool Domain::setParameter(Variable* var)
-{
-    return addSubDomain(var);
-}
-
-Variable* Domain::getParameter(const string &name)
+Variable* Domain::getPar(const string &name)
 {
     if(members.find(name)!=members.end())
-        if(members[name]->getType() < 4)
-            return (Variable*)members[name];
-
-    if(superdomain!=0)
-        return superdomain->getParameter(name);
+            return members[name];
 
     return 0;
 }
 
 bool Domain::contains(string var)
 {
-    if(!getParameter(var))
+    if(!getPar(var))
         return false;
 
     return true;
-}
-
-bool Domain::addSubDomain(Domain *sub)
-{
-    if(members.find(sub->getName())==members.end())
-        return false;
-
-    members[sub->getName()]=sub;
-    return true;
-}
-
-void Domain::removeSubDomain(Domain *sub)
-{
-    if(members.find(sub->getName())!=members.end())
-        members.erase(members.find(sub->getName()));
 }
