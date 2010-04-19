@@ -24,9 +24,9 @@ struct CalibrationAlgWrapper : ICalibrationAlg, wrapper<ICalibrationAlg> {
         Py_DECREF(self);
     }
 
-    bool start()
+    bool start(vector<CalibrationVariable*> calibrationpars, vector<ObjectiveFunctionVariable*> opars, CalibrationEnv *env, Calibration *calibration)
     {
-        return call_method<bool>(self, "start");
+        return call_method<bool>(self, "start", calibrationpars, opars, env, calibration);
     }
 
 private:

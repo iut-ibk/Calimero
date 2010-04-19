@@ -15,6 +15,7 @@ void wrapIterationResult()
                 .def("getObservedParameterResults" , &IterationResult::getObservedParameterResults)
                 .def("getCalibrationParameterResults" , &IterationResult::getCalibrationParameterResults)
                 .def("getObjectiveFunctionParameterResults" , &IterationResult::getObjectiveFunctionParameterResults)
+                .def("getIterationNumber", &IterationResult::getIterationNumber)
                 ;
 }
 

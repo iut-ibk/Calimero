@@ -3,6 +3,7 @@
 
 #include <CalimeroGlob.h>
 #include <map>
+#include <boost/foreach.hpp>
 #include <string>
 #include <list>
 #include <IFunctionFactory.h>
@@ -11,6 +12,7 @@
 #include <QString>
 #include <IFunction.h>
 #include <boost/noncopyable.hpp>
+#include <vector>
 
 using namespace std;
 
@@ -18,7 +20,7 @@ class IFunctionFactory;
 
 template <typename T> class Registry;
 
-template <typename T> class Registry : private boost::noncopyable
+template <typename T> class Registry
 {
     typedef void (*regProto) (Registry<T> *reg);
     typedef map<string, IFunctionFactory*> factorymap;
@@ -35,6 +37,7 @@ template <typename T> class Registry : private boost::noncopyable
         T* getFunction(string name);
         map<string,DATATYPE> getSettingTypes(string name);
         bool contains(string name);
+        vector<string> getAvailableFunctions();
 };
 
 template <typename T> Registry<T>::Registry()
@@ -82,7 +85,7 @@ template <typename T> map<string,DATATYPE> Registry<T>::getSettingTypes(string n
         abort();
 
     T* fun = getFunction(name);
-    map<string,string> result = ((IFunction*)fun)->getDataTypes();
+    map<string,DATATYPE> result = ((IFunction*)fun)->getDataTypes();
     delete fun;
     return result;
 }
@@ -134,6 +137,15 @@ template <typename T> void Registry<T>::addNativePlugin(const std::string &plugi
 template <typename T> IFUNCTIONTYPE Registry<T>::getType()
 {
     return type;
-};
+}
+
+template <typename T > vector<string> Registry<T>::getAvailableFunctions()
+{
+    vector<string> result;
+    std::pair<string,IFunctionFactory*> p;
+    BOOST_FOREACH(p, registered_factories)
+        result.push_back(p.first);
+    return result;
+}
 
 #endif // OFUNCTIONREG_H

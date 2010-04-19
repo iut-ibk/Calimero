@@ -9,7 +9,7 @@ TestCalibrationAlg::~TestCalibrationAlg()
 {
 }
 
-bool TestCalibrationAlg::start()
+bool TestCalibrationAlg::start(vector<CalibrationVariable*> calibrationpars, vector<ObjectiveFunctionVariable*> opars, CalibrationEnv *env, Calibration *calibration)
 {
     Logger(Debug) << "start called in native class \"TestCalibrationAlg\"";
     return true;

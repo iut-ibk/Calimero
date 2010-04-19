@@ -12,28 +12,26 @@
 #include <Registry.h>
 #include <IModelSimulator.h>
 #include <ICalibrationAlg.h>
+#include <Domain.h>
 
 class CALIMERO_PUBLIC Calibration
 {
 
 private:
-    set<CalibrationVariable*> calibrationparameters;
-    set<Variable*> iterationparameters;
-    set<Variable*> observedparameters;
-    set<ObjectiveFunctionVariable*> objectivefunctionparameters;
-    set<set<CalibrationVariable* >*> enabledgroups;
-    set<set<CalibrationVariable* >*> disabledgroups;
-    map<string, set<CalibrationVariable* >* > groups;
-     vector<IterationResult*> iterationresults;
-    set<ObjectiveFunctionVariable*> enabledobjectivefunctionparameters;
+    set<string> calibrationparameters;
+    set<string> iterationparameters;
+    set<string> observedparameters;
+    set<string> objectivefunctionparameters;
+    map<string, bool> enabledgroups;
+    map<string, bool> disabledgroups;
+    map<string, set<string>* > groups;
+    map<int,IterationResult*> iterationresults;
+    set<string> enabledobjectivefunctionparameters;
     string alg;
     map<string,string> algsettings;
     string simulator;
     map<string,string> modelsimulatorsettings;
-
-private:
-    vector<CalibrationVariable*> evalCalibrationParameters();
-    vector<ObjectiveFunctionVariable*> evalObjectiveParameters();
+    Domain *domain;
 
 public:
     //create
@@ -44,22 +42,22 @@ public:
     bool setCalibrationAlg(string ca, map<string,string> settings);
     bool setModelSimulator(string ms, map<string,string> settings);
     bool addParameter(Variable *parameter);
-    bool removeParameter(Variable *parameter);
-    bool addGroup(std::string name);
-    bool removeGroup(std::string name);
-    bool addParameterToGroup(CalibrationVariable* var, std::string groupname);
-    bool removeParameterFromGroup(CalibrationVariable* var, std::string groupname);
-    bool addEnabledGroup(std::string groupname);
-    bool removeEnabledGroup(std::string groupname);
-    bool addDisabledGroup(std::string groupname);
-    bool removeDisableGroup(std::string groupname);
-    bool addEnabledOParameter(ObjectiveFunctionVariable* parameter);
-    bool removeEnabledOParameter(ObjectiveFunctionVariable* parameter);
+    bool removeParameter(string parameter);
+    bool addGroup(string name);
+    bool removeGroup(string name);
+    bool addParameterToGroup(string var, string groupname);
+    bool removeParameterFromGroup(string var, string groupname);
+    bool addEnabledGroup(string groupname);
+    bool removeEnabledGroup(string groupname);
+    bool addDisabledGroup(string groupname);
+    bool removeDisabledGroup(string groupname);
+    bool addEnabledOParameter(string parameter);
+    bool removeEnabledOParameter(string parameter);
     IterationResult* newIterationResult();
 
     //contains
     bool containsGroup(std::string groupname);
-    bool containsParameter(Variable *var);
+    bool containsParameter(string var);
 
     //getter
     int getNumOfComplete();
@@ -67,8 +65,11 @@ public:
     string getModelSimulator();
     map<string,string> getCalibrationAlgSettings();
     map<string,string> getModelSimulatorSettings();
-    vector<IterationResult*> getIterationResult();
-    set<CalibrationVariable*> getAllCalibrationParameters();
+    map<int,IterationResult*> getIterationResults();
+    set<string> getAllCalibrationParameters();
+    Domain* getDomain();
+    set<string> evalCalibrationParameters();
+    set<string> evalObjectiveFunctionParameters();
 
     //destroy
     void clear();

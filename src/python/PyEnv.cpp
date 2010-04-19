@@ -8,7 +8,9 @@
 #include <PyIModelSimulatorWrapper.h>
 #include <PyCalibrationEnvWrapper.h>
 #include <PyIterationResultWrapper.h>
+#include <PyRegistryWrapper.h>
 #include <PyFunctionFactory.cpp>
+#include <PyCalibrationWrapper.h>
 #include <PyDomainWrapper.h>
 #include <iostream>
 #include <boost/foreach.hpp>
@@ -22,6 +24,7 @@
 #include <Logger.h>
 #include <PyIFunctionWrapper.h>
 #include <boost/python/scope.hpp>
+#include <IterationResult.h>
 
 using namespace boost::python;
 
@@ -53,6 +56,15 @@ BOOST_PYTHON_MODULE(pycalimero)
         class_<std::vector<Variable*> >("variablevector")
                 .def(vector_indexing_suite<std::vector<Variable*> >());
 
+        class_<std::map<string,string> >("stringmap")
+                .def(map_indexing_suite<std::map<string,string> >());
+
+        class_<std::map<int,IterationResult*> >("iterationresultmap")
+                .def(map_indexing_suite<std::map<int,boost::shared_ptr<IterationResult> > >());
+
+        class_<std::map<int,DATATYPE> >("datatypemap")
+                .def(map_indexing_suite<std::map<int, DATATYPE> >());
+
         wrapDomain();
         wrapCalibrationEnv();
         wrapIFunction();
@@ -61,6 +73,9 @@ BOOST_PYTHON_MODULE(pycalimero)
         wrapOFunction();
         wrapVariable();
         wrapCalAlgFunction();
+        wrapCalibration();
+        wrapRegistry();
+        wrapPyEnv();
 
         def("init", ::init, "must be called first\n initializes the logger");
         def("log", logdebug);
@@ -139,6 +154,33 @@ void PyEnv::registerFunctions(Registry<IObjectiveFunction> *registry, const stri
            abort();
    }
 }
+
+void PyEnv::registerFunctions(Registry<IModelSimulator> *registry, const string &module)
+{
+    boost::format fmt("import sys\n"
+                      "import pycalimero\n"
+                      "import %1%\n"
+                      "clss = pycalimero.IModelSimulator.__subclasses__()\n");
+
+   fmt % module;
+
+   try {
+           exec(fmt.str().c_str(), priv->main_namespace, priv->main_namespace);
+           object clss = priv->main_namespace["clss"];
+           int numn = 0;
+
+           for (int i = 0; i < len(clss); i++)
+           {
+                   registry->registerFunction(new PyFunctionFactory<ICalibrationAlg>(clss[i]));
+                   numn++;
+           }
+
+   } catch(error_already_set const &) {
+           PyErr_Print();
+           abort();
+   }
+}
+
 
 void PyEnv::registerFunctions(Registry<ICalibrationAlg> *registry, const string &module)
 {

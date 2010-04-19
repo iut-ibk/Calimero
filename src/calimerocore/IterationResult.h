@@ -29,6 +29,7 @@ public:
     void setObservedParameterResults(vector<Variable*> *results);
     void setIterationParameterResults(vector<Variable*> *results);
     bool isComplete();
+    int getIterationNumber();
     vector<double> getIterationParameterResults(string name);
     vector<double> getObservedParameterResults(string name);
     vector<double> getCalibrationParameterResults(string name);

@@ -12,6 +12,7 @@ void wrapDomain()
                          with_custodian_and_ward<1, 2> >())
             .def("contains", &Domain::contains)
             .def("setPar", &Domain::setPar)
+            .def("removePar", &Domain::removePar)
             ;
 }
 

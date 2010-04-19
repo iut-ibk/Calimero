@@ -20,6 +20,7 @@ public:
     Variable* getPar(const string &name);
     bool contains(string var);
     void setPar(Variable* var);
+    bool removePar(const string &name);
 };
 
 #endif // DOMAIN_H

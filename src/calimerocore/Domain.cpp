@@ -20,8 +20,23 @@ void Domain::setPar(Variable* var)
     if(contains(var->getName()))
         delete members[var->getName()];
 
-    members[var->getName()]=var;
-    var->setDomain(this);
+    Variable *newvar;
+
+    switch(var->getType())
+    {
+    case OBJECTIVEFUNCTIONVARIABLE:
+            newvar = new ObjectiveFunctionVariable(*(static_cast<const ObjectiveFunctionVariable*>(var)));
+            break;
+    case CALIBRATIONVARIABLE:
+            newvar = new CalibrationVariable(*(static_cast<const CalibrationVariable*>(var)));
+            break;
+    default:
+            newvar = new Variable(*var);
+            break;
+    }
+
+    members[var->getName()]=newvar;
+    newvar->setDomain(this);
 }
 
 Variable* Domain::getPar(const string &name)
@@ -30,6 +45,17 @@ Variable* Domain::getPar(const string &name)
             return members[name];
 
     return 0;
+}
+
+bool Domain::removePar(const string &name)
+{
+    if(!contains(name))
+        return false;
+
+    Variable *var  = getPar(name);
+    members.erase(members.find(name));
+    delete var;
+    return true;
 }
 
 bool Domain::contains(string var)

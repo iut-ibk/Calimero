@@ -35,6 +35,9 @@ public:
     Registry<IObjectiveFunction>* getObjectiveFunctionReg();
     Registry<IModelSimulator>* getModelSimulatorReg();
     Registry<ICalibrationAlg>* getCalibrationAlgReg();
+    vector<string> getAvailableObjectiveFunctions();
+    vector<string> getAvailableModelSimulators();
+    vector<string> getAvailableCalibrationAlgs();
 
     //calibration-settings
     bool setCalibration(Calibration *cal);

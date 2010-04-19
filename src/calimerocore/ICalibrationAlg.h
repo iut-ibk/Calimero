@@ -4,6 +4,11 @@
 #include <CalimeroGlob.h>
 #include <IFunction.h>
 #include <Logger.h>
+#include <CalibrationVariable.h>
+#include <ObjectiveFunctionVariable.h>
+
+class CalibrationEnv;
+class Calibration;
 
 #define CALIMERO_DECLARE_CALFUNCTION(function)  \
 class CALIMERO_PUBLIC function : public ICalibrationAlg { \
@@ -28,7 +33,7 @@ class CALIMERO_PUBLIC ICalibrationAlg : public IFunction
         };
 
         virtual ~ICalibrationAlg(){}
-        virtual bool start() = 0;
+        virtual bool start(vector<CalibrationVariable*> calibrationpars, vector<ObjectiveFunctionVariable*> opars, CalibrationEnv *env, Calibration *calibration) = 0;
 };
 
 

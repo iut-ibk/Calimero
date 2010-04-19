@@ -7,42 +7,42 @@
 #include <boost/foreach.hpp>
 #include <Registry.h>
 #include <CalibrationEnv.h>
+#include <Domain.h>
 
 Calibration::Calibration()
 {
     alg = "";
+    domain = new Domain();
 }
 
 Calibration::~Calibration()
 {
     clear();
+    delete domain;
 }
 
 void Calibration::clear()
 {
     alg="";
 
-    set<Variable*>tmpiterationp=iterationparameters;
-    BOOST_FOREACH(Variable* variable, tmpiterationp)
-            removeParameter(variable);
-
-    set<Variable*>tmpobservedp=observedparameters;
-    BOOST_FOREACH(Variable* variable, tmpobservedp)
-            removeParameter(variable);
-
-    set<ObjectiveFunctionVariable*>tmpobjectivefunctionp=objectivefunctionparameters;
-    BOOST_FOREACH(ObjectiveFunctionVariable* variable, tmpobjectivefunctionp)
-            removeParameter(variable);
-
-    set<CalibrationVariable*>tmpcalibrationp=calibrationparameters;
-    BOOST_FOREACH(CalibrationVariable* variable, tmpcalibrationp)
-            removeParameter(variable);
-
-    map<string, set<CalibrationVariable*>*>tmpgroups=groups;
-    for( map<string, set<CalibrationVariable*>*>::iterator ii=tmpgroups.begin(); ii!=tmpgroups.end(); ++ii)
-           delete (*ii).second;
+    delete domain;
+    domain = new Domain();
 
     clearIterationResults();
+
+    std::pair<string, set<string>* >p;
+    BOOST_FOREACH(p,groups)
+            delete p.second;
+
+    calibrationparameters.clear();
+    iterationparameters.clear();
+    observedparameters.clear();
+    objectivefunctionparameters.clear();
+    enabledgroups.clear();
+    disabledgroups.clear();
+    enabledobjectivefunctionparameters.clear();
+    algsettings.clear();
+    modelsimulatorsettings.clear();
 }
 
 bool Calibration::setCalibrationAlg(string ca, map<string,string>  settings)
@@ -103,70 +103,76 @@ string Calibration::getModelSimulator()
 
 bool Calibration::addParameter(Variable *parameter)
 {
-    if(parameter==NULL)
-        return false;
+    string parname = parameter->getName();
 
-    if(containsParameter(parameter))
+    if(domain->contains(parname))
+    {
+        Logger(Error) << parameter << " already registered in calibration domain";
         return false;
+    }
 
     switch(parameter->getType())
     {
     case ITERATIONVARIABLE:
-        iterationparameters.insert(parameter);
+        iterationparameters.insert(parname);
         break;
 
     case OBSERVEDVARIABLE:
-        observedparameters.insert(parameter);
+        observedparameters.insert(parname);
         break;
 
     case OBJECTIVEFUNCTIONVARIABLE:
-        objectivefunctionparameters.insert(static_cast<ObjectiveFunctionVariable*>(parameter));
+        objectivefunctionparameters.insert(parname);
         break;
 
     case CALIBRATIONVARIABLE:
         if(!groups.size())
-            groups["default"] = new set<CalibrationVariable*>();
-        calibrationparameters.insert(static_cast<CalibrationVariable*>(parameter));
-        groups["default"]->insert(static_cast<CalibrationVariable*>(parameter));
-        return false;
+            groups["default"] = new set<string>();
+        calibrationparameters.insert(parname);
+        groups["default"]->insert(parname);
     }
 
+    domain->setPar(parameter);
     Logger(Debug) << parameter << " registered for calibration";
     return true;
 }
 
-bool Calibration::removeParameter(Variable *parameter)
+bool Calibration::removeParameter(string parname)
 {
-    if(parameter==NULL)
+    if(!domain->contains(parname))
         return false;
 
-    if(!containsParameter(parameter))
-        return false;
+    Variable * parameter = domain->getPar(parname);
 
     switch(parameter->getType())
     {
     case ITERATIONVARIABLE:
-        iterationparameters.erase(iterationparameters.find(parameter));
+        iterationparameters.erase(iterationparameters.find(parname));
         break;
 
     case OBSERVEDVARIABLE:
-        observedparameters.erase(observedparameters.find(parameter));
+        observedparameters.erase(observedparameters.find(parname));
         break;
 
     case OBJECTIVEFUNCTIONVARIABLE:
-        removeEnabledOParameter(static_cast<ObjectiveFunctionVariable*>(parameter));
-        objectivefunctionparameters.erase(objectivefunctionparameters.find(static_cast<ObjectiveFunctionVariable*>(parameter)));
+        removeEnabledOParameter(parname);
+        objectivefunctionparameters.erase(objectivefunctionparameters.find(parname));
         break;
 
     case CALIBRATIONVARIABLE:
-        for( map<string, set<CalibrationVariable*>*>::iterator ii=groups.begin(); ii!=groups.end(); ++ii)
-            if((*ii).second->find(static_cast<CalibrationVariable*>(parameter))!=(*ii).second->end())
-                (*ii).second->erase((*ii).second->find(static_cast<CalibrationVariable*>(parameter)));
+        {
+            std::pair<string, set<string>* >p;
+            BOOST_FOREACH(p,groups)
+                    if(p.second->find(parname)!=p.second->end())
+                        p.second->erase(p.second->find(parname));
 
-        calibrationparameters.erase(calibrationparameters.find(static_cast<CalibrationVariable*>(parameter)));
+        calibrationparameters.erase(calibrationparameters.find(parname));
+        }
     }
 
-    Logger(Debug) << parameter << " removed from registered calibration";
+    domain->removePar(parname);
+
+    Logger(Debug) << "[" << parname << "] removed from registered calibration";
     return true;
 }
 
@@ -175,7 +181,9 @@ bool Calibration::addGroup(std::string name)
     if(groups.find(name)==groups.end())
         return false;
 
-    groups[name] = new set<CalibrationVariable*>();
+    groups[name] = new set<string>();
+    enabledgroups[name]=false;
+    disabledgroups[name]=false;
     return true;
 }
 
@@ -185,28 +193,15 @@ bool Calibration::removeGroup(std::string name)
         return false;
 
     delete groups[name];
+    enabledgroups.erase(name);
+    disabledgroups.erase(name);
     groups.erase (groups.find(name));
     return true;
 }
 
-bool Calibration::containsParameter(Variable* var)
+bool Calibration::containsParameter(string var)
 {
-    switch(var->getType())
-    {
-    case ITERATIONVARIABLE:
-        return iterationparameters.find(var)!=iterationparameters.end();
-
-    case OBSERVEDVARIABLE:
-        return observedparameters.find(var)!=observedparameters.end();
-
-    case OBJECTIVEFUNCTIONVARIABLE:
-        return objectivefunctionparameters.find(static_cast<ObjectiveFunctionVariable*>(var))!=objectivefunctionparameters.end();
-
-    case CALIBRATIONVARIABLE:
-        return calibrationparameters.find(static_cast<CalibrationVariable*>(var))!=calibrationparameters.end();
-    }
-
-    return false;
+    return domain->contains(var);
 }
 
 bool Calibration::containsGroup(std::string groupname)
@@ -214,21 +209,29 @@ bool Calibration::containsGroup(std::string groupname)
     return groups.find(groupname)!=groups.end();
 }
 
-bool Calibration::addParameterToGroup(CalibrationVariable* var, std::string groupname)
+bool Calibration::addParameterToGroup(string var, std::string groupname)
 {
-    if(!var)
+    if(!containsParameter(var))
         return false;
 
     if(!containsGroup(groupname))
+        return false;
+
+    Variable *tmpvar = domain->getPar(var);
+    if(tmpvar->getType()!=CALIBRATIONVARIABLE)
         return false;
 
     groups[groupname]->insert(var);
     return true;
 }
 
-bool Calibration::removeParameterFromGroup(CalibrationVariable* var, std::string groupname)
+bool Calibration::removeParameterFromGroup(string var, std::string groupname)
 {
     if(!containsGroup(groupname) || !containsParameter(var))
+        return false;
+
+    Variable *tmpvar = domain->getPar(var);
+    if(tmpvar->getType()!=CALIBRATIONVARIABLE)
         return false;
 
     groups[groupname]->erase(groups[groupname]->find(var));
@@ -240,7 +243,7 @@ bool Calibration::addEnabledGroup(std::string groupname)
     if(!containsGroup(groupname))
         return false;
 
-    enabledgroups.insert(groups[groupname]);
+    enabledgroups[groupname]=true;
     return true;
 }
 
@@ -249,10 +252,8 @@ bool Calibration::removeEnabledGroup(std::string groupname)
     if(!containsGroup(groupname))
         return false;
 
-    if(enabledgroups.find(groups[groupname])==enabledgroups.end())
-        return false;
+    enabledgroups[groupname]=false;
 
-    enabledgroups.erase(enabledgroups.find(groups[groupname]));
     return true;
 }
 
@@ -261,34 +262,41 @@ bool Calibration::addDisabledGroup(std::string groupname)
     if(!containsGroup(groupname))
         return false;
 
-    disabledgroups.insert(groups[groupname]);
+    disabledgroups[groupname]=true;
     return true;
 }
 
-bool Calibration::removeDisableGroup(std::string groupname)
+bool Calibration::removeDisabledGroup(std::string groupname)
 {
     if(!containsGroup(groupname))
         return false;
 
-    if(disabledgroups.find(groups[groupname])==disabledgroups.end())
-        return false;
+    disabledgroups[groupname]=false;
 
-    disabledgroups.erase(disabledgroups.find(groups[groupname]));
     return true;
 }
 
-bool Calibration::addEnabledOParameter(ObjectiveFunctionVariable* parameter)
+bool Calibration::addEnabledOParameter(string parameter)
 {
     if(!containsParameter(parameter))
         return false;
+
+    Variable *tmpvar = domain->getPar(parameter);
+    if(tmpvar->getType()!=OBJECTIVEFUNCTIONVARIABLE)
+        return false;
+
 
     enabledobjectivefunctionparameters.insert(parameter);
     return true;
 }
 
-bool Calibration::removeEnabledOParameter(ObjectiveFunctionVariable* parameter)
+bool Calibration::removeEnabledOParameter(string parameter)
 {
     if(!containsParameter(parameter))
+        return false;
+
+    Variable *tmpvar = domain->getPar(parameter);
+    if(tmpvar->getType()!=OBJECTIVEFUNCTIONVARIABLE)
         return false;
 
     if(enabledobjectivefunctionparameters.find(parameter)==enabledobjectivefunctionparameters.end())
@@ -298,64 +306,50 @@ bool Calibration::removeEnabledOParameter(ObjectiveFunctionVariable* parameter)
     return true;
 }
 
-vector<CalibrationVariable*> Calibration::evalCalibrationParameters()
+set<string> Calibration::evalCalibrationParameters()
 {
-    set<CalibrationVariable*> tmp;
+    set<string> tmp;
 
     //add all enabled parameters
-    BOOST_FOREACH(set<CalibrationVariable* > *tmpset, enabledgroups)
-             BOOST_FOREACH(CalibrationVariable *tmpvar, *tmpset)
-                tmp.insert(tmpvar);
+    std::pair<string, bool> p;
+    BOOST_FOREACH(p, enabledgroups)
+            if(p.second)
+            {
+                for (set<string>::const_iterator it = groups[p.first]->begin(); it != groups[p.first]->end(); ++it)
+                    tmp.insert(*it);
+             }
 
     //remove all disabled parameters
-    BOOST_FOREACH(set<CalibrationVariable* > *tmpset, disabledgroups)
-             BOOST_FOREACH(CalibrationVariable *tmpvar, *tmpset)
-                if(tmp.find(tmpvar)!=tmp.end())
-                    tmp.erase(tmp.find(tmpvar));
+    BOOST_FOREACH(p, disabledgroups)
+            if(!p.second)
+            {
+                for (set<string>::const_iterator it = groups[p.first]->begin(); it != groups[p.first]->end(); ++it)
+                    tmp.erase(tmp.find(*it));
+            }
 
-    //extract result
-    vector<CalibrationVariable*> result;
-
-    BOOST_FOREACH(CalibrationVariable* var, tmp)
-            result.assign(1,var);
-
-    return result;
-}
-
-vector<ObjectiveFunctionVariable*> Calibration::evalObjectiveParameters()
-{
-    vector<ObjectiveFunctionVariable*> result;
-
-    BOOST_FOREACH(ObjectiveFunctionVariable* var, enabledobjectivefunctionparameters)
-            result.assign(1,var);
-
-    return result;
+    return tmp;
 }
 
 int Calibration::getNumOfComplete()
 {
     int result=0;
-    BOOST_FOREACH(IterationResult* iteration, iterationresults)
-            result += (iteration->isComplete()) ? 1 : 0 ;
+    std::pair<int,IterationResult*>p;
+    BOOST_FOREACH(p, iterationresults)
+            result += (p.second->isComplete()) ? 1 : 0 ;
 
     return result;
 }
 
-vector<IterationResult*> Calibration::getIterationResult()
+map<int,IterationResult*> Calibration::getIterationResults()
 {
-    vector<IterationResult*> result;
-
-    BOOST_FOREACH(IterationResult* iteration, iterationresults)
-            if(iteration->isComplete())
-                result.assign(1,iteration);
-
-    return result;
+    return iterationresults;
 }
 
 void Calibration::clearIterationResults()
 {
-    BOOST_FOREACH(IterationResult* result, iterationresults)
-            delete result;
+    std::pair<int,IterationResult*>p;
+    BOOST_FOREACH(p, iterationresults)
+            delete p.second;
 
     iterationresults.clear();
 }
@@ -373,11 +367,21 @@ map<string,string> Calibration::getModelSimulatorSettings()
 IterationResult* Calibration::newIterationResult()
  {
      IterationResult* result = new IterationResult(iterationresults.size());
-     iterationresults.assign(1,result);
+     iterationresults[result->getIterationNumber()]=result;
      return result;
  }
 
-set<CalibrationVariable*> Calibration::getAllCalibrationParameters()
+set<string> Calibration::getAllCalibrationParameters()
 {
     return calibrationparameters;
+}
+
+set<string> Calibration::evalObjectiveFunctionParameters()
+{
+    return enabledobjectivefunctionparameters;
+}
+
+Domain* Calibration::getDomain()
+{
+    return domain;
 }

@@ -86,3 +86,8 @@ vector<double> IterationResult::getObjectiveFunctionParameterResults(string name
 
     return objectivefucntionparameters[name];
 }
+
+int IterationResult::getIterationNumber()
+{
+    return iterationnumber;
+}

@@ -169,7 +169,23 @@ void CalibrationEnv::runCalibration()
 
     threadpool = new ModelSimThreadPool(realthreads);
 
-    tmpalg->start();
+    //extract parameters
+    vector<CalibrationVariable*> newcalpars;
+    vector<ObjectiveFunctionVariable*> newopars;
+
+    set<string> calpars = calibration->evalCalibrationParameters();
+    set<string> opars = calibration->evalObjectiveFunctionParameters();
+
+    for(set<string>::const_iterator it = calpars.begin(); it != calpars.end(); ++it)
+        newcalpars.push_back(static_cast<CalibrationVariable*>(calibration->getDomain()->getPar(*it)));
+
+    for(set<string>::const_iterator it = opars.begin(); it != opars.end(); ++it)
+        newopars.push_back(static_cast<ObjectiveFunctionVariable*>(calibration->getDomain()->getPar(*it)));
+
+
+    if(!tmpalg->start(newcalpars,newopars,this,calibration))
+        Logger(Error) << "Calibration algorithm terminates with failure";
+
     delete threadpool;
     delete tmpalg;
 }
@@ -189,4 +205,19 @@ bool CalibrationEnv::exec(vector<CalibrationVariable*> calibrationparameters)
 
     threadpool->pushIteration(calibrationparameters);
     return true;
+}
+
+vector<string> CalibrationEnv::getAvailableObjectiveFunctions()
+{
+    return getObjectiveFunctionReg()->getAvailableFunctions();
+}
+
+vector<string> CalibrationEnv::getAvailableModelSimulators()
+{
+    return getModelSimulatorReg()->getAvailableFunctions();
+}
+
+vector<string> CalibrationEnv::getAvailableCalibrationAlgs()
+{
+    return getCalibrationAlgReg()->getAvailableFunctions();
 }

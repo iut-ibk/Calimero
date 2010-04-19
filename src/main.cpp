@@ -123,7 +123,7 @@ int main()
     CalibrationEnv::getInstance()->getCalibration()->addParameter(&objectf5);
     CalibrationEnv::getInstance()->getCalibration()->addGroup("group1");
     CalibrationEnv::getInstance()->getCalibration()->clear();
-    CalibrationEnv::getInstance()->getCalibration()->removeParameter(&objectf5);
+    CalibrationEnv::getInstance()->getCalibration()->removeParameter(objectf5.getName());
 
     PyEnv::destroy();
     Logger() << "main finished";
