@@ -25,7 +25,7 @@ bool ModelSimThreadPool::pushIteration( vector<CalibrationVariable*> vars, Calib
     simulation->setAutoDelete(true);
 
     while(!tryStart(simulation))
-        wait();
+        usleep(10);
 
     return true;
 }
