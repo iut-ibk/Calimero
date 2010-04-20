@@ -8,6 +8,8 @@
 #include <ExternalParameterRegistry.h>
 #include <Domain.h>
 #include <ModelSimRunnable.h>
+#include <Calibration.h>
+#include <CalibrationEnv.h>
 
 
 ModelSimThreadPool::ModelSimThreadPool(int threadnum)
@@ -24,8 +26,14 @@ bool ModelSimThreadPool::pushIteration( vector<CalibrationVariable*> vars, Calib
     ModelSimRunnable *simulation = new ModelSimRunnable(vars,calibration);
     simulation->setAutoDelete(true);
 
-    while(!tryStart(simulation))
-        sleep(1);
+    while(!tryStart(simulation));
+    {
+        if(!CalibrationEnv::getInstance()->isCalibrationRunning())
+        {
+            delete simulation;
+            return false;
+        }
+    }
 
     return true;
 }
