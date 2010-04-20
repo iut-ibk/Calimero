@@ -13,6 +13,7 @@
 #include <IModelSimulator.h>
 #include <ICalibrationAlg.h>
 #include <Domain.h>
+#include <ExternalParameterRegistry.h>
 
 class CALIMERO_PUBLIC Calibration
 {
@@ -32,6 +33,7 @@ private:
     string simulator;
     map<string,string> modelsimulatorsettings;
     Domain *domain;
+    ExternalParameterRegistry *externalfilehandler;
 
 public:
     //create
@@ -66,10 +68,14 @@ public:
     map<string,string> getCalibrationAlgSettings();
     map<string,string> getModelSimulatorSettings();
     map<int,IterationResult*> getIterationResults();
-    set<string> getAllCalibrationParameters();
+    vector<string> getAllCalibrationParameters();
+    vector<string> getAllObservedParameters();
+    vector<string> getAllIterationParameters();
+    vector<string> getAllObjectiveFunctionParameters();
     Domain* getDomain();
     set<string> evalCalibrationParameters();
     set<string> evalObjectiveFunctionParameters();
+    ExternalParameterRegistry* getExternalParameterRegistry();
 
     //destroy
     void clear();

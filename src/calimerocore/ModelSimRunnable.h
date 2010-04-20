@@ -4,30 +4,38 @@
 #include <QRunnable>
 #include <vector>
 #include <CalimeroGlob.h>
+#include <string>
 
 class CalibrationVariable;
 class Variable;
 class ObjectiveFunctionVariable;
 class IterationResult;
 class IModelSimulator;
+class Domain;
+class ExternalParameterRegistry;
+class IterationResult;
+class Calibration;
 
 using namespace std;
 
 class CALIMERO_PUBLIC ModelSimRunnable : public QRunnable
 {
 private:
-    vector<CalibrationVariable*> calibrationparameters;
-    vector<Variable*> observedparameters;
-    vector<Variable*> iterationparameters;
-    vector<ObjectiveFunctionVariable*> objectivefunctionparameters;
+    vector<string> calibrationparameters;
+    vector<string> objectivefunctionparameters;
+    vector<string>  iterationparameters;
+    vector<string> observedparameters;
+    Domain *dom;
+    ExternalParameterRegistry *externalfilehandler;
     IterationResult *result;
-    IModelSimulator *sim;
-public:
-    ModelSimRunnable(const vector<CalibrationVariable*> &calibrationparameters);
-    void run();
+    Calibration *calibration;
+    vector<CalibrationVariable*> newcalpars;
 
-private:
-    Variable* cloneParameter(Variable* old);
+public:
+    ModelSimRunnable(vector<CalibrationVariable*> newcalpars,
+                     Calibration *calibration);
+    ~ModelSimRunnable();
+    void run();
 };
 
 #endif // MODELSIMRUNNABLE_H

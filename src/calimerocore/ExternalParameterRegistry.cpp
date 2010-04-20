@@ -7,137 +7,123 @@
 #include <QTextStream>
 #include <QStringList>
 #include <QIODevice>
+#include <Domain.h>
 
 ExternalParameterRegistry::ExternalParameterRegistry(){}
 
-bool ExternalParameterRegistry::registerTemplate(string name, const string &templatestring)
+ExternalParameterRegistry::ExternalParameterRegistry(const ExternalParameterRegistry &oldreg)
 {
-    if(containsTemplate(name))
+    regtemplates = oldreg.regtemplates;
+    templatepaths = oldreg.templatepaths;
+    regparameters = oldreg.regparameters;
+    types = oldreg.types;
+}
+
+bool ExternalParameterRegistry::registerTemplate(const string &name, const string &templatepath, const string &templatestring, VARTYPE type)
+{
+    if(regtemplates.find(name)!=regtemplates.end())
         return false;
+
+    if(type==OBJECTIVEFUNCTIONVARIABLE)
+    {
+        Logger(Error) << "Not possible to register objective function parameter in external file input handler";
+        return false;
+    }
 
     regtemplates[name]=templatestring;
-    regparameters[name] = map<string, map<string, Variable* > >();
+    templatepaths[name]=templatepath;
+    types[name]=type;
+    return true;
+}
+
+bool ExternalParameterRegistry::registerParameter(const string &parametername, const string &templatename, Domain *domain)
+{
+    if(regtemplates.find(templatename)==regtemplates.end())
+        return false;
+
+    Variable *var = domain->getPar(parametername);
+
+    if(var->getType()!=types[parametername])
+        return false;
+
+    if(regparameters.find(parametername)!=regparameters.end())
+        return false;
+
+    regparameters[parametername]=templatename;
+    return true;
+}
+
+bool ExternalParameterRegistry::deleteTemplate(const string &templatename)
+{
+    if(regtemplates.find(templatename)==regtemplates.end())
+        return false;
+
+    regparameters.erase(regparameters.find(templatename));
+    templatepaths.erase(templatepaths.find(templatename));
+    types.erase(types.find(templatename));
+
+    vector<string> delvars;
+    std::pair<string, string>p;
+
+    BOOST_FOREACH(p, regparameters)
+        if(p.second==templatename)
+            delvars.push_back(p.first);
+
+    BOOST_FOREACH(string var, delvars)
+            regparameters.erase(regparameters.find(var));
 
     return true;
 }
 
-bool ExternalParameterRegistry::containsTemplate(string name)
+bool ExternalParameterRegistry::updateParameters(Domain *domain, int iteration)
 {
-    return regtemplates.find(name)!=regtemplates.end();
-}
-
-bool ExternalParameterRegistry::importFile(string templatename, string path)
-{
-    if(!containsTemplate(templatename))
-        return false;
-    if(containsRegFile(templatename,path))
-        return false;
-
-    regparameters[templatename][path]=map<string, Variable* >();
-    return true;
-}
-
-bool ExternalParameterRegistry::registerParameter(Variable* parameter, string templatename, string regfile)
-{
-    if(!containsRegFile(templatename,regfile))
-        return false;
-
-    if(containsParameter(parameter,templatename,regfile))
-        return false;
-
-    if(parameter->getType()==OBJECTIVEFUNCTIONVARIABLE)
+    std::pair<string,string> p;
+    BOOST_FOREACH(p,templatepaths)
     {
-        Logger(Error) << "Not possible to register objective function parameter -> EXIT";
-        abort();
+        QString path = QString::fromStdString(p.second);
+        path.replace(QRegExp("\\$iteration\\$"), QString::number(iteration));
+        if(!QFile::exists(path))
+            return false;
+
+         QFile inputfile(path);
+
+         if (!inputfile.open(QIODevice::ReadOnly))
+              return false;
+
+         QString values = "";
+         QTextStream inputstream(&inputfile);
+         values+=inputstream.readAll();
+         inputfile.close();
+
+        if(!updateParameters(domain,p.first,values.toStdString()))
+            return false;
     }
 
-    regparameters[templatename][regfile][parameter->getName()]=parameter;
-    return true;
+    return false;
 }
 
-bool ExternalParameterRegistry::deleteTemplate(string templatename)
-{
-    if(!containsTemplate(templatename))
-        return false;
-
-    regtemplates.erase(regtemplates.find(templatename));
-    regparameters.erase(regparameters.find(templatename));
-
-    return true;
-}
-
-bool ExternalParameterRegistry::deleteRegFile(string templatename, string regfile)
-{
-    if(!containsRegFile(templatename,regfile))
-        return false;
-
-    regparameters[templatename].erase(regparameters[templatename].find(regfile));
-    return true;
-}
-
-bool ExternalParameterRegistry::containsRegFile(string templatename, string regfile)
-{
-    if(!containsTemplate(templatename))
-        return false;
-
-    return regparameters[templatename].find(regfile)!=regparameters[templatename].end();
-}
-
-bool ExternalParameterRegistry::containsParameter(Variable* var, string templatename, string regfile)
-{
-    if(!containsRegFile(templatename,regfile))
-        return false;
-
-    if(!containsParameter(var->getName(),templatename, regfile))
-        return false;
-
-    return regparameters[templatename][regfile][var->getName()]==var;
-}
-
-bool ExternalParameterRegistry::containsParameter(const string &name, string templatename, string regfile)
-{
-    if(!containsRegFile(templatename,regfile))
-        return false;
-
-    return regparameters[templatename][regfile].find(name)!=regparameters[templatename][regfile].end();
-}
-
-bool ExternalParameterRegistry::updateParameters(string templatename, string regfile)
+bool ExternalParameterRegistry::updateParameters(Domain *domain, const string &templatename, const string &values)
 {
     //check existence of templatename and regfile
-    if(!containsRegFile(templatename,regfile))
+    if(regtemplates.find(templatename)==regtemplates.end())
         return false;
 
-    if(!regparameters[templatename][regfile].size())
-    {
-        Logger(Error) << "No parameters registered for [" << regfile << "] in template [" << templatename << "]";
+    bool containspar=false;
+    std::pair<string, string> p;
+    BOOST_FOREACH(p,regparameters)
+            if(p.second==templatename)
+            {
+                containspar=true;
+                break;
+            }
+
+    if(!containspar)
         return false;
-    }
-
-    if(!QFile::exists(QString::fromStdString(regfile)))
-    {
-        Logger(Error) << "[" << regfile << "] does not exist";
-        return false;
-    }
-
-    //read input data
-    QFile inputfile(QString::fromStdString(regfile));
-
-    if (!inputfile.open(QIODevice::ReadOnly))
-         return false;
-
-    QString valuefilestring = "";
-    QString parameterfilestring(QString::fromStdString(regtemplates[templatename]));
-
-    QTextStream inputstream(&inputfile);
-    valuefilestring+=inputstream.readAll();
-    inputfile.close();
 
     //start extracting data
-    parameterfilestring = parameterfilestring.simplified();
-    valuefilestring = valuefilestring.simplified();
+    QString parameterfilestring = QString::fromStdString(regtemplates[templatename]).simplified();
+    QString valuefilestring = QString::fromStdString(values).simplified();
 
-    QStringList templateparameters;
     QStringList parametersplit = parameterfilestring.split("$");
 
     int textposition = 0;
@@ -185,17 +171,17 @@ bool ExternalParameterRegistry::updateParameters(string templatename, string reg
                 parametername=parametername.remove(QRegExp("_.+"));
             }
 
-            if(containsParameter(parametername.toStdString(),templatename,regfile))
-            {
-                Variable* tmpvar = regparameters[templatename][regfile][parametername.toStdString()];
-                vector<double> tmpvec = tmpvar->getValues();
+            if(!domain->contains(parametername.toStdString()))
+                return false;
 
-                if(!isvectorelement)
-                    tmpvec.clear();
+            Variable* tmpvar = domain->getPar(parametername.toStdString());
+            vector<double> tmpvec = tmpvar->getValues();
 
-                tmpvec.assign(1,value);
-                tmpvar->setValues(tmpvec);
-            }
+            if(!isvectorelement)
+                tmpvec.clear();
+
+            tmpvec.assign(1,value);
+            tmpvar->setValues(tmpvec);
         }
         else
         {
@@ -213,17 +199,48 @@ bool ExternalParameterRegistry::updateParameters(string templatename, string reg
 
 }
 
-bool ExternalParameterRegistry::createValueFile(const string &templatename, const string &regfile)
+bool ExternalParameterRegistry::createvalueFiles(Domain *dom, int iteration)
 {
-    //check existence of templatename and regfile
-    if(!containsRegFile(templatename,regfile))
+    bool result = true;
+    std::pair<string,VARTYPE>p;
+    BOOST_FOREACH(p,types)
+            if(p.second==CALIBRATIONVARIABLE)
+                result = result && createValueFile(p.first,dom,iteration);
+
+    return result;
+}
+
+bool ExternalParameterRegistry::createValueFile(const string &templatename, Domain *domain, int iteration)
+{
+    if(regtemplates.find(templatename)==regtemplates.end())
         return false;
 
-    if(!regparameters[templatename][regfile].size())
-    {
-        Logger(Error) << "No parameters registered for [" << regfile << "] in template [" << templatename << "]";
+    QString path = QString::fromStdString(templatepaths[templatename]);
+    if(path=="")
         return false;
-    }
+
+    path.replace(QRegExp("\\$iteration\\$"), QString::number(iteration));
+    return createValueFile(templatename,domain,path.toStdString());
+}
+
+
+bool ExternalParameterRegistry::createValueFile(const string &templatename, Domain *domain, const string &filepath)
+{
+    //check existence of templatename and regfile
+    if(regtemplates.find(templatename)==regtemplates.end())
+        return false;
+
+    bool containspar=false;
+    std::pair<string, string> p;
+    BOOST_FOREACH(p,regparameters)
+            if(p.second==templatename)
+            {
+                containspar=true;
+                break;
+            }
+
+    if(!containspar)
+        return false;
 
     QString result = "";
     QStringList stringlist = QString::fromStdString(regtemplates[templatename]).split("\n");
@@ -240,11 +257,11 @@ bool ExternalParameterRegistry::createValueFile(const string &templatename, cons
 
             for(int tokenindex=0; tokenindex<tokens.size(); tokenindex++)
             {
-                std::pair<string,Variable*>p;
-                BOOST_FOREACH(p, regparameters[templatename][regfile])
+                std::pair<string,string>p;
+                BOOST_FOREACH(p, regparameters)
                         if(tokens.at(tokenindex).contains(QRegExp("^" + QString::fromStdString(p.first) + "(_\\d+)?$")))
                         {
-                            var = p.second;
+                            var = domain->getPar(p.first);
                             break;
                         }
 
@@ -292,8 +309,8 @@ bool ExternalParameterRegistry::createValueFile(const string &templatename, cons
             result+="\n";
     }
 
-    QFile outputfile(QString::fromStdString(regfile));
-
+    //save file
+    QFile outputfile(QString::fromStdString(filepath));
     if(!outputfile.open(QIODevice::WriteOnly))
         return false;
 
@@ -303,15 +320,21 @@ bool ExternalParameterRegistry::createValueFile(const string &templatename, cons
     return true;
 }
 
-ExternalParameterRegistry* ExternalParameterRegistry::clone()
+string ExternalParameterRegistry::getPath(const string &templatename)
 {
-    ExternalParameterRegistry *result = new ExternalParameterRegistry();
-    result->regtemplates=this->regtemplates;
-    map<string, map<string, map<string, Variable* > > > tmpregparameters;
+    if(templatepaths.find(templatename)==templatepaths.end())
+        return false;
 
-    std::pair<string,string> p;
-    BOOST_FOREACH(p,result->regtemplates)
-            tmpregparameters[p.first]= map<string, map<string, Variable* > >();
+    return templatepaths[templatename];
+}
+
+vector<string> ExternalParameterRegistry::getAllTemplateNames()
+{
+    vector<string> result;
+    std::pair<string,string>p;
+
+    BOOST_FOREACH(p,regtemplates)
+            result.push_back(p.first);
 
     return result;
 }

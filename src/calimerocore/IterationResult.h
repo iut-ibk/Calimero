@@ -9,6 +9,7 @@
 class ObjectiveFunctionVariable;
 class Variable;
 class CalibrationVariable;
+class Domain;
 
 using namespace std;
 
@@ -24,10 +25,7 @@ private:
 
 public:
     IterationResult(int iterationnum);
-    void setObjectiveFunctionParameterResults(vector<ObjectiveFunctionVariable*> *results);
-    void setCalibrationPararameterResults(vector<CalibrationVariable*> *results);
-    void setObservedParameterResults(vector<Variable*> *results);
-    void setIterationParameterResults(vector<Variable*> *results);
+    void setResults(Domain *dom);
     bool isComplete();
     int getIterationNumber();
     vector<double> getIterationParameterResults(string name);

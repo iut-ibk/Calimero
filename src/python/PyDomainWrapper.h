@@ -13,6 +13,7 @@ void wrapDomain()
             .def("contains", &Domain::contains)
             .def("setPar", &Domain::setPar)
             .def("removePar", &Domain::removePar)
+            .def("getAllPars", &Domain::getAllPars)
             ;
 }
 

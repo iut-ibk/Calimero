@@ -4,8 +4,9 @@
 #include <string>
 #include <map>
 #include <CalimeroGlob.h>
+#include <Variable.h>
 
-class Variable;
+class Domain;
 
 using namespace std;
 
@@ -14,24 +15,27 @@ class CALIMERO_PUBLIC ExternalParameterRegistry
 private:
     //[templatename][template]
     map<string,string> regtemplates;
-    //[templatename][regfilepath][parametername][Variable*]
-    map<string, map<string, map<string, Variable* > > > regparameters;
+    //[templatename][path]
+    map<string,string> templatepaths;
+    //[parametername][templatename]
+    map<string, string> regparameters;
+    //[templatename][VariableType]
+    map<string, VARTYPE> types;
 
 
 public:
     ExternalParameterRegistry();
-    bool registerTemplate(string name,const string &templatestring);
-    bool containsTemplate(string name);
-    bool containsRegFile(string templatename, string regfile);
-    bool containsParameter(Variable* var, string templatename, string regfile);
-    bool containsParameter(const string &name, string templatename, string regfile);
-    bool importFile(string templatename, string path);
-    bool registerParameter(Variable* parameter, string templatename, string regfile);
-    bool updateParameters(string templatename, string regfile);
-    bool deleteRegFile(string templatename, string regfile);
-    bool deleteTemplate(string templatename);
-    bool createValueFile(const string &templatename, const string &regfile);
-    ExternalParameterRegistry* clone();
+    ExternalParameterRegistry(const ExternalParameterRegistry &oldreg);
+    bool registerTemplate(const string &name, const string &templatepath, const string &templatestring, VARTYPE type);
+    bool registerParameter(const string &parametername, const string &templatename, Domain *domain);
+    bool updateParameters(Domain *domain, int iteration);
+    bool updateParameters(Domain *domain, const string &templatename, const string &values);
+    bool deleteTemplate(const string &templatename);
+    bool createValueFile(const string &templatename, Domain *domain, int iteration);
+    bool createValueFile(const string &templatename, Domain *domain, const string &filepath);
+    bool createvalueFiles(Domain *dom, int iteration);
+    string getPath(const string &templatename);
+    vector<string> getAllTemplateNames();
 };
 
 #endif // EXTERNALPARAMETERREGISTRY_H

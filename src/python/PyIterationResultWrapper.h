@@ -6,10 +6,7 @@
 void wrapIterationResult()
 {
         class_<IterationResult, boost::noncopyable>("IterationResult",init<int>())
-                .def("setObjectiveFunctionParameterResults" , &IterationResult::setObjectiveFunctionParameterResults)
-                .def("setCalibrationPararameterResults" , &IterationResult::setCalibrationPararameterResults)
-                .def("setObservedParameterResults" , &IterationResult::setObservedParameterResults)
-                .def("setIterationParameterResults" , &IterationResult::setIterationParameterResults)
+                .def("setResults", &IterationResult::setResults)
                 .def("isComplete" , &IterationResult::isComplete)
                 .def("getIterationParameterResults" , &IterationResult::getIterationParameterResults)
                 .def("getObservedParameterResults" , &IterationResult::getObservedParameterResults)

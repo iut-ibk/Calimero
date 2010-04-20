@@ -5,142 +5,92 @@
 #include <IterationResult.h>
 #include <IModelSimulator.h>
 #include <CalibrationEnv.h>
+#include <IterationResult.h>
+#include <QRegExp>
 
-ModelSimRunnable::ModelSimRunnable(const vector<CalibrationVariable*> &calibrationparameters)
+ModelSimRunnable::ModelSimRunnable(vector<CalibrationVariable*> newcalpars,
+                                   Calibration *calibration)
 {
-    //clone calibration parameters
-    BOOST_FOREACH(void* p, calibrationparameters)
-            this->calibrationparameters.assign(1,(CalibrationVariable*)cloneParameter((Variable*)p));
+    this->newcalpars=newcalpars;
+    this->calibration=calibration;
 }
 
-Variable* ModelSimRunnable::cloneParameter(Variable* old)
+ModelSimRunnable::~ModelSimRunnable()
 {
-    Variable *result;
 
-    switch(old->getType())
-    {
-    case ITERATIONVARIABLE:
-        result = new Variable(old->getName(),old->getValues(),old->getType());
-        break;
-    case CALIBRATIONVARIABLE:
-        result = new CalibrationVariable(old->getName(), old->getValues());
-        break;
-    case OBSERVEDVARIABLE:
-        result = new Variable(old->getName(),old->getValues(),old->getType());
-        break;
-    case OBJECTIVEFUNCTIONVARIABLE:{
-        ObjectiveFunctionVariable *tmp = new ObjectiveFunctionVariable(old->getName());
-        tmp->setObjectiveFunction(dynamic_cast<ObjectiveFunctionVariable*>(old)->getObjectiveFunction(),
-                                  dynamic_cast<ObjectiveFunctionVariable*>(old)->getObjectiveFunctionSettings());
-        result=tmp;
-        break;
-        }
-    default:
-        abort();
-    }
-
-    return result;
 }
-
 
 void ModelSimRunnable::run()
 {
-    //init run of one iteration
-    //search for not recognized calibration parameters
-    //vector<CalibrationVariable*> newcal;
-    //set<CalibrationVariable*> allcalp = CalibrationEnv::getInstance()->getCalibration()->getAllCalibrationParameters();
-    //CalibrationVariable *oldvar = allcalp.begin();
+    dom = new Domain(*(calibration->getDomain()));
+    externalfilehandler = new ExternalParameterRegistry(*(calibration->getExternalParameterRegistry()));
 
-   /* while (oldvar != allcalp.end())
+    //create result container and save all calibration parameters
+    result = calibration->newIterationResult();
+
+    //add calibration parameters to new domain
+    BOOST_FOREACH(CalibrationVariable *var, this->newcalpars)
     {
-        CalibrationVariable *savevar;
-        BOOST_FOREACH(CalibrationVariable *var , calibrationparameters)
-        {
-                if(var->getName()==newvar->getName())
-                {
-                    savevar=var;
-                }
-                else
-                {
-                    savevar=oldvar;
-                    break;
-                }
-        }
-        newcal.assign(1,savevar);
+            dom->setPar(new CalibrationVariable(*var));
+            delete var;
     }
-*/
-
-
-
-
-
-
-
-
-
-/*
 
     //create instance of model simulator
-    sim = mreg->getFunction(calibration->getModelSimulator());
+    IModelSimulator *sim = CalibrationEnv::getInstance()->getModelSimulatorReg()->getFunction(calibration->getModelSimulator());
 
     std::pair<string,string> p;
+    vector<string> templatenames = externalfilehandler->getAllTemplateNames();
+
+    //convert each modelsimulator setting
     BOOST_FOREACH(p, calibration->getModelSimulatorSettings())
-            tmpsim->setValueOfParameter(p.first,p.second);
-
-
-    Logger(Error) << "Calibration::exec not implemented";
-
-    //clone all parameters
-    vector<CalibrationVariable*> newcalibrationparameters;
-    vector<Variable*> newobservedparameters;
-    vector<Variable*> newiterationparameters;
-    vector<ObjectiveFunctionVariable*> newofunctions;
-
-    BOOST_FOREACH(void* p, calibrationparameters)
-            newcalibrationparameters.assign(1,(CalibrationVariable*)cloneParameter((Variable*)p));
-
-    BOOST_FOREACH(void* p, observedparameters)
-            newobservedparameters.assign(1,cloneParameter((Variable*)p));
-
-    BOOST_FOREACH(void* p, iterationparameters)
-            newiterationparameters.assign(1,cloneParameter((Variable*)p));
-
-    BOOST_FOREACH(void* p, objectivefunctionparameters)
-            newofunctions.assign(1,(ObjectiveFunctionVariable*)cloneParameter((Variable*)p));
-
-
-    //link all parameters
-    for(uint index = 0; index < objectivefunctionparameters.size(); index++)
     {
-        //link ObjectiveFunctionVariable
-        BOOST_FOREACH(ObjectiveFunctionVariable* oldofun, *(objectivefunctionparameters[index]->getObjectiveFunctionParameters()))
-            BOOST_FOREACH(ObjectiveFunctionVariable* newofun, newofunctions)
-                if(oldofun->getName()==newofun->getName())
-                {
-                    newofunctions[index]->addParameter(newofun);
-                }
+        QString setting = QString::fromStdString(p.second);
 
-        //link ObservedParameters
-        BOOST_FOREACH(Variable* oldofun, *(objectivefunctionparameters[index]->getObservedParameters()))
-            BOOST_FOREACH(Variable* newofun, observedparameters)
-                if(oldofun->getName()==newofun->getName())
-                {
-                    newofunctions[index]->addParameter(newofun);
-                }
+        //each template name to path
+        BOOST_FOREACH(string name, templatenames)
+        {
+            QString path = QString::fromStdString(externalfilehandler->getPath(name));
+            path.replace(QRegExp("\\$iteration\\$"), QString::number(result->getIterationNumber()));
+            setting.replace(QRegExp(QString::fromStdString(name)), path);
+        }
 
-        //link IterationParameters
-        BOOST_FOREACH(Variable* oldofun, *(objectivefunctionparameters[index]->getIterationParameters()))
-            BOOST_FOREACH(Variable* newofun, iterationparameters)
-                if(oldofun->getName()==newofun->getName())
-                {
-                    newofunctions[index]->addParameter(newofun);
-                }
+        if(!sim->setValueOfParameter(p.first,setting.toStdString()))
+        {
+            delete sim;
+            delete dom;
+            delete externalfilehandler;
+            return;
+        }
     }
 
-*/
+    //create all external files
+    if(!externalfilehandler->createvalueFiles(this->dom,result->getIterationNumber()))
+    {
+        delete sim;
+        delete dom;
+        delete externalfilehandler;
+        return;
+    }
 
-
-
-    if(!sim->exec(calibrationparameters,observedparameters,iterationparameters,objectivefunctionparameters,result))
+    //run simulator
+    if(!sim->exec(dom))
         CalibrationEnv::getInstance()->stopCalibration();
+
+    //clean sim
+    delete sim;
+
+    //extract all files
+    if(!externalfilehandler->updateParameters(dom,result->getIterationNumber()))
+    {
+        delete dom;
+        delete externalfilehandler;
+        return;
+    }
+
+    //save values in result container
+    result->setResults(dom);
+
+    //clean thread
+    delete dom;
+    delete externalfilehandler;
 }

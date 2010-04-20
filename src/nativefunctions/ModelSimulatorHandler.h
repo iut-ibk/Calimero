@@ -12,10 +12,7 @@ private:
 public:
     ModelSimulatorHandler();
     void setThreadsNumber(int threads);
-    bool exec(vector<CalibrationVariable*> calibrationparameters,
-              vector<Variable*> observedparameters,
-              vector<Variable*> iterationparameters,
-              vector<ObjectiveFunctionVariable*> objectivefunctionparameters, IterationResult *result);
+    bool exec(Domain *dom);
 };
 
 #endif // MODELSIMULATORHANDLER_H

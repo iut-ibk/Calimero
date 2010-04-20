@@ -89,3 +89,15 @@ Domain::Domain(const Domain &olddomain)
         setPar(newvar);
     }
 }
+
+vector<Variable*> Domain::getAllPars(const VARTYPE &type)
+{
+    vector<Variable*> result;
+    std::pair<string, Variable*> p;
+
+    BOOST_FOREACH(p,members)
+            if(p.second->getType()==type)
+                result.push_back(p.second);
+
+    return result;
+}

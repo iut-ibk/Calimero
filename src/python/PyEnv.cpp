@@ -50,6 +50,9 @@ BOOST_PYTHON_MODULE(pycalimero)
         class_<std::vector<double> >("doublevector")
                 .def(vector_indexing_suite<std::vector<double> >());
 
+        class_<std::vector<string> >("stringvector")
+                .def(vector_indexing_suite<std::vector<string> >());
+
         class_<std::vector<ObjectiveFunctionVariable*> >("objectivefunctionvariablevector")
                 .def(vector_indexing_suite<std::vector<ObjectiveFunctionVariable*> >());
 

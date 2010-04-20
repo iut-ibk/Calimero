@@ -13,10 +13,7 @@ void ModelSimulatorHandler::setThreadsNumber(int threads)
     Logger(Error) << "ModelSimulatorHandler not implemented";
 }
 
-bool ModelSimulatorHandler::exec(vector<CalibrationVariable*> calibrationparameters,
-          vector<Variable*> observedparameters,
-          vector<Variable*> iterationparameters,
-          vector<ObjectiveFunctionVariable*> objectivefunctionparameters, IterationResult *result)
+bool ModelSimulatorHandler::exec(Domain *dom)
 {
     Logger(Error) << "ModelSimulatorHandler not implemented";
     return false;

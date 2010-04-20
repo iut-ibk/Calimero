@@ -10,6 +10,7 @@ class CalibrationVariable;
 class ObjectiveFunctionVariable;
 class Variable;
 class IterationResult;
+class Domain;
 
 using namespace std;
 
@@ -36,10 +37,7 @@ class CALIMERO_PUBLIC IModelSimulator : public IFunction
             return MODELSIMULATOR;
         }
 
-        virtual bool exec(vector<CalibrationVariable*> calibrationparameters,
-                          vector<Variable*> observedparameters,
-                          vector<Variable*> iterationparameters,
-                          vector<ObjectiveFunctionVariable*> objectivefunctionparameters, IterationResult *result) = 0;
+        virtual bool exec(Domain *dom) = 0;
 };
 
 #endif // IMODELSIMULATOR_H

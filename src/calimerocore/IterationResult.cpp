@@ -4,6 +4,7 @@
 #include <ObjectiveFunctionVariable.h>
 #include <Logger.h>
 #include <Variable.h>
+#include <Domain.h>
 
 IterationResult::IterationResult(int iterationnum)
 {
@@ -16,38 +17,35 @@ IterationResult::IterationResult(int iterationnum)
     iterationnumber=iterationnum;
 }
 
-void IterationResult::setObjectiveFunctionParameterResults(vector<ObjectiveFunctionVariable*> *results)
+void IterationResult::setResults(Domain *dom)
 {
-    if(complete){Logger(Warning) << "Result container already complete";return;}
+    if(isComplete())
+        return;
 
-    BOOST_FOREACH(ObjectiveFunctionVariable *var, *results)
-            objectivefucntionparameters[var->getName()] = var->getValues();
-}
+    vector<Variable*> tmpvec;
 
-void IterationResult::setCalibrationPararameterResults(vector<CalibrationVariable*> *results)
-{
-    if(complete){Logger(Warning) << "Result container already complete"; return;}
+    //save all calibration parameters
+    tmpvec = dom->getAllPars(CALIBRATIONVARIABLE);
+    BOOST_FOREACH(Variable *var, tmpvec)
+        calibrationparameters[var->getName()]=var->getValues();
 
-    BOOST_FOREACH(CalibrationVariable *var, *results)
-            calibrationparameters[var->getName()] = var->getValues();
-}
+    //save all iteration parameters
+    tmpvec = dom->getAllPars(ITERATIONVARIABLE);
+    BOOST_FOREACH(Variable *var, tmpvec)
+        iterationparameters[var->getName()]=var->getValues();
 
-void IterationResult::setObservedParameterResults(vector<Variable*> *results)
-{
-    if(complete){Logger(Warning) << "Result container already complete"; return;}
+    //save all observed parameters
+    tmpvec = dom->getAllPars(OBSERVEDVARIABLE);
+    BOOST_FOREACH(Variable *var, tmpvec)
+        observedparameters[var->getName()]=var->getValues();
 
-    BOOST_FOREACH(Variable *var, *results)
-            observedparameters[var->getName()] = var->getValues();
+    //save all objective function parameters
+    tmpvec = dom->getAllPars(OBJECTIVEFUNCTIONVARIABLE);
+    BOOST_FOREACH(Variable *var, tmpvec)
+        objectivefucntionparameters[var->getName()]=var->getValues();
 
-    complete=true;
-}
+    this->complete=true;
 
-void IterationResult::setIterationParameterResults(vector<Variable*> *results)
-{
-    if(complete){Logger(Warning) << "Result container already complete"; return;}
-
-    BOOST_FOREACH(Variable *var, *results)
-            iterationparameters[var->getName()] = var->getValues();
 }
 
 bool IterationResult::isComplete()

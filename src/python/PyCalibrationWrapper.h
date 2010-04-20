@@ -36,6 +36,10 @@ void wrapCalibration()
                         with_custodian_and_ward<1, 2> >())
                 .def("clear", &Calibration::clear)
                 .def("clearIterationResults", &Calibration::clearIterationResults)
+                .def("getAllObjectiveFunctionParameters", &Calibration::getAllObjectiveFunctionParameters)
+                .def("getAllIterationParameters", &Calibration::getAllIterationParameters)
+                .def("getAllObservedParameters", &Calibration::getAllObservedParameters)
+                .def("getAllCalibrationParameters", &Calibration::getAllCalibrationParameters)
                 ;
 }
 

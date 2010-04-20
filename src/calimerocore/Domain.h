@@ -4,10 +4,10 @@
 #include <map>
 #include <string>
 #include <CalimeroGlob.h>
+#include <Variable.h>
+#include <vector>
 
 using namespace std;
-
-class Variable;
 
 class CALIMERO_PUBLIC Domain
 {
@@ -21,6 +21,7 @@ public:
     bool contains(string var);
     void setPar(Variable* var);
     bool removePar(const string &name);
+    vector<Variable*> getAllPars(const VARTYPE &type);
 };
 
 #endif // DOMAIN_H

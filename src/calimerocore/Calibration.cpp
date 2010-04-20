@@ -371,9 +371,32 @@ IterationResult* Calibration::newIterationResult()
      return result;
  }
 
-set<string> Calibration::getAllCalibrationParameters()
+vector<string> Calibration::getAllCalibrationParameters()
 {
-    return calibrationparameters;
+    vector<string> result;
+    copy ( calibrationparameters.begin(), calibrationparameters.end(), result.begin() );
+    return result;
+}
+
+vector<string> Calibration::getAllObservedParameters()
+{
+    vector<string> result;
+    copy ( observedparameters.begin(), observedparameters.end(), result.begin() );
+    return result;
+}
+
+vector<string> Calibration::getAllIterationParameters()
+{
+    vector<string> result;
+    copy ( iterationparameters.begin(), iterationparameters.end(), result.begin() );
+    return result;
+}
+
+vector<string> Calibration::getAllObjectiveFunctionParameters()
+{
+    vector<string> result;
+    copy ( objectivefunctionparameters.begin(), objectivefunctionparameters.end(), result.begin() );
+    return result;
 }
 
 set<string> Calibration::evalObjectiveFunctionParameters()
@@ -384,4 +407,9 @@ set<string> Calibration::evalObjectiveFunctionParameters()
 Domain* Calibration::getDomain()
 {
     return domain;
+}
+
+ExternalParameterRegistry* Calibration::getExternalParameterRegistry()
+{
+    return externalfilehandler;
 }

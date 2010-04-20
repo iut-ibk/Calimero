@@ -1,5 +1,7 @@
 #include <CalibrationEnv.h>
 #include <Logger.h>
+#include <boost/foreach.hpp>
+#include <Domain.h>
 
 CalibrationEnv* CalibrationEnv::instance = 0;
 
@@ -203,7 +205,9 @@ bool CalibrationEnv::exec(vector<CalibrationVariable*> calibrationparameters)
         return false;
     }
 
-    threadpool->pushIteration(calibrationparameters);
+    if(!threadpool->pushIteration(calibrationparameters,calibration))
+        return false;
+
     return true;
 }
 

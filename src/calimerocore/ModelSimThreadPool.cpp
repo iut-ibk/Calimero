@@ -5,6 +5,9 @@
 #include <IModelSimulator.h>
 #include <IterationResult.h>
 #include <Logger.h>
+#include <ExternalParameterRegistry.h>
+#include <Domain.h>
+#include <ModelSimRunnable.h>
 
 
 ModelSimThreadPool::ModelSimThreadPool(int threadnum)
@@ -16,9 +19,14 @@ ModelSimThreadPool::~ModelSimThreadPool()
 {
 }
 
-bool ModelSimThreadPool::pushIteration( vector<CalibrationVariable*> calibrationparameters)
+bool ModelSimThreadPool::pushIteration( vector<CalibrationVariable*> vars, Calibration *calibration)
 {
-    Logger(Error) << "TODO ==================== pushIteration not implemented in ModelSimThreadPool";
-    return false;
+    ModelSimRunnable *simulation = new ModelSimRunnable(vars,calibration);
+    simulation->setAutoDelete(true);
+
+    while(!tryStart(simulation))
+        wait();
+
+    return true;
 }
 

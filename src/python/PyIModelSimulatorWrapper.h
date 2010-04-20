@@ -24,12 +24,9 @@ struct IModelSimulatorWrapper : IModelSimulator, wrapper<IModelSimulator> {
         Py_DECREF(self);
     }
 
-    bool exec(vector<CalibrationVariable*> calibrationparameters,
-                      vector<Variable*> observedparameters,
-                      vector<Variable*> iterationparameters,
-                      vector<ObjectiveFunctionVariable*> objectivefunctionparameters, IterationResult *result)
+    bool exec(Domain *dom)
     {
-        return call_method<bool>(self, "exec", iterationparameters, observedparameters, objectivefunctionparameters, result);
+        return call_method<bool>(self, "exec", dom);
     }
 
     void stop()

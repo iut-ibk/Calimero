@@ -9,6 +9,7 @@
 #include <QThread>
 #include <CalimeroGlob.h>
 #include <ModelSimThreadPool.h>
+#include <ExternalParameterRegistry.h>
 
 class CALIMERO_PUBLIC CalibrationEnv : public QThread
 {

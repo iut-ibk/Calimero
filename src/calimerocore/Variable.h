@@ -5,10 +5,10 @@
 #include <vector>
 #include <set>
 #include <CalimeroGlob.h>
-#include <Domain.h>
 
 using namespace std;
 class ObjectiveFunctionVariable;
+class Domain;
 
 enum  VARTYPE {CALIBRATIONVARIABLE = 0,
                OBJECTIVEFUNCTIONVARIABLE = 1,

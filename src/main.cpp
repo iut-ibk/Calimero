@@ -63,9 +63,9 @@ int main()
         Logger(Debug) << "Registry test FAILED";
 
     objectf.setObjectiveFunction("TestOFunction",map<string,string>());
-    /*
-    objectf2.addParameter(&objectf);
-    objectf3.addParameter(&objectf2);
+
+    objectf2.addParameter(objectf.getName());
+    /*objectf3.addParameter(&objectf2);
     objectf4.addParameter(&objectf3);
     objectf5.addParameter(&objectf4);
     ObjectiveFunctionVariable *pvar = new ObjectiveFunctionVariable("pvar");
@@ -87,8 +87,8 @@ int main()
     objectf.addParameter(nvar);
     delete nvar;
     delete pvar;
-    objectf6.getValues();
-    */
+    objectf6.getValues();*/
+
 
     //calibration test
     Calibration *testcali = new Calibration();
