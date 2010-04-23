@@ -9,7 +9,6 @@ using namespace std;
 class CALIMERO_PUBLIC FunctionLoader
 {
 public:
-    static void loadScripts(const string &path);
     static void loadNative(const string &path);
 };
 
