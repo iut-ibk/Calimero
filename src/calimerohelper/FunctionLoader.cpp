@@ -1,9 +1,7 @@
 #include <FunctionLoader.h>
 #include <QDir>
 #include <iostream>
-#include <PyEnv.h>
 #include <CalibrationEnv.h>
-#include <PyException.h>
 
 void FunctionLoader::loadNative(const string &path)
 {
