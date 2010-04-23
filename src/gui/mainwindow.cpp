@@ -9,6 +9,7 @@
 #include <FunctionLoader.h>
 #include <PyException.h>
 #include <CalibrationEnv.h>
+#include <PyFunctionLoader.h>
 
 
 
@@ -99,8 +100,8 @@ void MainWindow::init()
 {
     Logger(Debug) << "init called";
 
-    FunctionLoader::loadScripts("./");
-    FunctionLoader::loadScripts("../../scripts/");
+    PyFunctionLoader::loadScripts("./");
+    PyFunctionLoader::loadScripts("../../scripts/");
     FunctionLoader::loadNative("./");
 
     vector<string> ofunvec = CalibrationEnv::getInstance()->getObjectiveFunctionReg()->getAvailableFunctions();

@@ -8,7 +8,7 @@ endif()
 if (${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
     target_link_libraries(calimerohelper calimerocore)
 else()
-    target_link_libraries(calimerohelper calimerocore pycalimero ${Boost_THREAD_LIBRARY})
+    target_link_libraries(calimerohelper calimerocore ${Boost_THREAD_LIBRARY})
 endif()
 
 
