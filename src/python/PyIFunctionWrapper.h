@@ -12,13 +12,13 @@ using namespace std;
 
 void wrapIFunction()
 {
-    class_<std::map<std::string,DATATYPE> >("datatypmap")
-            .def(map_indexing_suite<std::map<std::string, DATATYPE> >())
-            ;
-
     enum_<DATATYPE>("DATATYPE")
             .value("STRING", STRING)
             .value("DOUBLE", DOUBLE)
+            ;
+
+    class_<std::map<std::string, DATATYPE> >("datatypmap")
+            .def(map_indexing_suite<std::map<std::string, DATATYPE> >())
             ;
 
     class_<IFunction, boost::noncopyable>("IFunction")

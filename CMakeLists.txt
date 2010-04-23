@@ -15,7 +15,7 @@ endif()
 INCLUDE_DIRECTORIES(src/calimerocore
                     src/python
                     src/nativefunctions
-                    #src/calimerohelper
+                    src/calimerohelper
                     )
 
 FIND_PACKAGE(Qt4 REQUIRED)
@@ -48,14 +48,15 @@ SET(EXECUTABLE_OUTPUT_PATH ${calimero_BINARY_DIR})
 ADD_SUBDIRECTORY(src/calimerocore)
 ADD_SUBDIRECTORY(src/python)
 ADD_SUBDIRECTORY(src/nativefunctions)
-#ADD_SUBDIRECTORY(src/calimerohelper)
+ADD_SUBDIRECTORY(src/gui)
+ADD_SUBDIRECTORY(src/calimerohelper)
 
 
 add_executable(calimero ./src/main.cpp)
 if (${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
-    target_link_libraries(calimero pycalimero calimerocore)
+    target_link_libraries(calimero pycalimero calimerocore calimerohelper)
 else()
-    target_link_libraries(calimero pycalimero calimerocore ${Boost_PROGRAM_OPTIONS_LIBRARY} ${Boost_DATE_TIME_LIBRARY})
+    target_link_libraries(calimero pycalimero calimerocore calimerohelper ${Boost_PROGRAM_OPTIONS_LIBRARY} ${Boost_DATE_TIME_LIBRARY})
 endif()
 
 INSTALL(TARGETS calimero RUNTIME DESTINATION bin)

@@ -1,6 +1,8 @@
 #include <IFunctionFactory.h>
 #include <boost/python.hpp>
 #include <string>
+#include <PyException.h>
+#include <PyEnv.h>
 
 using namespace std;
 using namespace boost::python;
@@ -31,7 +33,7 @@ template <typename T> PyFunctionFactory<T>::~PyFunctionFactory() {
         delete priv;
 }
 
-template <typename T> T *PyFunctionFactory<T>::createFunction() const {
+template <typename T> T* PyFunctionFactory<T>::createFunction() const {
         try {
                 object function = priv->klass();
                 auto_ptr<T> apf = extract<auto_ptr<T> >(function);
@@ -39,8 +41,7 @@ template <typename T> T *PyFunctionFactory<T>::createFunction() const {
                 apf.release();
                 return f;
         } catch(error_already_set const &) {
-                PyErr_Print();
-                abort();
+            handle_python_exception();
         }
         return 0;
 }

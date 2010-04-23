@@ -33,7 +33,7 @@ template <typename T> class Registry
         ~Registry();
         IFUNCTIONTYPE getType();
         bool registerFunction(IFunctionFactory* factory);
-        void addNativePlugin(const std::string &plugin_path);
+        bool addNativePlugin(const std::string &plugin_path);
         T* getFunction(string name);
         map<string,DATATYPE> getSettingTypes(string name);
         bool contains(string name);
@@ -101,13 +101,13 @@ template <typename T> bool Registry<T>::contains(string name)
     return registered_factories.find(name)!=registered_factories.end();
 }
 
-template <typename T> void Registry<T>::addNativePlugin(const std::string &plugin_path) {
+template <typename T> bool Registry<T>::addNativePlugin(const std::string &plugin_path) {
         QLibrary l(QString::fromStdString(plugin_path));
         bool loaded = l.load();
         if(!loaded)
         {
             Logger(Error) << "could not load plugin: " << plugin_path;
-            return;
+            return false;
         }
 
         regProto regFunction = 0;
@@ -124,6 +124,7 @@ template <typename T> void Registry<T>::addNativePlugin(const std::string &plugi
             break;
         case NOTYPE:
             Logger(Error) << "Registry has no valid type";
+            return false;
             break;
         }
 
@@ -131,7 +132,9 @@ template <typename T> void Registry<T>::addNativePlugin(const std::string &plugi
                 regFunction(this);
         } else {
                 Logger(Warning) << plugin_path << " has no function register hook";
+                return false;
         }
+        return true;
 }
 
 template <typename T> IFUNCTIONTYPE Registry<T>::getType()

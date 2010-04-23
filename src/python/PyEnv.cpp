@@ -25,6 +25,7 @@
 #include <PyIFunctionWrapper.h>
 #include <boost/python/scope.hpp>
 #include <IterationResult.h>
+#include <PyException.h>
 
 using namespace boost::python;
 
@@ -153,8 +154,7 @@ void PyEnv::registerFunctions(Registry<IObjectiveFunction> *registry, const stri
            }
 
    } catch(error_already_set const &) {
-           PyErr_Print();
-           abort();
+           handle_python_exception();
    }
 }
 
@@ -179,8 +179,7 @@ void PyEnv::registerFunctions(Registry<IModelSimulator> *registry, const string 
            }
 
    } catch(error_already_set const &) {
-           PyErr_Print();
-           abort();
+           handle_python_exception();
    }
 }
 
@@ -206,7 +205,42 @@ void PyEnv::registerFunctions(Registry<ICalibrationAlg> *registry, const string 
            }
 
    } catch(error_already_set const &) {
-           PyErr_Print();
-           abort();
+          handle_python_exception();
    }
+}
+
+void handle_python_exception()
+{
+    try
+    {
+        throw ;
+    }
+    catch(python::error_already_set const &)
+    {
+        PyObject* type, *value, *traceback;
+        PyErr_Fetch(&type, &value, &traceback);
+        python::handle<> ty(type), v(value), tr(traceback);
+        python::str format("%s|%s|%s");//fucking dirty hack because python error handling sucks soooo much
+        python::object ret = format % python::make_tuple(ty, v, tr);
+        string error = python::extract<string>(ret);
+        throw PythonException(error);
+    }
+}
+
+void wrapPyEnv()
+{
+    void    (PyEnv::*fx1)(Registry<IObjectiveFunction> *registry, const string &module) = &PyEnv::registerFunctions;
+    void    (PyEnv::*fx2)(Registry<ICalibrationAlg> *registry, const string &module) = &PyEnv::registerFunctions;
+    void    (PyEnv::*fx3)(Registry<IModelSimulator> *registry, const string &module) = &PyEnv::registerFunctions;
+
+    class_<PyEnv>("PyEnv",no_init)
+            .def("addPythonPath", &PyEnv::addPythonPath)
+            .def("getInstance", &PyEnv::getInstance, return_value_policy<reference_existing_object>())
+            .def("destroy", &PyEnv::destroy)
+            .staticmethod("getInstance")
+            .staticmethod("destroy")
+            .def("registerFunctions", fx1)
+            .def("registerFunctions", fx2)
+            .def("registerFunctions", fx3)
+            ;
 }

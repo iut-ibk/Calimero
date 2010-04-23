@@ -6,6 +6,7 @@
 #include <ObjectiveFunctionVariable.h>
 #include <Variable.h>
 #include <IModelSimulator.h>
+#include <PyEnv.h>
 
 
 using namespace boost::python;
@@ -26,12 +27,31 @@ struct IModelSimulatorWrapper : IModelSimulator, wrapper<IModelSimulator> {
 
     bool exec(Domain *dom)
     {
-        return call_method<bool>(self, "exec", dom);
+        try {
+                if (python::override f = this->get_override("exec")) {
+                        return f(dom);
+                } else {
+                        //TODO do something here now reason there is no f method
+                }
+        } catch(python::error_already_set const &) {
+                Logger(Error) << __FILE__ << ":" << __LINE__;
+                handle_python_exception();
+        }
+        return false;
     }
 
     void stop()
     {
-        return call_method<void>(self, "stop");
+        try {
+                if (python::override f = this->get_override("stop")) {
+                        f();
+                } else {
+                        //TODO do something here now reason there is no f method
+                }
+        } catch(python::error_already_set const &) {
+                Logger(Error) << __FILE__ << ":" << __LINE__;
+                handle_python_exception();
+        }
     }
 
 
@@ -41,6 +61,7 @@ private:
 
 void wrapIModelSimulator()
 {
+        python::implicitly_convertible<auto_ptr<IModelSimulatorWrapper>, auto_ptr<IModelSimulator> >();
         class_<IModelSimulator, bases<IFunction>, auto_ptr<IModelSimulatorWrapper>, boost::noncopyable>("IModelSimulator")
                 .def("exec", pure_virtual(&IModelSimulatorWrapper::exec))
                 ;

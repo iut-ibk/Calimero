@@ -14,6 +14,7 @@
 #include <Calibration.h>
 #include <IModelSimulator.h>
 #include <CalibrationEnv.h>
+#include <PyException.h>
 
 int main()
 {
@@ -42,6 +43,14 @@ int main()
     env->registerFunctions(cal->getObjectiveFunctionReg(),"testcali");
     env->registerFunctions(cal->getCalibrationAlgReg(),"testcalibration");
 
+    try{
+        CalibrationEnv::getInstance()->getObjectiveFunctionReg()->getFunction("MyOF1");
+    }
+    catch (PythonException e)
+    {
+        Logger(Error) << e.type;
+        Logger(Error) << e.value;
+    }
 
     //test registry
     if(cal->getObjectiveFunctionReg()->contains("MyOF1"))
@@ -64,7 +73,7 @@ int main()
 
     objectf.setObjectiveFunction("TestOFunction",map<string,string>());
 
-    objectf2.addParameter(objectf.getName());
+    //objectf2.addParameter(objectf.getName());
     /*objectf3.addParameter(&objectf2);
     objectf4.addParameter(&objectf3);
     objectf5.addParameter(&objectf4);
