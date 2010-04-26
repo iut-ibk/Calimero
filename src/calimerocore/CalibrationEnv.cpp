@@ -2,6 +2,7 @@
 #include <Logger.h>
 #include <boost/foreach.hpp>
 #include <Domain.h>
+#include <assert.h>
 
 CalibrationEnv* CalibrationEnv::instance = 0;
 
@@ -14,6 +15,7 @@ CalibrationEnv::CalibrationEnv()
     creg = new Registry<ICalibrationAlg>();
     threadpool = 0;
     numthread=1;
+    calibration=0;
 }
 
 CalibrationEnv::~CalibrationEnv()
@@ -121,6 +123,7 @@ bool CalibrationEnv::setNumThreads(int num)
 
 Calibration* CalibrationEnv::getCalibration()
 {
+    assert (calibration);
     return calibration;
 }
 

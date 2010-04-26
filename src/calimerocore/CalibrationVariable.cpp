@@ -13,6 +13,7 @@ CalibrationVariable::CalibrationVariable(string Name, vector<double> values) : V
 
     min = 0;
     max = 0;
+    step = 0;
 }
 
 
@@ -84,3 +85,14 @@ bool CalibrationVariable::checkrange(const vector<double> vec, double min, doubl
 
     return true;
 }
+
+double CalibrationVariable::getStep()
+{
+    return step;
+}
+
+void CalibrationVariable::setStep(double step)
+{
+    this->step=step;
+}
+

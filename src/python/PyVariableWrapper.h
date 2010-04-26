@@ -31,6 +31,7 @@ void wrapVariable()
         .def("setInitValues", &CalibrationVariable::setInitValues)
         .add_property("max", &CalibrationVariable::getMax, &CalibrationVariable::setMax)
         .add_property("min", &CalibrationVariable::getMin, &CalibrationVariable::setMin)
+        .add_property("step", &CalibrationVariable::getStep, &CalibrationVariable::setStep)
         ;
 
     class_<ObjectiveFunctionVariable, bases<Variable> >("ObjectiveFunctionVariable", init<std::string>())

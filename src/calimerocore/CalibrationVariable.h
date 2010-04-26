@@ -9,6 +9,7 @@ class CALIMERO_PUBLIC CalibrationVariable : public Variable
         vector<double> initvalues;
         double min;
         double max;
+        double step;
 
     private:
         bool checkrange(const vector<double> vec, double min, double max);
@@ -24,6 +25,8 @@ class CALIMERO_PUBLIC CalibrationVariable : public Variable
         double getMax();
         void setMin(double value);
         double getMin();
+        double getStep();
+        void setStep(double step);
 };
 
 

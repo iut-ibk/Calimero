@@ -4,6 +4,7 @@
 #include <Variable.h>
 #include <ObjectiveFunctionVariable.h>
 #include <CalibrationVariable.h>
+#include <assert.h>
 
 Domain::Domain(){
 }

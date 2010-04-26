@@ -21,7 +21,7 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_3">
-    <item row="0" column="1">
+    <item row="0" column="0">
      <widget class="QSplitter" name="splitter">
       <property name="orientation">
        <enum>Qt::Vertical</enum>
@@ -67,8 +67,8 @@
            <property name="title">
             <string>Parameters</string>
            </property>
-           <layout class="QGridLayout" name="gridLayout_4">
-            <item row="0" column="0" colspan="3">
+           <layout class="QVBoxLayout" name="verticalLayout_3">
+            <item>
              <widget class="QComboBox" name="comboBox">
               <item>
                <property name="text">
@@ -92,47 +92,55 @@
               </item>
              </widget>
             </item>
-            <item row="1" column="0" colspan="3">
-             <widget class="QListWidget" name="listWidget"/>
-            </item>
-            <item row="2" column="0">
-             <spacer name="horizontalSpacer">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>187</width>
-                <height>24</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="2" column="1">
-             <widget class="QPushButton" name="pushButton_6">
-              <property name="maximumSize">
-               <size>
-                <width>27</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>+</string>
+            <item>
+             <widget class="QListWidget" name="vars">
+              <property name="selectionMode">
+               <enum>QAbstractItemView::ExtendedSelection</enum>
               </property>
              </widget>
             </item>
-            <item row="2" column="2">
-             <widget class="QPushButton" name="pushButton_5">
-              <property name="maximumSize">
-               <size>
-                <width>27</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>-</string>
-              </property>
-             </widget>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_4">
+              <item>
+               <spacer name="horizontalSpacer_4">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>187</width>
+                  <height>24</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QPushButton" name="delvar">
+                <property name="maximumSize">
+                 <size>
+                  <width>27</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="newvar">
+                <property name="maximumSize">
+                 <size>
+                  <width>27</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>+</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </item>
            </layout>
           </widget>
@@ -161,9 +169,9 @@
                <property name="geometry">
                 <rect>
                  <x>0</x>
-                 <y>-127</y>
+                 <y>-266</y>
                  <width>671</width>
-                 <height>508</height>
+                 <height>766</height>
                 </rect>
                </property>
                <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -196,7 +204,7 @@
                     </widget>
                    </item>
                    <item row="0" column="1">
-                    <widget class="QLabel" name="label_2">
+                    <widget class="QLabel" name="varname">
                      <property name="text">
                       <string>name_of_parameter</string>
                      </property>
@@ -237,7 +245,7 @@
                     </widget>
                    </item>
                    <item row="0" column="1">
-                    <widget class="QDoubleSpinBox" name="doubleSpinBox_14">
+                    <widget class="QDoubleSpinBox" name="calvarvalue">
                      <property name="minimumSize">
                       <size>
                        <width>204</width>
@@ -254,10 +262,16 @@
                       <number>10</number>
                      </property>
                      <property name="minimum">
-                      <double>-999999999.000000000000000</double>
+                      <double>-100.000000000000000</double>
                      </property>
                      <property name="maximum">
-                      <double>999999999.000000000000000</double>
+                      <double>100.000000000000000</double>
+                     </property>
+                     <property name="singleStep">
+                      <double>1.000000000000000</double>
+                     </property>
+                     <property name="value">
+                      <double>0.000000000000000</double>
                      </property>
                     </widget>
                    </item>
@@ -269,7 +283,7 @@
                     </widget>
                    </item>
                    <item row="1" column="1">
-                    <widget class="QDoubleSpinBox" name="doubleSpinBox_6">
+                    <widget class="QDoubleSpinBox" name="calvarinit">
                      <property name="minimumSize">
                       <size>
                        <width>204</width>
@@ -286,10 +300,13 @@
                       <number>10</number>
                      </property>
                      <property name="minimum">
-                      <double>-999999999.000000000000000</double>
+                      <double>-100.000000000000000</double>
                      </property>
                      <property name="maximum">
-                      <double>999999999.000000000000000</double>
+                      <double>100.000000000000000</double>
+                     </property>
+                     <property name="singleStep">
+                      <double>1.000000000000000</double>
                      </property>
                     </widget>
                    </item>
@@ -301,7 +318,7 @@
                     </widget>
                    </item>
                    <item row="2" column="1">
-                    <widget class="QDoubleSpinBox" name="doubleSpinBox_5">
+                    <widget class="QDoubleSpinBox" name="calvarmin">
                      <property name="minimumSize">
                       <size>
                        <width>204</width>
@@ -318,10 +335,13 @@
                       <number>10</number>
                      </property>
                      <property name="minimum">
-                      <double>-999999999.000000000000000</double>
+                      <double>-100.000000000000000</double>
                      </property>
                      <property name="maximum">
-                      <double>999999999.000000000000000</double>
+                      <double>100.000000000000000</double>
+                     </property>
+                     <property name="singleStep">
+                      <double>1.000000000000000</double>
                      </property>
                     </widget>
                    </item>
@@ -333,7 +353,7 @@
                     </widget>
                    </item>
                    <item row="3" column="1">
-                    <widget class="QDoubleSpinBox" name="doubleSpinBox_10">
+                    <widget class="QDoubleSpinBox" name="calvarmax">
                      <property name="minimumSize">
                       <size>
                        <width>204</width>
@@ -350,10 +370,16 @@
                       <number>10</number>
                      </property>
                      <property name="minimum">
-                      <double>-999999999.000000000000000</double>
+                      <double>-100.000000000000000</double>
                      </property>
                      <property name="maximum">
-                      <double>999999999.000000000000000</double>
+                      <double>100.000000000000000</double>
+                     </property>
+                     <property name="singleStep">
+                      <double>1.000000000000000</double>
+                     </property>
+                     <property name="value">
+                      <double>100.000000000000000</double>
                      </property>
                     </widget>
                    </item>
@@ -365,7 +391,7 @@
                     </widget>
                    </item>
                    <item row="4" column="1">
-                    <widget class="QDoubleSpinBox" name="doubleSpinBox_13">
+                    <widget class="QDoubleSpinBox" name="calvarstep">
                      <property name="minimumSize">
                       <size>
                        <width>204</width>
@@ -382,10 +408,16 @@
                       <number>10</number>
                      </property>
                      <property name="minimum">
-                      <double>-999999999.000000000000000</double>
+                      <double>0.000000000000000</double>
                      </property>
                      <property name="maximum">
-                      <double>999999999.000000000000000</double>
+                      <double>10.000000000000000</double>
+                     </property>
+                     <property name="singleStep">
+                      <double>1.000000000000000</double>
+                     </property>
+                     <property name="value">
+                      <double>1.000000000000000</double>
                      </property>
                     </widget>
                    </item>
@@ -406,10 +438,7 @@
                     <height>16777215</height>
                    </size>
                   </property>
-                  <layout class="QFormLayout" name="formLayout_3">
-                   <property name="fieldGrowthPolicy">
-                    <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
-                   </property>
+                  <layout class="QFormLayout" name="formLayout">
                    <item row="0" column="0">
                     <widget class="QLabel" name="label_7">
                      <property name="minimumSize">
@@ -424,29 +453,113 @@
                     </widget>
                    </item>
                    <item row="0" column="1">
-                    <widget class="QDoubleSpinBox" name="doubleSpinBox_12">
+                    <widget class="QTableWidget" name="varvalues">
                      <property name="minimumSize">
                       <size>
-                       <width>204</width>
-                       <height>0</height>
+                       <width>0</width>
+                       <height>250</height>
                       </size>
                      </property>
                      <property name="maximumSize">
                       <size>
-                       <width>204</width>
-                       <height>16777215</height>
+                       <width>16777215</width>
+                       <height>250</height>
                       </size>
                      </property>
-                     <property name="decimals">
-                      <number>10</number>
+                     <property name="editTriggers">
+                      <set>QAbstractItemView::AllEditTriggers</set>
                      </property>
-                     <property name="minimum">
-                      <double>-999999999.000000000000000</double>
-                     </property>
-                     <property name="maximum">
-                      <double>999999999.000000000000000</double>
-                     </property>
+                     <attribute name="horizontalHeaderVisible">
+                      <bool>true</bool>
+                     </attribute>
+                     <attribute name="horizontalHeaderCascadingSectionResizes">
+                      <bool>false</bool>
+                     </attribute>
+                     <attribute name="horizontalHeaderDefaultSectionSize">
+                      <number>185</number>
+                     </attribute>
+                     <attribute name="horizontalHeaderMinimumSectionSize">
+                      <number>185</number>
+                     </attribute>
+                     <attribute name="verticalHeaderVisible">
+                      <bool>true</bool>
+                     </attribute>
+                     <attribute name="verticalHeaderDefaultSectionSize">
+                      <number>20</number>
+                     </attribute>
+                     <attribute name="verticalHeaderMinimumSectionSize">
+                      <number>20</number>
+                     </attribute>
+                     <attribute name="verticalHeaderVisible">
+                      <bool>true</bool>
+                     </attribute>
+                     <attribute name="verticalHeaderDefaultSectionSize">
+                      <number>20</number>
+                     </attribute>
+                     <attribute name="horizontalHeaderCascadingSectionResizes">
+                      <bool>false</bool>
+                     </attribute>
+                     <attribute name="horizontalHeaderVisible">
+                      <bool>true</bool>
+                     </attribute>
+                     <attribute name="horizontalHeaderMinimumSectionSize">
+                      <number>185</number>
+                     </attribute>
+                     <attribute name="verticalHeaderMinimumSectionSize">
+                      <number>20</number>
+                     </attribute>
+                     <attribute name="horizontalHeaderDefaultSectionSize">
+                      <number>185</number>
+                     </attribute>
+                     <column>
+                      <property name="text">
+                       <string>Value</string>
+                      </property>
+                     </column>
                     </widget>
+                   </item>
+                   <item row="1" column="1">
+                    <layout class="QHBoxLayout" name="horizontalLayout_3">
+                     <item>
+                      <spacer name="horizontalSpacer">
+                       <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                       </property>
+                       <property name="sizeHint" stdset="0">
+                        <size>
+                         <width>187</width>
+                         <height>24</height>
+                        </size>
+                       </property>
+                      </spacer>
+                     </item>
+                     <item>
+                      <widget class="QPushButton" name="vardelvalue">
+                       <property name="maximumSize">
+                        <size>
+                         <width>27</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="text">
+                        <string>-</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QPushButton" name="varaddvalue">
+                       <property name="maximumSize">
+                        <size>
+                         <width>27</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="text">
+                        <string>+</string>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
                    </item>
                   </layout>
                  </widget>
@@ -485,31 +598,6 @@
                      </property>
                     </widget>
                    </item>
-                   <item row="0" column="1">
-                    <widget class="QDoubleSpinBox" name="doubleSpinBox_11">
-                     <property name="minimumSize">
-                      <size>
-                       <width>204</width>
-                       <height>0</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>204</width>
-                       <height>16777215</height>
-                      </size>
-                     </property>
-                     <property name="decimals">
-                      <number>10</number>
-                     </property>
-                     <property name="minimum">
-                      <double>-999999999.000000000000000</double>
-                     </property>
-                     <property name="maximum">
-                      <double>999999999.000000000000000</double>
-                     </property>
-                    </widget>
-                   </item>
                    <item row="1" column="0">
                     <widget class="QLabel" name="label_9">
                      <property name="text">
@@ -519,39 +607,13 @@
                    </item>
                    <item row="1" column="1">
                     <layout class="QGridLayout" name="gridLayout_2">
-                     <item row="0" column="0" colspan="3">
-                      <widget class="QListWidget" name="listWidget_3">
+                     <item row="0" column="0" colspan="4">
+                      <widget class="QListWidget" name="ovarmembers">
                        <property name="maximumSize">
                         <size>
                          <width>16777215</width>
                          <height>150</height>
                         </size>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="1" column="1">
-                      <widget class="QPushButton" name="pushButton_9">
-                       <property name="maximumSize">
-                        <size>
-                         <width>27</width>
-                         <height>16777215</height>
-                        </size>
-                       </property>
-                       <property name="text">
-                        <string>+</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="1" column="2">
-                      <widget class="QPushButton" name="pushButton_10">
-                       <property name="maximumSize">
-                        <size>
-                         <width>27</width>
-                         <height>16777215</height>
-                        </size>
-                       </property>
-                       <property name="text">
-                        <string>-</string>
                        </property>
                       </widget>
                      </item>
@@ -568,6 +630,32 @@
                        </property>
                       </spacer>
                      </item>
+                     <item row="1" column="2">
+                      <widget class="QPushButton" name="ovaraddmember">
+                       <property name="maximumSize">
+                        <size>
+                         <width>27</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="text">
+                        <string>+</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="1" column="1">
+                      <widget class="QPushButton" name="ovardelmebmer">
+                       <property name="maximumSize">
+                        <size>
+                         <width>27</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="text">
+                        <string>-</string>
+                       </property>
+                      </widget>
+                     </item>
                     </layout>
                    </item>
                    <item row="2" column="0">
@@ -580,10 +668,10 @@
                    <item row="2" column="1">
                     <layout class="QHBoxLayout" name="horizontalLayout_2">
                      <item>
-                      <widget class="QComboBox" name="comboBox_ofun"/>
+                      <widget class="QComboBox" name="ovarofun"/>
                      </item>
                      <item>
-                      <widget class="QPushButton" name="button_ofun_advanced">
+                      <widget class="QPushButton" name="ovaradvanced">
                        <property name="maximumSize">
                         <size>
                          <width>85</width>
@@ -596,6 +684,13 @@
                       </widget>
                      </item>
                     </layout>
+                   </item>
+                   <item row="0" column="1">
+                    <widget class="QLineEdit" name="ovarvalues">
+                     <property name="readOnly">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
                    </item>
                   </layout>
                  </widget>
@@ -779,14 +874,14 @@
          </widget>
         </item>
         <item row="1" column="1">
-         <widget class="QPushButton" name="pushButton">
+         <widget class="QPushButton" name="calstart">
           <property name="text">
            <string>Start</string>
           </property>
          </widget>
         </item>
         <item row="1" column="2">
-         <widget class="QPushButton" name="pushButton_2">
+         <widget class="QPushButton" name="calstop">
           <property name="text">
            <string>Stop</string>
           </property>
