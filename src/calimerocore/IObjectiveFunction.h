@@ -30,8 +30,8 @@ class CALIMERO_PUBLIC IObjectiveFunction : public IFunction
             return OBJECTIVEFUNCTION;
         }
 
-        virtual std::vector<double> eval(std::vector<Variable*>* iterationparameters,
-                                         std::vector<Variable*>* observedparameters,
-                                         std::vector<ObjectiveFunctionVariable*>* objectivefunctionparameters) = 0;
+        virtual std::vector<double> eval(std::vector<Variable*> iterationparameters,
+                                         std::vector<Variable*> observedparameters,
+                                         std::vector<ObjectiveFunctionVariable*> objectivefunctionparameters) = 0;
 };
 #endif // OBJECTIVEFUNCTIONINTERFACE_H_INCLUDED

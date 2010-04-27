@@ -22,7 +22,6 @@
 #include <Log.h>
 #include <LogSink.h>
 #include <Logger.h>
-#include <PyIFunctionWrapper.h>
 #include <boost/python/scope.hpp>
 #include <IterationResult.h>
 #include <PyException.h>
@@ -69,9 +68,25 @@ BOOST_PYTHON_MODULE(pycalimero)
         class_<std::map<int,DATATYPE> >("datatypemap")
                 .def(map_indexing_suite<std::map<int, DATATYPE> >());
 
+        class_<std::map<std::string, DATATYPE> >("datatypmap")
+                .def(map_indexing_suite<std::map<std::string, DATATYPE> >());
+
+        enum_<DATATYPE>("DATATYPE")
+                .value("STRING", STRING)
+                .value("DOUBLE", DOUBLE)
+                ;
+
+        class_<IFunction, boost::noncopyable>("IFunction")
+                .def("containsParameter", &IFunction::containsParameter)
+                .def("setValueOfParameter", &IFunction::setValueOfParameter)
+                .def("getDataTypes", &IFunction::getDataTypes)
+                .def("getValueOfParameter", &IFunction::getValueOfParameter)
+                .def("setDataType", &IFunction::setDataType)
+                .def("getParameterValues", &IFunction::getParameterValues)
+                ;
+
         wrapDomain();
         wrapCalibrationEnv();
-        wrapIFunction();
         wrapIterationResult();
         wrapIModelSimulator();
         wrapOFunction();
@@ -80,6 +95,11 @@ BOOST_PYTHON_MODULE(pycalimero)
         wrapCalibration();
         wrapRegistry();
         wrapPyEnv();
+
+        register_ptr_to_python< Variable* >();
+        register_ptr_to_python< ObjectiveFunctionVariable* >();
+        register_ptr_to_python< CalibrationVariable* >();
+        register_ptr_to_python< IterationResult* >();
 
         def("init", ::init, "must be called first\n initializes the logger");
         def("log", logdebug);

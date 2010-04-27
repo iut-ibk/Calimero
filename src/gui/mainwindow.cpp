@@ -11,6 +11,7 @@
 #include <CalibrationEnv.h>
 #include <PyFunctionLoader.h>
 #include <QtGui>
+#include <PyException.h>
 
 
 
@@ -51,6 +52,7 @@ void MainWindow::setupStateMachine() {
                     var_clean->assignProperty(ui->var_widget, "enabled", false);
                     var_clean->assignProperty(ui->varname,"text", "");
                     var_clean->assignProperty(ui->vardelvalue,"enabled", false);
+                    var_clean->assignProperty(ui->varvalues,"rowCount", 0);
 
                     QState *var_enabled = new QState(var_prop);
                     var_enabled->assignProperty(ui->var_widget, "enabled", true);
@@ -67,13 +69,18 @@ void MainWindow::setupStateMachine() {
                 ovar_prop->assignProperty(ui->ovaradvanced, "enabled", false);
                 ovar_prop->assignProperty(ui->delvar, "enabled",false);
 
-                //Objective function variable properties + advanced
-                QState *ovar_prop_advanced = new QState(var_group);
-                ovar_prop_advanced->assignProperty(ui->var_widget, "visible", false);
-                ovar_prop_advanced->assignProperty(ui->calvar_widget, "visible", false);
-                ovar_prop_advanced->assignProperty(ui->ovar_widget, "visible", true);
-                ovar_prop_advanced->assignProperty(ui->ovaradvanced, "enabled", true);
-                ovar_prop->assignProperty(ui->delvar, "enabled",false);
+                    QState *ovar_clean = new QState(ovar_prop);
+                    ovar_prop->setInitialState(ovar_clean);
+                    ovar_clean->assignProperty(ui->ovar_widget, "enabled", false);
+                    ovar_clean->assignProperty(ui->ovardelmember, "enabled", false);
+                    ovar_clean->assignProperty(ui->varname,"text", "");
+                    ovar_clean->assignProperty(ui->ovarvalues, "text", "");
+
+                    QState *ovar_enabled = new QState(ovar_prop);
+                    ovar_enabled->assignProperty(ui->ovar_widget, "enabled", true);
+
+                    ovar_clean->addTransition(ui->vars, SIGNAL(itemClicked ( QListWidgetItem * )),ovar_enabled);
+                    ovar_enabled->addTransition(this, SIGNAL(disable_varsettings()),ovar_clean);
 
                 //Calibration variable properties
                 QState *calvar_prop = new QState(var_group);
@@ -119,11 +126,6 @@ void MainWindow::setupStateMachine() {
                     calvar_clean->addTransition(ui->vars, SIGNAL(itemClicked ( QListWidgetItem * )),calvar_enabled);
                     calvar_enabled->addTransition(this, SIGNAL(disable_varsettings()),calvar_clean);
 
-
-
-                //Choose ofun
-                QState *choose_ofun = new QState(var_group);
-
                 //transitions
                 var_prop->addTransition(this, SIGNAL(show_ovar()), ovar_prop);
                 var_prop->addTransition(this, SIGNAL(show_calvar()), calvar_prop);
@@ -131,20 +133,11 @@ void MainWindow::setupStateMachine() {
                 ovar_prop->addTransition(this, SIGNAL(show_calvar()), calvar_prop);
                 calvar_prop->addTransition(this, SIGNAL(show_ovar()), ovar_prop);
                 calvar_prop->addTransition(this, SIGNAL(show_var()), var_prop);
-
-                ovar_prop->addTransition(ui->ovarofun, SIGNAL(currentIndexChanged ( int )), choose_ofun);
-                ovar_prop_advanced->addTransition(ui->ovarofun, SIGNAL(currentIndexChanged ( int )), choose_ofun);
-                choose_ofun->addTransition(this,SIGNAL(show_ovar()),ovar_prop);
-                choose_ofun->addTransition(this,SIGNAL(show_ovar_advanced()),ovar_prop_advanced);
-                ovar_prop_advanced->addTransition(this, SIGNAL(show_var()), var_prop);
-                ovar_prop_advanced->addTransition(this, SIGNAL(show_calvar()), calvar_prop);
-
                 init->addTransition(this, SIGNAL(start_gui()),tab_states);
 
-                //qconnect
-                QObject::connect(choose_ofun,SIGNAL(entered()),this,SLOT(setOFunction()));
                 QObject::connect(init,SIGNAL(entered()),this,SLOT(init()));
                 QObject::connect(var_clean,SIGNAL(entered()),ui->varvalues, SLOT(clearContents()));
+                QObject::connect(ovar_clean,SIGNAL(entered()),ui->ovarmembers, SLOT(clear()));
 
         //start statemachine
         state_machine->addState(tab_states);
@@ -164,6 +157,8 @@ void MainWindow::init()
     vector<string> ofunvec = CalibrationEnv::getInstance()->getObjectiveFunctionReg()->getAvailableFunctions();
 
     QStringList ofunlist;
+    //no function
+    ofunlist.append(QString::fromStdString(""));
     BOOST_FOREACH(string name, ofunvec)
             ofunlist.append(QString::fromStdString(name));
 
@@ -295,8 +290,60 @@ void MainWindow::on_vars_itemClicked ( QListWidgetItem * item )
             break;
         }
     case OBJECTIVEFUNCTIONVARIABLE:
+        {
+            ObjectiveFunctionVariable* ovar = static_cast<ObjectiveFunctionVariable*>(current);
+            ui->ovarmembers->clear();
+            ui->ovardelmember->setEnabled(false);
 
-        break;
+            //insert iteration parameters
+            BOOST_FOREACH(string name,ovar->getIterationParameters())
+                    ui->ovarmembers->addItem(QString::fromStdString(name));
+
+            //insert observed parameters
+            BOOST_FOREACH(string name,ovar->getObservedParameters())
+                    ui->ovarmembers->addItem(QString::fromStdString(name));
+
+            //insert objective function parameters
+            BOOST_FOREACH(string name,ovar->getObjectiveFunctionParameters())
+                    ui->ovarmembers->addItem(QString::fromStdString(name));
+
+            //set objective function;
+            int index=0;
+            while(ui->ovarofun->itemText(index)!=QString::fromStdString(ovar->getObjectiveFunction()))
+                index++;
+
+            ui->ovarofun->setCurrentIndex(index);
+
+            //set current values
+            uint i;
+            QString values = "";
+            vector<double> vec;
+
+            try
+            {
+                 vec = ovar->getValues();
+            }
+            catch (PythonException e)
+            {
+                Logger(Error) << e.type;
+                Logger(Error) << e.value;
+            }
+
+
+
+            for(i=0; i < vec.size(); i++)
+            {
+                    values += QString::number(vec[0]) + " ";
+                    if(i==2)
+                        break;
+            }
+
+            if(i < vec.size())
+                values += "...";
+
+            ui->ovarvalues->setText(values);
+            break;
+        }
     }
 }
 
@@ -432,4 +479,84 @@ void MainWindow::on_varvalues_itemSelectionChanged ()
         ui->vardelvalue->setEnabled(false);
     else
         ui->vardelvalue->setEnabled(true);
+}
+
+void MainWindow::on_ovarofun_currentIndexChanged(QString name)
+{
+    if(name=="")
+    {
+        ui->ovaradvanced->setEnabled(false);
+        return;
+    }
+
+    if(!CalibrationEnv::getInstance()->getObjectiveFunctionReg()->getSettingTypes(name.toStdString()).size())
+        ui->ovaradvanced->setEnabled(false);
+    else
+        ui->ovaradvanced->setEnabled(true);
+
+    QListWidgetItem *selecteditem = ui->vars->currentItem();
+    ObjectiveFunctionVariable* ovar = static_cast<ObjectiveFunctionVariable*>(CalibrationEnv::getInstance()->getCalibration()->getDomain()->getPar(selecteditem->text().toStdString()));
+    IObjectiveFunction *fun = CalibrationEnv::getInstance()->getObjectiveFunctionReg()->getFunction(name.toStdString());
+    ovar->setObjectiveFunction(name.toStdString(), fun->getParameterValues());
+    on_vars_itemClicked ( selecteditem );
+    delete fun;
+}
+
+void MainWindow::on_ovardelmember_clicked()
+{
+    QListWidgetItem *selecteditem = ui->vars->currentItem();
+    ObjectiveFunctionVariable* ovar = static_cast<ObjectiveFunctionVariable*>(CalibrationEnv::getInstance()->getCalibration()->getDomain()->getPar(selecteditem->text().toStdString()));
+    QList<QListWidgetItem *> list = ui->ovarmembers->selectedItems ();
+    for(int index=0; index < list.size(); index++ )
+    {
+        bool ok = ovar->removeParameter(list.at(index)->text().toStdString());
+        if(ok)
+            delete list.at(index);
+    }
+    on_vars_itemClicked ( selecteditem );
+}
+
+void MainWindow::on_ovaraddmember_clicked()
+{
+    QListWidgetItem *selecteditem = ui->vars->currentItem();
+    ObjectiveFunctionVariable* ovar = static_cast<ObjectiveFunctionVariable*>(CalibrationEnv::getInstance()->getCalibration()->getDomain()->getPar(selecteditem->text().toStdString()));
+    bool ok;
+    QStringList items;
+
+    //iteration parameters
+    vector<Variable*> available = CalibrationEnv::getInstance()->getCalibration()->getDomain()->getAllPars(ITERATIONVARIABLE);
+    BOOST_FOREACH(Variable* var, available)
+        if(!ovar->containsParameter(var->getName()))
+            items.push_back(QString::fromStdString(var->getName()));
+
+    //observed parameters
+    available = CalibrationEnv::getInstance()->getCalibration()->getDomain()->getAllPars(OBSERVEDVARIABLE);
+    BOOST_FOREACH(Variable* var, available)
+        if(!ovar->containsParameter(var->getName()))
+            items.push_back(QString::fromStdString(var->getName()));
+
+    //objective function parameters
+    available = CalibrationEnv::getInstance()->getCalibration()->getDomain()->getAllPars(OBJECTIVEFUNCTIONVARIABLE);
+    BOOST_FOREACH(Variable* var, available)
+        if(!ovar->containsParameter(var->getName()) && ovar->parameterCycleCheck(var->getName()))
+            items.push_back(QString::fromStdString(var->getName()));
+
+    QString text = QInputDialog::getItem ( this, "Members", "Available", items, 0, false, &ok);
+
+    if (!ok || text.isEmpty())
+        return;
+
+    ok = ovar->addParameter(text.toStdString());
+    if(ok)
+        ui->ovarmembers->addItem(text);
+
+    on_vars_itemClicked ( selecteditem );
+}
+
+void MainWindow::on_ovarmembers_itemSelectionChanged()
+{
+    if(!ui->ovarmembers->selectedItems().size())
+        ui->ovardelmember->setEnabled(false);
+    else
+        ui->ovardelmember->setEnabled(true);
 }

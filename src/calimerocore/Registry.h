@@ -94,10 +94,6 @@ template <typename T> map<string,DATATYPE> Registry<T>::getSettingTypes(string n
 
 template <typename T> bool Registry<T>::contains(string name)
 {
-    std::pair<string, IFunctionFactory*> p;
-    BOOST_FOREACH(p,registered_factories)
-            Logger(Debug) << p.first;
-
     return registered_factories.find(name)!=registered_factories.end();
 }
 

@@ -3,6 +3,7 @@
 #include <string>
 #include <PyException.h>
 #include <PyEnv.h>
+#include <PyIFunctionWrapper.h>
 
 using namespace std;
 using namespace boost::python;
@@ -37,9 +38,11 @@ template <typename T> T* PyFunctionFactory<T>::createFunction() const {
         try {
                 object function = priv->klass();
                 auto_ptr<T> apf = extract<auto_ptr<T> >(function);
-                T* f = apf.get();
+                IFunction* f = apf.get();
+                FunctionWrapper *fw = static_cast<FunctionWrapper*>(f);
                 apf.release();
-                return f;
+                fw->self = function;
+                return static_cast<T*>(f);
         } catch(error_already_set const &) {
             handle_python_exception();
         }

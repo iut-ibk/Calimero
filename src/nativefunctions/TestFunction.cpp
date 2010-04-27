@@ -12,9 +12,9 @@ TestOFunction::TestOFunction(){}
 
 TestOFunction::~TestOFunction(){}
 
-std::vector<double> TestOFunction::eval(std::vector<Variable*>* iterationparameters,
-                                               std::vector<Variable*>* observedparameters,
-                                               std::vector<ObjectiveFunctionVariable*>* objectivefunctionparameters)
+std::vector<double> TestOFunction::eval(std::vector<Variable*> iterationparameters,
+                                               std::vector<Variable*> observedparameters,
+                                               std::vector<ObjectiveFunctionVariable*> objectivefunctionparameters)
 {
     Logger(Debug) << "eval called in native class \"TestOFunction\"";
     return std::vector<double>();

@@ -33,10 +33,10 @@ class CALIMERO_PUBLIC ObjectiveFunctionVariable : public Variable
         std::string getObjectiveFunction();
         bool containsParameter(const string &var);
         map<string,string> getObjectiveFunctionSettings();
+        bool parameterCycleCheck(string var);
 
     private:
         bool setValues(vector<double> value);
-        bool parameterCycleCheck(ObjectiveFunctionVariable* var);
         bool calc();
 };
 

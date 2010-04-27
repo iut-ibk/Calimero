@@ -11,7 +11,7 @@ using namespace std;
 
 ObjectiveFunctionVariable::ObjectiveFunctionVariable(string Name) : Variable(Name, vector<double>(),OBJECTIVEFUNCTIONVARIABLE)
 {
-    needupdate = false;
+    needupdate = true;
     function="";
 }
 
@@ -27,13 +27,16 @@ ObjectiveFunctionVariable::ObjectiveFunctionVariable(const ObjectiveFunctionVari
 
 ObjectiveFunctionVariable::~ObjectiveFunctionVariable()
 {
-    BOOST_FOREACH(string variable, iterationparameters)
+    set<string> iteration = iterationparameters;
+    BOOST_FOREACH(string variable, iteration)
             removeParameter(variable);
 
-    BOOST_FOREACH(string variable, observedparameters)
+    set<string> observed = observedparameters;
+    BOOST_FOREACH(string variable, observed)
             removeParameter(variable);
 
-    BOOST_FOREACH(string variable, objectivefunctionparameters)
+    set<string> objective = objectivefunctionparameters;
+    BOOST_FOREACH(string variable, objective)
             removeParameter(variable);
 }
 
@@ -44,17 +47,21 @@ void ObjectiveFunctionVariable::fireUpdate()
     Variable::fireUpdate();
 }
 
-bool ObjectiveFunctionVariable::parameterCycleCheck(ObjectiveFunctionVariable* var)
+bool ObjectiveFunctionVariable::parameterCycleCheck(string var)
 {
-    if(this==var)
+    if(name==var)
             return false;
 
-    BOOST_FOREACH(string varname, objectivefunctionparameters)
-    {
-        ObjectiveFunctionVariable* variable = static_cast<ObjectiveFunctionVariable*>(domain->getPar(varname));
-        if(variable==var || !variable->parameterCycleCheck(var))
+    if(containsParameter(var))
+        return false;
+
+    for (set<string>::iterator iter = successors.begin(); iter != successors.end(); iter++)
+        if(*iter==var)
             return false;
-    }
+
+    for (set<string>::iterator iter = successors.begin(); iter != successors.end(); iter++)
+        if(!(static_cast<ObjectiveFunctionVariable*>(CalibrationEnv::getInstance()->getCalibration()->getDomain()->getPar(*iter))->parameterCycleCheck(var)))
+            return false;
 
     return true;
 }
@@ -80,10 +87,13 @@ bool ObjectiveFunctionVariable::addParameter(const string &var)
         break;
 
     case OBJECTIVEFUNCTIONVARIABLE:
-        if(!parameterCycleCheck(static_cast<ObjectiveFunctionVariable*>(varinstance)))
-            objectivefunctionparameters.insert(var);
-        break;
-
+        {
+            if(parameterCycleCheck(var))
+                objectivefunctionparameters.insert(var);
+            else
+                return false;
+            break;
+        }
     case CALIBRATIONVARIABLE:
         return false;
     }
@@ -91,6 +101,7 @@ bool ObjectiveFunctionVariable::addParameter(const string &var)
     varinstance->addSuccessor(name);
     fireUpdate();
 
+    Logger(Debug) << this << "new member registered";
     return true;
 }
 
@@ -122,12 +133,13 @@ bool ObjectiveFunctionVariable::removeParameter(const string &var)
     varinstance->removeSuccessor(name);
     fireUpdate();
 
+    Logger(Debug) << varinstance << "removed from " << this;
     return true;
 }
 
 bool ObjectiveFunctionVariable::calc()
 {
-
+    Logger(Debug) << this << "calc called";
     needupdate=false;
 
     if(function=="")
@@ -156,13 +168,14 @@ bool ObjectiveFunctionVariable::calc()
     BOOST_FOREACH(string var, objectivefunctionparameters)
         objectivevector.push_back(static_cast<ObjectiveFunctionVariable*>(domain->getPar(var)));
 
-    values=tmpfunction->eval(&iterationvector,&observedvector,&objectivevector);
+    values=tmpfunction->eval(iterationvector,observedvector,objectivevector);
     delete tmpfunction;
     return true;
 }
 
 vector<double>  ObjectiveFunctionVariable::getValues()
 {
+    Logger(Debug) << this << "getValues called";
     if(needupdate)
        calc();
     return values;
@@ -194,7 +207,7 @@ bool ObjectiveFunctionVariable::setObjectiveFunction(std::string ofunction, map<
 
     functionsettings=settings;
     function=ofunction;
-
+    fireUpdate();
     return true;
 }
 

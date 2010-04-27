@@ -9,26 +9,8 @@
 
 using namespace std;
 
-
-void wrapIFunction()
-{
-    enum_<DATATYPE>("DATATYPE")
-            .value("STRING", STRING)
-            .value("DOUBLE", DOUBLE)
-            ;
-
-    class_<std::map<std::string, DATATYPE> >("datatypmap")
-            .def(map_indexing_suite<std::map<std::string, DATATYPE> >())
-            ;
-
-    class_<IFunction, boost::noncopyable>("IFunction")
-            .def("containsParameter", &IFunction::containsParameter)
-            .def("setValueOfParameter", &IFunction::setValueOfParameter)
-            .def("getDataTypes", &IFunction::getDataTypes)
-            .def("getValueOfParameter", &IFunction::getValueOfParameter)
-            .def("setDataType", &IFunction::setDataType)
-            ;
-
-}
+struct FunctionWrapper : IFunction, wrapper<IFunction> {
+    object self;
+};
 
 #endif // PYIFUNCTIONWRAPPER_H

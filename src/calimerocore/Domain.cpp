@@ -45,6 +45,7 @@ Variable* Domain::getPar(const string &name)
     if(members.find(name)!=members.end())
             return members[name];
 
+    Logger(Warning) << "Domain return null pointer";
     return 0;
 }
 
@@ -54,8 +55,8 @@ bool Domain::removePar(const string &name)
         return false;
 
     Variable *var  = getPar(name);
-    members.erase(members.find(name));
     delete var;
+    members.erase(members.find(name));
     return true;
 }
 

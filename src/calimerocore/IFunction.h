@@ -36,6 +36,12 @@ public:
         return parametertypes;
     }
 
+
+    map< string,string > getParameterValues()
+    {
+        return parametervalues;
+    }
+
     bool setDataType(string name, DATATYPE type)
     {
         if(containsParameter(name))
