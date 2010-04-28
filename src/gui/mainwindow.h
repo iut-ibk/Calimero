@@ -23,7 +23,7 @@ public:
         QStateMachine *state_machine;
         GuiLogSink *log_updater;
 
-   public Q_SLOTS:
+    public Q_SLOTS:
         void on_comboBox_currentIndexChanged ( int index );
         void init();
         void setOFunction();
@@ -45,13 +45,13 @@ public:
         void on_ovardelmember_clicked();
         void on_ovarmembers_itemSelectionChanged();
 
-Q_SIGNALS:
+    Q_SIGNALS:
         void show_var();
         void show_calvar();
         void show_ovar();
         void start_gui();
         void show_ovar_advanced();
-        void disable_varsettings();  
+        void disable_varsettings();   
 };
 
 #endif // MAINWINDOW_H
