@@ -44,14 +44,26 @@ public:
         void on_ovaraddmember_clicked();
         void on_ovardelmember_clicked();
         void on_ovarmembers_itemSelectionChanged();
+        void on_comboBox_templates_currentIndexChanged(int index);
+        void on_newtemplate_clicked();
+        void on_templates_itemClicked ( QListWidgetItem * item );
+        void on_templates_itemSelectionChanged ();
+        void on_deltemplate_clicked();
+        void on_templateeditor_textChanged();
+        void on_pushButton_clicked();
+        void on_button_settemplatepath_clicked();
 
     Q_SIGNALS:
         void show_var();
         void show_calvar();
         void show_ovar();
+        void show_calvar_template();
+        void show_observedvar_template();
+        void show_iterationvar_template();
         void start_gui();
         void show_ovar_advanced();
-        void disable_varsettings();   
+        void disable_varsettings();       
+        void disable_templateeditor();  
 };
 
 #endif // MAINWINDOW_H

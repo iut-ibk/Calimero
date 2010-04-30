@@ -28,14 +28,18 @@ public:
     ExternalParameterRegistry(const ExternalParameterRegistry &oldreg);
     bool registerTemplate(const string &name, const string &templatepath, const string &templatestring, VARTYPE type);
     bool registerParameter(const string &parametername, const string &templatename, Domain *domain);
+    bool updateTemplate(const string &templatename, string templatestring);
+    bool updatePath(const string &templatename, string path);
     bool updateParameters(Domain *domain, int iteration);
     bool updateParameters(Domain *domain, const string &templatename, const string &values);
     bool deleteTemplate(const string &templatename);
     bool createValueFile(const string &templatename, Domain *domain, int iteration);
     bool createValueFile(const string &templatename, Domain *domain, const string &filepath);
-    bool createvalueFiles(Domain *dom, int iteration);
+    bool createValueFiles(Domain *dom, int iteration);
     string getPath(const string &templatename);
+    string getTemplate(const string &templatename);
     vector<string> getAllTemplateNames();
+    vector<string> getTemplateNames(VARTYPE type);
 };
 
 #endif // EXTERNALPARAMETERREGISTRY_H

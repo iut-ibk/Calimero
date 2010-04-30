@@ -139,6 +139,74 @@ void MainWindow::setupStateMachine() {
                 QObject::connect(var_clean,SIGNAL(entered()),ui->varvalues, SLOT(clearContents()));
                 QObject::connect(ovar_clean,SIGNAL(entered()),ui->ovarmembers, SLOT(clear()));
 
+
+                //template editor
+                QState *template_editor = new QState(tab_states);
+                QState *iteration_template = new QState(template_editor);
+                QState *observed_template = new QState(template_editor);
+                QState *calibration_template = new QState(template_editor);
+                template_editor->setInitialState(calibration_template);
+                calibration_template->assignProperty(ui->button_settemplatepath, "visible", true);
+                calibration_template->assignProperty(ui->group_editor,"enabled", false);
+                calibration_template->assignProperty(ui->templateeditor, "plainText", "");
+                calibration_template->assignProperty(ui->deltemplate, "enabled", false);
+                calibration_template->assignProperty(ui->button_settemplatepath, "enabled", false);
+
+                    QState *calibration_template_clean = new QState(calibration_template);
+                    calibration_template->setInitialState(calibration_template_clean);
+                    calibration_template_clean->assignProperty(ui->group_editor, "enabled", false);
+                    calibration_template_clean->assignProperty(ui->templateeditor, "plainText", "");
+
+                    QState *calibration_template_enabled = new QState(calibration_template);
+                    calibration_template_enabled->assignProperty(ui->group_editor, "enabled", true);
+
+                    calibration_template_clean->addTransition(ui->templates, SIGNAL(itemClicked ( QListWidgetItem * )),calibration_template_enabled);
+                    calibration_template_enabled->addTransition(this, SIGNAL(disable_templateeditor()),calibration_template_clean);
+
+                iteration_template->assignProperty(ui->button_settemplatepath,"visible", true);
+                iteration_template->assignProperty(ui->group_editor,"enabled", false);
+                iteration_template->assignProperty(ui->templateeditor, "plainText", "");
+                iteration_template->assignProperty(ui->deltemplate, "enabled", false);
+                iteration_template->assignProperty(ui->button_settemplatepath, "enabled", false);
+
+                    QState *iteration_template_clean = new QState(iteration_template);
+                    iteration_template->setInitialState(iteration_template_clean);
+                    iteration_template_clean->assignProperty(ui->group_editor, "enabled", false);
+                    iteration_template_clean->assignProperty(ui->templateeditor, "plainText", "");
+
+                    QState *iteration_template_enabled = new QState(iteration_template);
+                    iteration_template_enabled->assignProperty(ui->group_editor, "enabled", true);
+
+                    iteration_template_clean->addTransition(ui->templates, SIGNAL(itemClicked ( QListWidgetItem * )),iteration_template_enabled);
+                    iteration_template_enabled->addTransition(this, SIGNAL(disable_templateeditor()),iteration_template_clean);
+
+                observed_template->assignProperty(ui->button_settemplatepath,"visible", false);
+                observed_template->assignProperty(ui->group_editor,"enabled", false);
+                observed_template->assignProperty(ui->templateeditor, "plainText", "");
+                observed_template->assignProperty(ui->deltemplate, "enabled", false);
+                observed_template->assignProperty(ui->button_settemplatepath, "enabled", false);
+
+                    QState *observed_template_clean = new QState(observed_template);
+                    observed_template->setInitialState(observed_template_clean);
+                    observed_template_clean->assignProperty(ui->group_editor, "enabled", false);
+                    observed_template_clean->assignProperty(ui->templateeditor, "plainText", "");
+
+                    QState *observed_template_enabled = new QState(observed_template);
+                    observed_template_enabled->assignProperty(ui->group_editor, "enabled", true);
+
+                    observed_template_clean->addTransition(ui->templates, SIGNAL(itemClicked ( QListWidgetItem * )),observed_template_enabled);
+                    observed_template_enabled->addTransition(this, SIGNAL(disable_templateeditor()),observed_template_clean);
+
+
+                calibration_template->addTransition(this, SIGNAL(show_iterationvar_template()), iteration_template);
+                calibration_template->addTransition(this, SIGNAL(show_observedvar_template()), observed_template);
+                iteration_template->addTransition(this, SIGNAL(show_calvar_template()), calibration_template);
+                iteration_template->addTransition(this, SIGNAL(show_observedvar_template()), observed_template);
+                observed_template->addTransition(this, SIGNAL(show_calvar_template()), calibration_template);
+                observed_template->addTransition(this, SIGNAL(show_iterationvar_template()), iteration_template);
+
+
+
         //start statemachine
         state_machine->addState(tab_states);
         state_machine->addState(init);
@@ -182,7 +250,7 @@ void MainWindow::setOFunction()
 void MainWindow::on_newvar_clicked()
 {
     bool ok;
-    QString text = QInputDialog::getText(this, tr("Parameter Name"),
+    QString text = QInputDialog::getText(this, tr("Parameter name"),
                                          tr("Name:"), QLineEdit::Normal,
                                          "", &ok);
     if (ok && !text.isEmpty())
@@ -212,8 +280,34 @@ void MainWindow::on_newvar_clicked()
             break;
         }
     }
-
 }
+
+void MainWindow::on_comboBox_templates_currentIndexChanged(int index)
+{
+    ui->templates->clear();
+    VARTYPE type;
+
+    switch(index)
+    {
+    case 0:
+        type = CALIBRATIONVARIABLE;
+        Q_EMIT show_calvar_template();
+        break;
+    case 1:
+        type = ITERATIONVARIABLE;
+        Q_EMIT show_iterationvar_template();
+        break;
+    case 2:
+        type = OBSERVEDVARIABLE;
+        Q_EMIT show_observedvar_template();
+        break;
+    }
+
+    vector<string> templatevec = CalibrationEnv::getInstance()->getCalibration()->getExternalParameterRegistry()->getTemplateNames(type);
+    BOOST_FOREACH(string templatestring, templatevec)
+            ui->templates->addItem(QString::fromStdString(templatestring));
+}
+
 
 void MainWindow::on_comboBox_currentIndexChanged ( int index )
 {
@@ -225,19 +319,19 @@ void MainWindow::on_comboBox_currentIndexChanged ( int index )
     {
     case 0:
         type=CALIBRATIONVARIABLE;
-        show_calvar();
+        Q_EMIT show_calvar();
         break;
     case 1:
         type=ITERATIONVARIABLE;
-        show_var();
+        Q_EMIT show_var();
         break;
     case 2:
         type=OBSERVEDVARIABLE;
-        show_var();
+        Q_EMIT show_var();
         break;
     case 3:
         type=OBJECTIVEFUNCTIONVARIABLE;
-        show_ovar();
+        Q_EMIT show_ovar();
         break;
     }
 
@@ -357,6 +451,21 @@ void MainWindow::on_vars_itemSelectionChanged ()
     else
     {
         ui->delvar->setEnabled(true);
+    }
+}
+
+void MainWindow::on_templates_itemSelectionChanged ()
+{
+    if(!ui->templates->selectedItems().size())
+    {
+        ui->deltemplate->setEnabled(false);
+        ui->button_settemplatepath->setEnabled(false);
+        Q_EMIT disable_templateeditor();
+    }
+    else
+    {
+        ui->deltemplate->setEnabled(true);
+        ui->button_settemplatepath->setEnabled(true);
     }
 }
 
@@ -550,7 +659,7 @@ void MainWindow::on_ovaraddmember_clicked()
     if(ok)
         ui->ovarmembers->addItem(text);
 
-    on_vars_itemClicked ( selecteditem );
+     on_vars_itemClicked ( selecteditem );
 }
 
 void MainWindow::on_ovarmembers_itemSelectionChanged()
@@ -559,4 +668,98 @@ void MainWindow::on_ovarmembers_itemSelectionChanged()
         ui->ovardelmember->setEnabled(false);
     else
         ui->ovardelmember->setEnabled(true);
+}
+
+void MainWindow::on_newtemplate_clicked()
+{
+    bool ok;
+    QString text = QInputDialog::getText(this, tr("Template name"),
+                                         tr("Name:"), QLineEdit::Normal,
+                                         "", &ok);
+    if (ok && !text.isEmpty())
+    {
+        switch(ui->comboBox_templates->currentIndex())
+        {
+        case 0:
+            ok = CalibrationEnv::getInstance()->getCalibration()->getExternalParameterRegistry()->registerTemplate(text.toStdString(),"","",CALIBRATIONVARIABLE);
+            if(ok)
+                ui->templates->addItem(text);
+            break;
+        case 1:
+            ok = CalibrationEnv::getInstance()->getCalibration()->getExternalParameterRegistry()->registerTemplate(text.toStdString(),"","",ITERATIONVARIABLE);
+            if(ok)
+                ui->templates->addItem(text);
+            break;
+        case 2:
+            ok = CalibrationEnv::getInstance()->getCalibration()->getExternalParameterRegistry()->registerTemplate(text.toStdString(),"","",OBSERVEDVARIABLE);
+            if(ok)
+                ui->templates->addItem(text);
+            break;
+        }
+    }
+}
+
+void MainWindow::on_templates_itemClicked ( QListWidgetItem * item )
+{
+    QString templatestring = QString::fromStdString(CalibrationEnv::getInstance()->getCalibration()->getExternalParameterRegistry()->getTemplate(item->text().toStdString()));
+    ui->templateeditor->setPlainText(templatestring);
+    ui->group_editor->setEnabled(true);
+}
+
+void MainWindow::on_deltemplate_clicked()
+{
+    QList<QListWidgetItem *> list = ui->templates->selectedItems ();
+    for(int index=0; index < list.size(); index++ )
+    {
+        bool ok = CalibrationEnv::getInstance()->getCalibration()->getExternalParameterRegistry()->deleteTemplate(list[index]->text().toStdString());
+        if(ok)
+            delete list.at(index);
+    }
+}
+
+void MainWindow::on_templateeditor_textChanged()
+{
+    QList<QListWidgetItem *> list = ui->templates->selectedItems ();
+    if(!list.size())
+        return;
+
+    QListWidgetItem *item = list[0];
+    bool ok = CalibrationEnv::getInstance()->getCalibration()->getExternalParameterRegistry()->updateTemplate(item->text().toStdString(),ui->templateeditor->toPlainText().toStdString());
+
+    assert(ok);
+}
+
+void MainWindow::on_pushButton_clicked()
+{
+    QString filename = QFileDialog::getSaveFileName(this, tr("Export template"), QDir::homePath());
+
+    if(filename.isEmpty())
+        return;
+
+    QFile outputfile(filename);
+    if(!outputfile.open(QIODevice::WriteOnly))
+    {
+        Logger(Debug) << "cannot create file";
+        return;
+    }
+
+    QTextStream outputstream(&outputfile);
+    outputstream << ui->templateeditor->toPlainText();
+    outputfile.close();
+}
+
+void MainWindow::on_button_settemplatepath_clicked()
+{
+    QList<QListWidgetItem *> list = ui->templates->selectedItems ();
+    if(!list.size())
+        return;
+
+    QListWidgetItem *item = list[0];
+    QString currentpath = QString::fromStdString(CalibrationEnv::getInstance()->getCalibration()->getExternalParameterRegistry()->getPath(item->text().toStdString()));
+    QString filename = QFileDialog::getSaveFileName(this, tr("Export template"), currentpath);
+
+    if(filename.isEmpty())
+        return;
+
+    CalibrationEnv::getInstance()->getCalibration()->getExternalParameterRegistry()->updatePath(item->text().toStdString(),filename.toStdString());
 }

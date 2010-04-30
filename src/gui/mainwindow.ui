@@ -844,7 +844,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QGroupBox" name="groupBox_4">
+          <widget class="QGroupBox" name="group_editor">
            <property name="title">
             <string>Editor</string>
            </property>

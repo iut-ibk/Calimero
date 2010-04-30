@@ -64,7 +64,7 @@ void ModelSimRunnable::run()
     }
 
     //create all external files
-    if(!externalfilehandler->createvalueFiles(this->dom,result->getIterationNumber()))
+    if(!externalfilehandler->createValueFiles(this->dom,result->getIterationNumber()))
     {
         delete sim;
         delete dom;

@@ -13,12 +13,14 @@ Calibration::Calibration()
 {
     alg = "";
     domain = new Domain();
+    externalfilehandler = new ExternalParameterRegistry();
 }
 
 Calibration::~Calibration()
 {
     clear();
     delete domain;
+    delete externalfilehandler;
 }
 
 void Calibration::clear()
@@ -26,7 +28,9 @@ void Calibration::clear()
     alg="";
 
     delete domain;
+    delete externalfilehandler;
     domain = new Domain();
+    externalfilehandler = new ExternalParameterRegistry();
 
     clearIterationResults();
 

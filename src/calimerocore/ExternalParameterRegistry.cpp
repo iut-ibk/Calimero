@@ -22,7 +22,10 @@ ExternalParameterRegistry::ExternalParameterRegistry(const ExternalParameterRegi
 bool ExternalParameterRegistry::registerTemplate(const string &name, const string &templatepath, const string &templatestring, VARTYPE type)
 {
     if(regtemplates.find(name)!=regtemplates.end())
+    {
+        Logger(Debug) << "Template [" << name << "] already registered";
         return false;
+    }
 
     if(type==OBJECTIVEFUNCTIONVARIABLE)
     {
@@ -33,7 +36,18 @@ bool ExternalParameterRegistry::registerTemplate(const string &name, const strin
     regtemplates[name]=templatestring;
     templatepaths[name]=templatepath;
     types[name]=type;
+    Logger(Debug) << "New template registered [" << name << "]";
     return true;
+}
+
+vector<string> ExternalParameterRegistry::getTemplateNames(VARTYPE type)
+{
+    vector<string> result;
+    std::pair<string,VARTYPE> p;
+    BOOST_FOREACH(p,types)
+        if(p.second==type)
+            result.push_back(p.first);
+    return result;
 }
 
 bool ExternalParameterRegistry::registerParameter(const string &parametername, const string &templatename, Domain *domain)
@@ -58,9 +72,10 @@ bool ExternalParameterRegistry::deleteTemplate(const string &templatename)
     if(regtemplates.find(templatename)==regtemplates.end())
         return false;
 
-    regparameters.erase(regparameters.find(templatename));
+
     templatepaths.erase(templatepaths.find(templatename));
     types.erase(types.find(templatename));
+    regtemplates.erase(regtemplates.find(templatename));
 
     vector<string> delvars;
     std::pair<string, string>p;
@@ -199,7 +214,7 @@ bool ExternalParameterRegistry::updateParameters(Domain *domain, const string &t
 
 }
 
-bool ExternalParameterRegistry::createvalueFiles(Domain *dom, int iteration)
+bool ExternalParameterRegistry::createValueFiles(Domain *dom, int iteration)
 {
     bool result = true;
     std::pair<string,VARTYPE>p;
@@ -328,6 +343,14 @@ string ExternalParameterRegistry::getPath(const string &templatename)
     return templatepaths[templatename];
 }
 
+string ExternalParameterRegistry::getTemplate(const string &templatename)
+{
+    if(regtemplates.find(templatename)==regtemplates.end())
+        return false;
+
+    return regtemplates[templatename];
+}
+
 vector<string> ExternalParameterRegistry::getAllTemplateNames()
 {
     vector<string> result;
@@ -337,4 +360,24 @@ vector<string> ExternalParameterRegistry::getAllTemplateNames()
             result.push_back(p.first);
 
     return result;
+}
+
+bool ExternalParameterRegistry::updateTemplate(const string &templatename, string templatestring)
+{
+    if(regtemplates.find(templatename)==regtemplates.end())
+        return false;
+
+    regtemplates[templatename]=templatestring;
+
+    return true;
+}
+
+bool ExternalParameterRegistry::updatePath(const string &templatename, string path)
+{
+    if(templatepaths.find(templatename)==templatepaths.end())
+        return false;
+
+    templatepaths[templatename]=path;
+
+    return true;
 }
