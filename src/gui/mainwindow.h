@@ -49,9 +49,10 @@ public:
         void on_templates_itemClicked ( QListWidgetItem * item );
         void on_templates_itemSelectionChanged ();
         void on_deltemplate_clicked();
-        void on_templateeditor_textChanged();
         void on_pushButton_clicked();
         void on_button_settemplatepath_clicked();
+        void on_templateeditor_templatechanged(QString newtemplate, QString oldtemplate);
+        void on_button_load_values_clicked();
 
     Q_SIGNALS:
         void show_var();
@@ -63,7 +64,7 @@ public:
         void start_gui();
         void show_ovar_advanced();
         void disable_varsettings();       
-        void disable_templateeditor();  
+        void disable_templateeditor();    
 };
 
 #endif // MAINWINDOW_H

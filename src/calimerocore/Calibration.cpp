@@ -146,6 +146,9 @@ bool Calibration::removeParameter(string parname)
     if(!domain->contains(parname))
         return false;
 
+    if(externalfilehandler->containsParameter(parname))
+        return false;
+
     Variable * parameter = domain->getPar(parname);
 
     switch(parameter->getType())

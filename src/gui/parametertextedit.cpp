@@ -122,12 +122,14 @@ void ParameterTextEdit::on_newparam_triggered(bool checked)
 
     if (ok && !name.isEmpty())
     {
+        QString backup = toPlainText();
         values.clear();
         QTextCursor cursor = textCursor();
         values.append(cursor.selectedText().toDouble());
         cursor.removeSelectedText();
         cursor.insertText(QString("$") + name + QString("$"));
         Q_EMIT no_valid_value();
+        Q_EMIT templatechanged(toPlainText(), backup);
     }
 }
 
@@ -142,11 +144,13 @@ void ParameterTextEdit::on_importfile_triggered ( bool checked )
      if (!inputfile.open(QIODevice::ReadOnly))
           return;
 
+     QString backup = toPlainText();
      QString text = "";
      QTextStream inputstream(&inputfile);
      text+=inputstream.readAll();
      inputfile.close();
      this->setPlainText(text);
+     Q_EMIT templatechanged(toPlainText(), backup);
 }
 
 void ParameterTextEdit::on_canclevector_triggered ( bool checked )
@@ -177,7 +181,7 @@ void ParameterTextEdit::on_newvectorend_triggered ( bool checked )
     if (!name.isEmpty())
     {
         values.clear();
-        QString backup = this->document()->toPlainText();
+        QString backup = toPlainText();
         stopline=line;
         stopcolumn=column;
 
@@ -186,6 +190,11 @@ void ParameterTextEdit::on_newvectorend_triggered ( bool checked )
             this->setPlainText(backup);
             QMessageBox::warning(this,tr("Warning"),tr("Selected elements are not a vector"));
         }
+        else
+        {
+            Q_EMIT templatechanged(toPlainText(), backup);
+        }
+
         Q_EMIT no_vector();
     }
 }

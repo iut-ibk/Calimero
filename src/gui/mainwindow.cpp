@@ -475,8 +475,11 @@ void MainWindow::on_delvar_clicked()
     for(int index=0; index < list.size(); index++ )
     {
         bool ok = CalibrationEnv::getInstance()->getCalibration()->removeParameter(list.at(index)->text().toStdString());
+
         if(ok)
             delete list.at(index);
+        else
+            QMessageBox::warning(this,tr("Delete parameter"),tr("Cannot delete parameters which are members of a template\nParameter: ") + list.at(index)->text());
     }
 }
 
@@ -717,18 +720,6 @@ void MainWindow::on_deltemplate_clicked()
     }
 }
 
-void MainWindow::on_templateeditor_textChanged()
-{
-    QList<QListWidgetItem *> list = ui->templates->selectedItems ();
-    if(!list.size())
-        return;
-
-    QListWidgetItem *item = list[0];
-    bool ok = CalibrationEnv::getInstance()->getCalibration()->getExternalParameterRegistry()->updateTemplate(item->text().toStdString(),ui->templateeditor->toPlainText().toStdString());
-
-    assert(ok);
-}
-
 void MainWindow::on_pushButton_clicked()
 {
     QString filename = QFileDialog::getSaveFileName(this, tr("Export template"), QDir::homePath());
@@ -762,4 +753,59 @@ void MainWindow::on_button_settemplatepath_clicked()
         return;
 
     CalibrationEnv::getInstance()->getCalibration()->getExternalParameterRegistry()->updatePath(item->text().toStdString(),filename.toStdString());
+}
+
+void MainWindow::on_templateeditor_templatechanged(QString newtemplate, QString oldtemplate)
+{
+    QList<QListWidgetItem *> list = ui->templates->selectedItems ();
+    if(!list.size())
+        return;
+
+    QListWidgetItem *item = list[0];
+    bool ok = CalibrationEnv::getInstance()->getCalibration()->getExternalParameterRegistry()->updateTemplate(item->text().toStdString(),newtemplate.toStdString(),CalibrationEnv::getInstance()->getCalibration());
+
+    if(!ok)
+    {
+        ui->templateeditor->setPlainText(oldtemplate);
+        QMessageBox::warning(this,tr("Template error"),tr("Please check template for duplicates"));
+        return;
+    }
+
+    //update gui
+    on_comboBox_currentIndexChanged (ui->comboBox->currentIndex());
+}
+
+void MainWindow::on_button_load_values_clicked()
+{
+    QList<QListWidgetItem *> list = ui->templates->selectedItems ();
+    if(!list.size())
+        return;
+
+    QListWidgetItem *item = list[0];
+
+    QString fileName = QFileDialog::getOpenFileName(this,tr("Value file"), QDir::homePath(), tr("*.*"));
+    if(!QFile::exists(fileName))
+        return;
+
+     QFile inputfile(fileName);
+
+     if (!inputfile.open(QIODevice::ReadOnly))
+          return;
+
+     Calibration *calibration = CalibrationEnv::getInstance()->getCalibration();
+     QString valuefile = "";
+     QTextStream inputstream(&inputfile);
+     valuefile+=inputstream.readAll();
+     inputfile.close();
+
+     if(!calibration->getExternalParameterRegistry()->updateParameters(calibration->getDomain(),item->text().toStdString(),valuefile.toStdString()))
+     {
+        QMessageBox::warning(this,tr("File error"),tr("Template not compatible"));
+        return;
+     }
+
+     QList<QListWidgetItem *> varlist = ui->vars->selectedItems ();
+
+     if(varlist.size() > 0)
+        on_vars_itemClicked ( varlist[0] );
 }

@@ -8,6 +8,9 @@
 #include <QStringList>
 #include <QIODevice>
 #include <Domain.h>
+#include <Calibration.h>
+#include <algorithm>
+#include <assert.h>
 
 ExternalParameterRegistry::ExternalParameterRegistry(){}
 
@@ -57,7 +60,7 @@ bool ExternalParameterRegistry::registerParameter(const string &parametername, c
 
     Variable *var = domain->getPar(parametername);
 
-    if(var->getType()!=types[parametername])
+    if(var->getType()!=types[templatename])
         return false;
 
     if(regparameters.find(parametername)!=regparameters.end())
@@ -65,6 +68,20 @@ bool ExternalParameterRegistry::registerParameter(const string &parametername, c
 
     regparameters[parametername]=templatename;
     return true;
+}
+
+bool ExternalParameterRegistry::deleteParameter(const string &parametername)
+{
+    if(regparameters.find(parametername)!=regparameters.end())
+        return false;
+
+    regparameters.erase(regparameters.find(parametername));
+    return true;
+}
+
+bool ExternalParameterRegistry::containsParameter(const string &parametername)
+{
+    return regparameters.find(parametername)!=regparameters.end();
 }
 
 bool ExternalParameterRegistry::deleteTemplate(const string &templatename)
@@ -195,7 +212,8 @@ bool ExternalParameterRegistry::updateParameters(Domain *domain, const string &t
             if(!isvectorelement)
                 tmpvec.clear();
 
-            tmpvec.assign(1,value);
+            //TODO make faster
+            tmpvec.push_back(value);
             tmpvar->setValues(tmpvec);
         }
         else
@@ -362,10 +380,68 @@ vector<string> ExternalParameterRegistry::getAllTemplateNames()
     return result;
 }
 
-bool ExternalParameterRegistry::updateTemplate(const string &templatename, string templatestring)
+bool ExternalParameterRegistry::updateTemplate(const string &templatename, string templatestring, Calibration* calibration)
 {
     if(regtemplates.find(templatename)==regtemplates.end())
         return false;
+
+    //check for new parameters
+    QStringList parametersplit = QString::fromStdString(templatestring).split("$");
+
+    vector<string> templateparameters;
+    vector<string> newparameters;
+    vector<string> notregisteredparameters;
+
+    for(int index=0; index < parametersplit.size(); index++)
+    {
+        if(index%2==1)
+        {
+            QString parametername=parametersplit.at(index);
+
+            //check if parameter is a vector element
+            if(parametername.contains(QRegExp(".+_.+")))
+                continue;
+
+            //check duplicates in current template
+            if(std::find(templateparameters.begin(),templateparameters.end(),parametername.toStdString())!=templateparameters.end())
+                return false;
+
+            templateparameters.push_back(parametername.toStdString());
+
+            if(!calibration->getDomain()->contains(parametername.toStdString()))
+                newparameters.push_back(parametername.toStdString());
+            else
+                if(regparameters.find(parametername.toStdString())==regparameters.end())
+                    notregisteredparameters.push_back(parametername.toStdString());
+
+            if(regparameters.find(parametername.toStdString())!=regparameters.end())
+                if(regparameters[parametername.toStdString()]!=templatename)
+                    return false;
+        }
+    }
+
+    BOOST_FOREACH(string name, newparameters)
+    {
+        switch(types[templatename])
+        {
+        case CALIBRATIONVARIABLE:
+            calibration->addParameter(new CalibrationVariable(name,vector<double>(1)));
+            break;
+        case ITERATIONVARIABLE:
+            calibration->addParameter(new Variable(name,vector<double>(1),ITERATIONVARIABLE));
+            break;
+        case OBSERVEDVARIABLE:
+            calibration->addParameter(new Variable(name,vector<double>(1),OBSERVEDVARIABLE));
+            break;
+        case OBJECTIVEFUNCTIONVARIABLE:
+            assert(0);
+        }
+
+        notregisteredparameters.push_back(name);
+    }
+
+    BOOST_FOREACH(string name, notregisteredparameters)
+            registerParameter(name,templatename,calibration->getDomain());
 
     regtemplates[templatename]=templatestring;
 

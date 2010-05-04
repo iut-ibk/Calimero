@@ -47,7 +47,7 @@ class ParameterTextEdit : public QPlainTextEdit
         void no_valid_value();
         void valid_vector();
         void no_vector();
-        void newparameter(QVector<double> values, QString name, QString newtemplatetext, QString oldtemplatetext);
+        void templatechanged(QString newtemplate, QString oldtemplate);
 
     protected:
         virtual void changeEvent(QEvent *e);
