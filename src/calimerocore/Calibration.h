@@ -15,6 +15,8 @@
 #include <Domain.h>
 #include <ExternalParameterRegistry.h>
 
+#define DEFAULTGROUP "default"
+
 class CALIMERO_PUBLIC Calibration
 {
 
@@ -60,6 +62,7 @@ public:
     //contains
     bool containsGroup(std::string groupname);
     bool containsParameter(string var);
+    bool containsGroupMember(string varname, string groupname);
 
     //getter
     int getNumOfComplete();
@@ -76,6 +79,7 @@ public:
     set<string> evalCalibrationParameters();
     set<string> evalObjectiveFunctionParameters();
     ExternalParameterRegistry* getExternalParameterRegistry();
+    vector<string> getAllGroups();
 
     //destroy
     void clear();

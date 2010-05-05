@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1043</width>
-    <height>737</height>
+    <width>1018</width>
+    <height>725</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,7 +21,7 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_3">
-    <item row="0" column="0">
+    <item row="0" column="1">
      <widget class="QSplitter" name="splitter">
       <property name="orientation">
        <enum>Qt::Vertical</enum>
@@ -127,6 +127,13 @@
                </spacer>
               </item>
               <item>
+               <widget class="QPushButton" name="button_groupmanage">
+                <property name="text">
+                 <string>Manage groups</string>
+                </property>
+               </widget>
+              </item>
+              <item>
                <widget class="QPushButton" name="delvar">
                 <property name="maximumSize">
                  <size>
@@ -182,11 +189,11 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>673</width>
-                 <height>766</height>
+                 <width>648</width>
+                 <height>866</height>
                 </rect>
                </property>
-               <layout class="QVBoxLayout" name="verticalLayout_2">
+               <layout class="QVBoxLayout" name="verticalLayout_5">
                 <item>
                  <widget class="QWidget" name="widget" native="true">
                   <property name="minimumSize">
@@ -246,58 +253,14 @@
                    </size>
                   </property>
                   <layout class="QFormLayout" name="formLayout_2">
-                   <property name="fieldGrowthPolicy">
-                    <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
-                   </property>
                    <item row="0" column="0">
-                    <widget class="QLabel" name="label_6">
-                     <property name="text">
-                      <string>Value:</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="1">
-                    <widget class="QDoubleSpinBox" name="calvarvalue">
-                     <property name="minimumSize">
-                      <size>
-                       <width>204</width>
-                       <height>0</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>204</width>
-                       <height>16777215</height>
-                      </size>
-                     </property>
-                     <property name="readOnly">
-                      <bool>true</bool>
-                     </property>
-                     <property name="decimals">
-                      <number>10</number>
-                     </property>
-                     <property name="minimum">
-                      <double>-100.000000000000000</double>
-                     </property>
-                     <property name="maximum">
-                      <double>100.000000000000000</double>
-                     </property>
-                     <property name="singleStep">
-                      <double>1.000000000000000</double>
-                     </property>
-                     <property name="value">
-                      <double>0.000000000000000</double>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="0">
                     <widget class="QLabel" name="label_3">
                      <property name="text">
                       <string>Init value:</string>
                      </property>
                     </widget>
                    </item>
-                   <item row="1" column="1">
+                   <item row="0" column="1">
                     <widget class="QDoubleSpinBox" name="calvarinit">
                      <property name="minimumSize">
                       <size>
@@ -325,14 +288,14 @@
                      </property>
                     </widget>
                    </item>
-                   <item row="2" column="0">
+                   <item row="1" column="0">
                     <widget class="QLabel" name="label_4">
                      <property name="text">
                       <string>Min value:</string>
                      </property>
                     </widget>
                    </item>
-                   <item row="2" column="1">
+                   <item row="1" column="1">
                     <widget class="QDoubleSpinBox" name="calvarmin">
                      <property name="minimumSize">
                       <size>
@@ -360,14 +323,14 @@
                      </property>
                     </widget>
                    </item>
-                   <item row="3" column="0">
+                   <item row="2" column="0">
                     <widget class="QLabel" name="label_5">
                      <property name="text">
                       <string>Max value:</string>
                      </property>
                     </widget>
                    </item>
-                   <item row="3" column="1">
+                   <item row="2" column="1">
                     <widget class="QDoubleSpinBox" name="calvarmax">
                      <property name="minimumSize">
                       <size>
@@ -398,14 +361,81 @@
                      </property>
                     </widget>
                    </item>
-                   <item row="4" column="0">
+                   <item row="3" column="0">
                     <widget class="QLabel" name="label_11">
                      <property name="text">
                       <string>Step size:</string>
                      </property>
                     </widget>
                    </item>
-                   <item row="4" column="1">
+                   <item row="5" column="0">
+                    <widget class="QLabel" name="label_12">
+                     <property name="text">
+                      <string>Groups:</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="5" column="1">
+                    <layout class="QVBoxLayout" name="verticalLayout_2">
+                     <item>
+                      <widget class="QListWidget" name="groups">
+                       <property name="maximumSize">
+                        <size>
+                         <width>204</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="selectionMode">
+                        <enum>QAbstractItemView::ExtendedSelection</enum>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <layout class="QHBoxLayout" name="horizontalLayout_7">
+                       <item>
+                        <spacer name="horizontalSpacer_6">
+                         <property name="orientation">
+                          <enum>Qt::Horizontal</enum>
+                         </property>
+                         <property name="sizeHint" stdset="0">
+                          <size>
+                           <width>40</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                        </spacer>
+                       </item>
+                       <item>
+                        <widget class="QPushButton" name="del_group">
+                         <property name="maximumSize">
+                          <size>
+                           <width>27</width>
+                           <height>16777215</height>
+                          </size>
+                         </property>
+                         <property name="text">
+                          <string>-</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QPushButton" name="add_group">
+                         <property name="maximumSize">
+                          <size>
+                           <width>27</width>
+                           <height>16777215</height>
+                          </size>
+                         </property>
+                         <property name="text">
+                          <string>+</string>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </item>
+                    </layout>
+                   </item>
+                   <item row="3" column="1">
                     <widget class="QDoubleSpinBox" name="calvarstep">
                      <property name="minimumSize">
                       <size>
@@ -903,27 +933,24 @@
          </item>
         </layout>
        </widget>
-       <widget class="QWidget" name="tab2_4">
+       <widget class="QWidget" name="tab_groups">
         <attribute name="title">
-         <string>Compareparameters</string>
+         <string>Calibration groups</string>
         </attribute>
         <layout class="QGridLayout" name="_11"/>
        </widget>
-       <widget class="QWidget" name="tab3_4">
+       <widget class="QWidget" name="tab_calibration">
         <attribute name="title">
          <string>Calibrationsettings</string>
         </attribute>
         <layout class="QGridLayout" name="gridLayout_11"/>
        </widget>
-       <widget class="QWidget" name="tab4_4">
+       <widget class="QWidget" name="tab_results">
         <property name="accessibleName">
          <string/>
         </property>
         <attribute name="title">
-         <string>Diagram</string>
-        </attribute>
-        <attribute name="toolTip">
-         <string>TEST HILFE</string>
+         <string>Results</string>
         </attribute>
         <layout class="QGridLayout" name="gridLayout_12"/>
        </widget>
@@ -1075,7 +1102,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1043</width>
+     <width>1018</width>
      <height>23</height>
     </rect>
    </property>

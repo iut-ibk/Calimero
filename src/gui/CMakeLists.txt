@@ -4,7 +4,8 @@ FILE(GLOB GUI_UI *.ui)
 QT4_WRAP_UI(GUI_CPP ${GUI_UI})
 SET(MOC_HEADERS mainwindow.h
                 guilogsink.h
-                parametertextedit.h)
+                parametertextedit.h
+                groupmanager.h)
 QT4_WRAP_CPP(GUI_CPP ${MOC_HEADERS})
 #QT4_ADD_RESOURCES(GUI_CPP ../../data/resources/calimero-gui.qrc)
 

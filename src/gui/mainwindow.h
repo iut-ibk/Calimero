@@ -35,7 +35,6 @@ public:
         void on_calvarmin_valueChanged(double );
         void on_calvarstep_valueChanged(double );
         void on_calvarinit_valueChanged(double );
-        void on_calvarvalue_valueChanged(double );
         void on_varaddvalue_clicked();
         void on_vardelvalue_clicked();
         void on_varvalues_itemChanged ( QTableWidgetItem * item );
@@ -53,6 +52,10 @@ public:
         void on_button_settemplatepath_clicked();
         void on_templateeditor_templatechanged(QString newtemplate, QString oldtemplate);
         void on_button_load_values_clicked();
+        void on_groups_itemSelectionChanged();
+        void on_add_group_clicked();
+        void on_del_group_clicked();
+        void on_button_groupmanage_clicked();
 
     Q_SIGNALS:
         void show_var();

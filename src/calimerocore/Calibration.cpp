@@ -131,9 +131,9 @@ bool Calibration::addParameter(Variable *parameter)
 
     case CALIBRATIONVARIABLE:
         if(!groups.size())
-            groups["default"] = new set<string>();
+            groups[DEFAULTGROUP] = new set<string>();
         calibrationparameters.insert(parname);
-        groups["default"]->insert(parname);
+        groups[DEFAULTGROUP]->insert(parname);
     }
 
     domain->setPar(parameter);
@@ -185,7 +185,7 @@ bool Calibration::removeParameter(string parname)
 
 bool Calibration::addGroup(std::string name)
 {
-    if(groups.find(name)==groups.end())
+    if(groups.find(name)!=groups.end())
         return false;
 
     groups[name] = new set<string>();
@@ -196,7 +196,10 @@ bool Calibration::addGroup(std::string name)
 
 bool Calibration::removeGroup(std::string name)
 {
-    if(groups.find(name)!=groups.end())
+    if(groups.find(name)==groups.end())
+        return false;
+
+    if(name==DEFAULTGROUP)
         return false;
 
     delete groups[name];
@@ -239,6 +242,9 @@ bool Calibration::removeParameterFromGroup(string var, std::string groupname)
 
     Variable *tmpvar = domain->getPar(var);
     if(tmpvar->getType()!=CALIBRATIONVARIABLE)
+        return false;
+
+    if(groupname==DEFAULTGROUP)
         return false;
 
     groups[groupname]->erase(groups[groupname]->find(var));
@@ -419,4 +425,22 @@ Domain* Calibration::getDomain()
 ExternalParameterRegistry* Calibration::getExternalParameterRegistry()
 {
     return externalfilehandler;
+}
+
+bool Calibration::containsGroupMember(string varname, string groupname)
+{
+    if(!containsGroup(groupname))
+        return false;
+
+    return groups[groupname]->find(varname)!=groups[groupname]->end();
+}
+
+vector<string> Calibration::getAllGroups()
+{
+    vector<string> result;
+    std::pair<string, set<string>* > p;
+    BOOST_FOREACH(p,groups)
+            result.push_back(p.first);
+
+    return result;
 }

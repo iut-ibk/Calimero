@@ -11,9 +11,9 @@ CalibrationVariable::CalibrationVariable(string Name, vector<double> values) : V
     initvalues=values;
     values=values;
 
-    min = 0;
-    max = 0;
-    step = 0;
+    min = -10000000000;
+    max = 10000000000;
+    step = 0.00001;
 }
 
 

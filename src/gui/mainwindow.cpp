@@ -12,6 +12,7 @@
 #include <PyFunctionLoader.h>
 #include <QtGui>
 #include <PyException.h>
+#include <groupmanager.h>
 
 
 
@@ -43,6 +44,7 @@ void MainWindow::setupStateMachine() {
                 //Variable properties
                 QState *var_prop = new QState(var_group);
                 var_prop->assignProperty(ui->var_widget, "visible", true);
+                var_prop->assignProperty(ui->button_groupmanage, "visible",false);
                 var_prop->assignProperty(ui->calvar_widget, "visible", false);
                 var_prop->assignProperty(ui->ovar_widget, "visible", false);
                 var_prop->assignProperty(ui->delvar, "enabled",false);
@@ -68,6 +70,7 @@ void MainWindow::setupStateMachine() {
                 ovar_prop->assignProperty(ui->ovar_widget, "visible", true);
                 ovar_prop->assignProperty(ui->ovaradvanced, "enabled", false);
                 ovar_prop->assignProperty(ui->delvar, "enabled",false);
+                ovar_prop->assignProperty(ui->button_groupmanage, "visible",false);
 
                     QState *ovar_clean = new QState(ovar_prop);
                     ovar_prop->setInitialState(ovar_clean);
@@ -88,6 +91,7 @@ void MainWindow::setupStateMachine() {
                 calvar_prop->assignProperty(ui->calvar_widget, "visible", true);
                 calvar_prop->assignProperty(ui->ovar_widget, "visible", false);
                 calvar_prop->assignProperty(ui->delvar, "enabled",false);
+                calvar_prop->assignProperty(ui->button_groupmanage, "visible",true);
                 var_group->setInitialState(calvar_prop);
 
                     QState *calvar_clean = new QState(calvar_prop);
@@ -99,11 +103,6 @@ void MainWindow::setupStateMachine() {
                     calvar_clean->assignProperty(ui->calvarinit,"minimum",0);
                     calvar_clean->assignProperty(ui->calvarinit,"maximum",0);
                     calvar_clean->assignProperty(ui->calvarinit,"singleStep",1);
-
-                    calvar_clean->assignProperty(ui->calvarvalue,"value",0);
-                    calvar_clean->assignProperty(ui->calvarvalue,"minimum",0);
-                    calvar_clean->assignProperty(ui->calvarvalue,"maximum",0);
-                    calvar_clean->assignProperty(ui->calvarvalue,"singleStep",1);
 
                     calvar_clean->assignProperty(ui->calvarmin,"value",0);
                     calvar_clean->assignProperty(ui->calvarmin,"minimum",-100000000);
@@ -119,6 +118,7 @@ void MainWindow::setupStateMachine() {
                     calvar_clean->assignProperty(ui->calvarstep,"minimum",0);
                     calvar_clean->assignProperty(ui->calvarstep,"maximum",1);
                     calvar_clean->assignProperty(ui->calvarstep,"singleStep",0.0000001);
+                    calvar_clean->assignProperty(ui->del_group,"enabled",false);
 
                     QState *calvar_enabled = new QState(calvar_prop);
                     calvar_enabled->assignProperty(ui->calvar_widget, "enabled", true);
@@ -138,6 +138,7 @@ void MainWindow::setupStateMachine() {
                 QObject::connect(init,SIGNAL(entered()),this,SLOT(init()));
                 QObject::connect(var_clean,SIGNAL(entered()),ui->varvalues, SLOT(clearContents()));
                 QObject::connect(ovar_clean,SIGNAL(entered()),ui->ovarmembers, SLOT(clear()));
+                QObject::connect(calvar_clean,SIGNAL(entered()),ui->groups, SLOT(clear()));
 
 
                 //template editor
@@ -342,7 +343,9 @@ void MainWindow::on_comboBox_currentIndexChanged ( int index )
 
 void MainWindow::on_vars_itemClicked ( QListWidgetItem * item )
 {
-    Variable* current = CalibrationEnv::getInstance()->getCalibration()->getDomain()->getPar(item->text().toStdString());
+    Calibration* calibration = CalibrationEnv::getInstance()->getCalibration();
+    Variable* current = calibration->getDomain()->getPar(item->text().toStdString());
+
     ui->varname->setText(QString::fromStdString(current->getName()));
 
     switch(current->getType())
@@ -354,7 +357,12 @@ void MainWindow::on_vars_itemClicked ( QListWidgetItem * item )
             ui->calvarmin->setValue(calvar->getMin());
             ui->calvarmax->setValue(calvar->getMax());
             ui->calvarinit->setValue(calvar->getInitValues()[0]);
-            ui->calvarvalue->setValue(calvar->getValues()[0]);
+
+            ui->groups->clear();
+            vector<string> groups = calibration->getAllGroups();
+            BOOST_FOREACH(string groupname, groups)
+                    if(calibration->containsGroupMember(calvar->getName(),groupname))
+                        ui->groups->addItem(QString::fromStdString(groupname));
             break;
         }
     case OBSERVEDVARIABLE:
@@ -486,7 +494,6 @@ void MainWindow::on_delvar_clicked()
 void MainWindow::on_calvarmax_valueChanged(double v) {
     ui->calvarinit->setMaximum(v);
     ui->calvarmin->setMaximum(v);
-    ui->calvarvalue->setMaximum(v);
 
     if(!ui->vars->selectedItems().size())
         return;
@@ -499,7 +506,6 @@ void MainWindow::on_calvarmax_valueChanged(double v) {
 void MainWindow::on_calvarstep_valueChanged(double v)
 {
     ui->calvarinit->setSingleStep(v);
-    ui->calvarvalue->setSingleStep(v);
     ui->calvarmax->setSingleStep(v);
     ui->calvarmin->setSingleStep(v);
 
@@ -515,7 +521,6 @@ void MainWindow::on_calvarmin_valueChanged(double v )
 {
     ui->calvarinit->setMinimum(v);
     ui->calvarmax->setMinimum(v);
-    ui->calvarvalue->setMinimum(v);
 
     if(!ui->vars->selectedItems().size())
         return;
@@ -523,18 +528,6 @@ void MainWindow::on_calvarmin_valueChanged(double v )
     QListWidgetItem *item = ui->vars->currentItem();
     CalibrationVariable* calvar = static_cast<CalibrationVariable*>(CalibrationEnv::getInstance()->getCalibration()->getDomain()->getPar(item->text().toStdString()));
     calvar->setMin(v);
-}
-
-void MainWindow::on_calvarvalue_valueChanged(double v)
-{
-    if(!ui->vars->selectedItems().size())
-        return;
-
-    QListWidgetItem *item = ui->vars->currentItem();
-    CalibrationVariable* calvar = static_cast<CalibrationVariable*>(CalibrationEnv::getInstance()->getCalibration()->getDomain()->getPar(item->text().toStdString()));
-    vector<double> newvalue(1);
-    newvalue[0]=v;
-    calvar->setValues(newvalue);
 }
 
 void MainWindow::on_calvarinit_valueChanged(double v)
@@ -808,4 +801,67 @@ void MainWindow::on_button_load_values_clicked()
 
      if(varlist.size() > 0)
         on_vars_itemClicked ( varlist[0] );
+}
+
+void MainWindow::on_groups_itemSelectionChanged()
+{
+    if(!ui->groups->selectedItems().size())
+        ui->del_group->setEnabled(false);
+    else
+        ui->del_group->setEnabled(true);
+}
+
+void MainWindow::on_del_group_clicked()
+{
+    QList<QListWidgetItem *> varlist = ui->vars->selectedItems ();
+    if(!varlist.size())
+        return;
+
+    QListWidgetItem* var = varlist[0];
+    QList<QListWidgetItem *> list = ui->groups->selectedItems ();
+    Calibration* calibration = CalibrationEnv::getInstance()->getCalibration();
+    for(int index=0; index < list.size(); index++ )
+    {
+        bool ok = calibration->removeParameterFromGroup(var->text().toStdString(),list[index]->text().toStdString());
+        if(ok)
+            delete list.at(index);
+        else
+            QMessageBox::warning(this,tr("Error"),tr("Parameter must be a member of group: ") + list[index]->text());
+    }
+}
+
+void MainWindow::on_add_group_clicked()
+{
+    QListWidgetItem *selecteditem = ui->vars->currentItem();
+    Calibration *calibration = CalibrationEnv::getInstance()->getCalibration();
+    CalibrationVariable* calvar = static_cast<CalibrationVariable*>(calibration->getDomain()->getPar(selecteditem->text().toStdString()));
+    bool ok;
+    QStringList items;
+
+    //iteration parameters
+    vector<string> available = calibration->getAllGroups();
+    BOOST_FOREACH(string groupname, available)
+        if(!calibration->containsGroupMember(calvar->getName(),groupname))
+            items.push_back(QString::fromStdString(groupname));
+
+    QString text = QInputDialog::getItem ( this, "Groups", "Available", items, 0, false, &ok);
+
+    if (!ok || text.isEmpty())
+        return;
+
+    ok = calibration->addParameterToGroup(calvar->getName(),text.toStdString());
+    if(ok)
+        ui->groups->addItem(text);
+
+     on_vars_itemClicked ( selecteditem );
+}
+
+void MainWindow::on_button_groupmanage_clicked()
+{
+    if(GroupManager::editGroups(CalibrationEnv::getInstance()->getCalibration(),this))
+        if(ui->vars->selectedItems().size() > 0)
+        {
+            QListWidgetItem *item = ui->vars->currentItem();
+            on_vars_itemClicked(item);
+        }
 }

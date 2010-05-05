@@ -207,14 +207,21 @@ bool ExternalParameterRegistry::updateParameters(Domain *domain, const string &t
                 return false;
 
             Variable* tmpvar = domain->getPar(parametername.toStdString());
-            vector<double> tmpvec = tmpvar->getValues();
+            vector<double> tmpvec;
+            if(tmpvar->getType()==CALIBRATIONVARIABLE)
+                tmpvec = (static_cast<CalibrationVariable*>(tmpvar))->getInitValues();
+            else
+                tmpvec = tmpvar->getValues();
 
             if(!isvectorelement)
                 tmpvec.clear();
 
             //TODO make faster
             tmpvec.push_back(value);
-            tmpvar->setValues(tmpvec);
+            if(tmpvar->getType()==CALIBRATIONVARIABLE)
+                (static_cast<CalibrationVariable*>(tmpvar))->setInitValues(tmpvec);
+            else
+                tmpvar->setValues(tmpvec);
         }
         else
         {
