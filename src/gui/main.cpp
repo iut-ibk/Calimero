@@ -3,7 +3,6 @@
 #include <mainwindow.h>
 #include <CalibrationEnv.h>
 
-
 int main(int argc, char *argv[]) {
 	QApplication a(argc, argv);
 	QApplication::setApplicationName("Calimero");

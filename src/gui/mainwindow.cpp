@@ -21,8 +21,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         setupStateMachine();
 
         log_updater = new GuiLogSink();
-        Log::init(log_updater);
+        Log::init(log_updater,DEFAULTLOGLEVEL);
         ui->log_widget->connect(log_updater, SIGNAL(newLogLine(QString)), SLOT(appendPlainText(QString)), Qt::QueuedConnection);
+
+        QMessageBox::warning(this,tr("JJJJJYYYYYEEEEESSSSSS!!!!"),tr("BALD URLAUB"));
 }
 
 MainWindow::~MainWindow() {
@@ -251,9 +253,8 @@ void MainWindow::setOFunction()
 void MainWindow::on_newvar_clicked()
 {
     bool ok;
-    QString text = QInputDialog::getText(this, tr("Parameter name"),
-                                         tr("Name:"), QLineEdit::Normal,
-                                         "", &ok);
+    QString text = QInputDialog::getText(this, tr("Parameter name"),tr("Name:"), QLineEdit::Normal,"", &ok);
+
     if (ok && !text.isEmpty())
     {
         switch(ui->comboBox->currentIndex())
@@ -672,22 +673,25 @@ void MainWindow::on_newtemplate_clicked()
     QString text = QInputDialog::getText(this, tr("Template name"),
                                          tr("Name:"), QLineEdit::Normal,
                                          "", &ok);
+
+    Calibration *calibration = CalibrationEnv::getInstance()->getCalibration();
+
     if (ok && !text.isEmpty())
     {
         switch(ui->comboBox_templates->currentIndex())
         {
         case 0:
-            ok = CalibrationEnv::getInstance()->getCalibration()->getExternalParameterRegistry()->registerTemplate(text.toStdString(),"","",CALIBRATIONVARIABLE);
+            ok = CalibrationEnv::getInstance()->getCalibration()->getExternalParameterRegistry()->registerTemplate(text.toStdString(),"","",calibration,CALIBRATIONVARIABLE);
             if(ok)
                 ui->templates->addItem(text);
             break;
         case 1:
-            ok = CalibrationEnv::getInstance()->getCalibration()->getExternalParameterRegistry()->registerTemplate(text.toStdString(),"","",ITERATIONVARIABLE);
+            ok = CalibrationEnv::getInstance()->getCalibration()->getExternalParameterRegistry()->registerTemplate(text.toStdString(),"","",calibration, ITERATIONVARIABLE);
             if(ok)
                 ui->templates->addItem(text);
             break;
         case 2:
-            ok = CalibrationEnv::getInstance()->getCalibration()->getExternalParameterRegistry()->registerTemplate(text.toStdString(),"","",OBSERVEDVARIABLE);
+            ok = CalibrationEnv::getInstance()->getCalibration()->getExternalParameterRegistry()->registerTemplate(text.toStdString(),"","",calibration, OBSERVEDVARIABLE);
             if(ok)
                 ui->templates->addItem(text);
             break;

@@ -22,7 +22,7 @@ ExternalParameterRegistry::ExternalParameterRegistry(const ExternalParameterRegi
     types = oldreg.types;
 }
 
-bool ExternalParameterRegistry::registerTemplate(const string &name, const string &templatepath, const string &templatestring, VARTYPE type)
+bool ExternalParameterRegistry::registerTemplate(const string &name, const string &templatepath, const string &templatestring, Calibration* calibration, VARTYPE type)
 {
     if(regtemplates.find(name)!=regtemplates.end())
     {
@@ -39,6 +39,12 @@ bool ExternalParameterRegistry::registerTemplate(const string &name, const strin
     regtemplates[name]=templatestring;
     templatepaths[name]=templatepath;
     types[name]=type;
+    if(!updateTemplate(name, templatestring, calibration))
+    {
+        assert(deleteTemplate(name));
+        return false;
+    }
+
     Logger(Debug) << "New template registered [" << name << "]";
     return true;
 }
@@ -393,6 +399,7 @@ bool ExternalParameterRegistry::updateTemplate(const string &templatename, strin
         return false;
 
     //check for new parameters
+    VARTYPE type = types[templatename];
     QStringList parametersplit = QString::fromStdString(templatestring).split("$");
 
     vector<string> templateparameters;
@@ -418,8 +425,11 @@ bool ExternalParameterRegistry::updateTemplate(const string &templatename, strin
             if(!calibration->getDomain()->contains(parametername.toStdString()))
                 newparameters.push_back(parametername.toStdString());
             else
-                if(regparameters.find(parametername.toStdString())==regparameters.end())
-                    notregisteredparameters.push_back(parametername.toStdString());
+                if(calibration->getDomain()->getPar(parametername.toStdString())->getType()!=type)
+                    return false;
+                else
+                    if(regparameters.find(parametername.toStdString())==regparameters.end())
+                        notregisteredparameters.push_back(parametername.toStdString());
 
             if(regparameters.find(parametername.toStdString())!=regparameters.end())
                 if(regparameters[parametername.toStdString()]!=templatename)

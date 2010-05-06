@@ -5,6 +5,9 @@
 #include <QObject>
 #include <QListWidgetItem>
 
+
+#define DEFAULTLOGLEVEL Debug
+
 namespace Ui {
 	class MainWindow;
 }

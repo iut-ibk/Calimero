@@ -47,6 +47,7 @@ void Calibration::clear()
     enabledobjectivefunctionparameters.clear();
     algsettings.clear();
     modelsimulatorsettings.clear();
+    groups.clear();
 }
 
 bool Calibration::setCalibrationAlg(string ca, map<string,string>  settings)
@@ -437,6 +438,9 @@ bool Calibration::containsGroupMember(string varname, string groupname)
 
 vector<string> Calibration::getAllGroups()
 {
+    if(!groups.size())
+        groups[DEFAULTGROUP] = new set<string>();
+
     vector<string> result;
     std::pair<string, set<string>* > p;
     BOOST_FOREACH(p,groups)
