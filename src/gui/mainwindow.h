@@ -59,6 +59,21 @@ public:
         void on_add_group_clicked();
         void on_del_group_clicked();
         void on_button_groupmanage_clicked();
+        void on_add_ignored_groups_clicked();
+        void on_del_ignored_groups_clicked();
+        void on_add_monitored_groups_clicked();
+        void on_del_monitored_groups_clicked();
+        void on_ignored_groups_itemSelectionChanged();
+        void on_monitored_groups_itemSelectionChanged();
+        void on_button_add_cal_ofun_clicked();
+        void on_button_del_cal_ofun_clicked();
+        void on_cal_ofunction_itemSelectionChanged();
+        void on_button_calfun_advanced_clicked();
+        void on_calfun_currentIndexChanged(QString name);
+        void on_button_calsimulation_advanced_clicked();
+        void on_calsimulation_currentIndexChanged(QString name);
+        void groups_visible_entered();
+        void show_cal_ofun();
 
     Q_SIGNALS:
         void show_var();
@@ -70,7 +85,10 @@ public:
         void start_gui();
         void show_ovar_advanced();
         void disable_varsettings();       
-        void disable_templateeditor();    
+        void disable_templateeditor();
+        void enable_groups();
+        void disable_groups();
+        void clean_calofun();
 };
 
 #endif // MAINWINDOW_H

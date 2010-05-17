@@ -13,6 +13,12 @@ void ModelSimulatorHandler::setThreadsNumber(int threads)
     Logger(Error) << "ModelSimulatorHandler not implemented";
 }
 
+int ModelSimulatorHandler::getThreadsNumber()
+{
+    Logger(Error) << "ModelSimulatorHandler not implemented";
+    return 1;
+}
+
 bool ModelSimulatorHandler::exec(Domain *dom)
 {
     Logger(Error) << "ModelSimulatorHandler not implemented";

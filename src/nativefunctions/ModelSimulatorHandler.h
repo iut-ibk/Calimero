@@ -12,6 +12,7 @@ private:
 public:
     ModelSimulatorHandler();
     void setThreadsNumber(int threads);
+    int getThreadsNumber();
     bool exec(Domain *dom);
 };
 

@@ -190,7 +190,12 @@ bool Calibration::addGroup(std::string name)
         return false;
 
     groups[name] = new set<string>();
-    enabledgroups[name]=false;
+
+    if(name==DEFAULTGROUP)
+        enabledgroups[name]=true;
+    else
+        enabledgroups[name]=false;
+
     disabledgroups[name]=false;
     return true;
 }
@@ -204,6 +209,8 @@ bool Calibration::removeGroup(std::string name)
         return false;
 
     delete groups[name];
+    removeEnabledGroup(name);
+    removeDisabledGroup(name);
     enabledgroups.erase(name);
     disabledgroups.erase(name);
     groups.erase (groups.find(name));
@@ -438,8 +445,9 @@ bool Calibration::containsGroupMember(string varname, string groupname)
 
 vector<string> Calibration::getAllGroups()
 {
+
     if(!groups.size())
-        groups[DEFAULTGROUP] = new set<string>();
+        addGroup(DEFAULTGROUP);
 
     vector<string> result;
     std::pair<string, set<string>* > p;
@@ -447,4 +455,14 @@ vector<string> Calibration::getAllGroups()
             result.push_back(p.first);
 
     return result;
+}
+
+map<string,bool> Calibration::getDisabledGroups()
+{
+    return disabledgroups;
+}
+
+map<string,bool> Calibration::getEnabledGroups()
+{
+    return enabledgroups;
 }

@@ -13,18 +13,17 @@
 #include <QtGui>
 #include <PyException.h>
 #include <groupmanager.h>
+#include <ICalibrationAlg.h>
+#include <IModelSimulator.h>
 
 
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow){
         ui->setupUi(this);
         setupStateMachine();
-
         log_updater = new GuiLogSink();
         Log::init(log_updater,DEFAULTLOGLEVEL);
         ui->log_widget->connect(log_updater, SIGNAL(newLogLine(QString)), SLOT(appendPlainText(QString)), Qt::QueuedConnection);
-
-        QMessageBox::warning(this,tr("JJJJJYYYYYEEEEESSSSSS!!!!"),tr("BALD URLAUB"));
 }
 
 MainWindow::~MainWindow() {
@@ -39,6 +38,35 @@ void MainWindow::setupStateMachine() {
 
         //Parameter tab
         QState *tab_states = new QState(QState::ParallelStates);
+            //calibration groups settings
+            QState *enabled_ofunctions = new QState(tab_states);
+            QState *enabled_ofunctions_clean = new QState(enabled_ofunctions);
+            QState *enabled_ofunctions_dirty = new QState(enabled_ofunctions);
+            enabled_ofunctions->setInitialState(enabled_ofunctions_clean);
+            enabled_ofunctions_clean->assignProperty(ui->button_del_cal_ofun, "enabled", false);
+
+            enabled_ofunctions_dirty->addTransition(this, SIGNAL(clean_calofun()), enabled_ofunctions_clean);
+            enabled_ofunctions_clean->addTransition(enabled_ofunctions_dirty);
+
+            QState *calibration_tab = new QState(tab_states);
+            QState *groups_visible= new QState(calibration_tab);
+            QState *groups_notvisible = new QState(calibration_tab);
+
+            calibration_tab->setInitialState(groups_notvisible);
+
+            groups_notvisible->assignProperty(ui->group_settings, "visible", false);
+            groups_notvisible->assignProperty(ui->del_monitored_groups, "enabled", false);
+            groups_notvisible->assignProperty(ui->del_ignored_groups, "enabled", false);
+            groups_visible->assignProperty(ui->group_settings, "visible", true);
+
+            QObject::connect(enabled_ofunctions_clean,SIGNAL(entered()),ui->cal_ofunction,SLOT(clear()));
+            QObject::connect(enabled_ofunctions_dirty,SIGNAL(entered()),this,SLOT(show_cal_ofun()));
+            QObject::connect(groups_visible,SIGNAL(entered()),this,SLOT(groups_visible_entered()));
+            QObject::connect(groups_notvisible,SIGNAL(entered()),ui->monitored_groups, SLOT(clear()));
+            QObject::connect(groups_notvisible,SIGNAL(entered()),ui->ignored_groups, SLOT(clear()));
+
+            groups_notvisible->addTransition(this, SIGNAL(enable_groups()),groups_visible);
+            groups_visible->addTransition(this, SIGNAL(disable_groups()), groups_notvisible);
 
             //variable group
             QState *var_group = new QState(tab_states);
@@ -63,7 +91,6 @@ void MainWindow::setupStateMachine() {
 
                     var_clean->addTransition(ui->vars, SIGNAL(itemClicked ( QListWidgetItem * )),var_enabled);
                     var_enabled->addTransition(this, SIGNAL(disable_varsettings()),var_clean);
-
 
                 //Objective function variable properties
                 QState *ovar_prop = new QState(var_group);
@@ -225,7 +252,10 @@ void MainWindow::init()
     PyFunctionLoader::loadScripts("../../scripts/");
     FunctionLoader::loadNative("./");
 
-    vector<string> ofunvec = CalibrationEnv::getInstance()->getObjectiveFunctionReg()->getAvailableFunctions();
+    CalibrationEnv *calibrationenv = CalibrationEnv::getInstance();
+
+    //ofunction
+    vector<string> ofunvec = calibrationenv->getObjectiveFunctionReg()->getAvailableFunctions();
 
     QStringList ofunlist;
     //no function
@@ -234,6 +264,28 @@ void MainWindow::init()
             ofunlist.append(QString::fromStdString(name));
 
     ui->ovarofun->addItems(ofunlist);
+
+    //calibrationalgorithm
+    vector<string> calfunvec = calibrationenv->getCalibrationAlgReg()->getAvailableFunctions();
+
+    QStringList calfunlist;
+    //no function
+    calfunlist.append(QString::fromStdString(""));
+    BOOST_FOREACH(string name, calfunvec)
+            calfunlist.append(QString::fromStdString(name));
+
+    ui->calfun->addItems(calfunlist);
+
+    //simulationhandler
+    vector<string> simfunvec = calibrationenv->getModelSimulatorReg()->getAvailableFunctions();
+
+    QStringList simfunlist;
+    //no function
+    simfunlist.append(QString::fromStdString(""));
+    BOOST_FOREACH(string name, simfunvec)
+            simfunlist.append(QString::fromStdString(name));
+
+    ui->calsimulation->addItems(simfunlist);
 
     Q_EMIT start_gui();
 }
@@ -484,6 +536,7 @@ void MainWindow::on_delvar_clicked()
     for(int index=0; index < list.size(); index++ )
     {
         bool ok = CalibrationEnv::getInstance()->getCalibration()->removeParameter(list.at(index)->text().toStdString());
+        Q_EMIT clean_calofun();
 
         if(ok)
             delete list.at(index);
@@ -868,4 +921,223 @@ void MainWindow::on_button_groupmanage_clicked()
             QListWidgetItem *item = ui->vars->currentItem();
             on_vars_itemClicked(item);
         }
+
+    Q_EMIT disable_groups();
+    Q_EMIT enable_groups();
+
+    if(!(CalibrationEnv::getInstance()->getCalibration()->getAllGroups().size()-1))
+        Q_EMIT disable_groups();
+    else
+        Q_EMIT enable_groups();
+}
+
+void MainWindow::on_calfun_currentIndexChanged(QString name)
+{
+    if(name=="")
+    {
+        ui->button_calfun_advanced->setEnabled(false);
+        return;
+    }
+
+    if(!CalibrationEnv::getInstance()->getCalibrationAlgReg()->getSettingTypes(name.toStdString()).size())
+        ui->button_calfun_advanced->setEnabled(false);
+    else
+        ui->button_calfun_advanced->setEnabled(true);
+
+    Calibration *calibration = CalibrationEnv::getInstance()->getCalibration();
+    ICalibrationAlg *fun = CalibrationEnv::getInstance()->getCalibrationAlgReg()->getFunction(name.toStdString());
+    calibration->setCalibrationAlg(name.toStdString(), fun->getParameterValues());
+    delete fun;
+}
+
+void MainWindow::on_button_calfun_advanced_clicked()
+{
+    Logger(Debug) << "NOT IMPLEMENTED";
+}
+
+void MainWindow::on_cal_ofunction_itemSelectionChanged()
+{
+    if(!ui->cal_ofunction->selectedItems().size())
+        ui->button_del_cal_ofun->setEnabled(false);
+    else
+        ui->button_del_cal_ofun->setEnabled(true);
+}
+
+void MainWindow::on_button_del_cal_ofun_clicked()
+{
+    QList<QListWidgetItem *> list = ui->cal_ofunction->selectedItems ();
+    Calibration* calibration = CalibrationEnv::getInstance()->getCalibration();
+    for(int index=0; index < list.size(); index++ )
+    {
+        bool ok = calibration->removeEnabledOParameter(list[index]->text().toStdString());
+        if(ok)
+            delete list.at(index);
+        else
+            QMessageBox::warning(this,tr("Error"),tr("Could not remove objective function from list"));
+    }
+}
+
+void MainWindow::on_button_add_cal_ofun_clicked()
+{
+    bool ok;
+    QStringList items;
+
+    Calibration *calibration = CalibrationEnv::getInstance()->getCalibration();
+    set<string> enabledofun = calibration->evalObjectiveFunctionParameters();
+    vector<Variable*> available = calibration->getDomain()->getAllPars(OBJECTIVEFUNCTIONVARIABLE);
+    BOOST_FOREACH(Variable* var, available)
+        if(enabledofun.find(var->getName())==enabledofun.end())
+            items.push_back(QString::fromStdString(var->getName()));
+
+    QString text = QInputDialog::getItem ( this, "Objective functions", "Available", items, 0, false, &ok);
+
+    if (!ok || text.isEmpty())
+        return;
+
+    ok = calibration->addEnabledOParameter(text.toStdString());
+    if(ok)
+        ui->cal_ofunction->addItem(text);
+}
+
+void MainWindow::on_monitored_groups_itemSelectionChanged()
+{
+    if(!ui->monitored_groups->selectedItems().size())
+        ui->del_monitored_groups->setEnabled(false);
+    else
+        ui->del_monitored_groups->setEnabled(true);
+}
+
+void MainWindow::on_ignored_groups_itemSelectionChanged()
+{
+    if(!ui->ignored_groups->selectedItems().size())
+        ui->del_ignored_groups->setEnabled(false);
+    else
+        ui->del_ignored_groups->setEnabled(true);
+}
+
+void MainWindow::on_del_monitored_groups_clicked()
+{
+    QList<QListWidgetItem *> list = ui->monitored_groups->selectedItems ();
+    Calibration* calibration = CalibrationEnv::getInstance()->getCalibration();
+    for(int index=0; index < list.size(); index++ )
+    {
+        bool ok = calibration->removeEnabledGroup(list[index]->text().toStdString());
+        if(ok)
+            delete list.at(index);
+        else
+            QMessageBox::warning(this,tr("Error"),tr("Could not remove group from list"));
+    }
+}
+
+void MainWindow::on_add_monitored_groups_clicked()
+{
+    Calibration *calibration = CalibrationEnv::getInstance()->getCalibration();
+    bool ok;
+    QStringList items;
+
+    //iteration parameters
+    map<string,bool> available = calibration->getEnabledGroups();
+    std::pair<string,bool>p;
+
+    BOOST_FOREACH(p, available)
+        if(!p.second)
+            items.push_back(QString::fromStdString(p.first));
+
+    QString text = QInputDialog::getItem ( this, "Groups", "Available", items, 0, false, &ok);
+
+    if (!ok || text.isEmpty())
+        return;
+
+    ok = calibration->addEnabledGroup(text.toStdString());
+    if(ok)
+        ui->monitored_groups->addItem(text);
+}
+
+void MainWindow::on_del_ignored_groups_clicked()
+{
+    QList<QListWidgetItem *> list = ui->ignored_groups->selectedItems ();
+    Calibration* calibration = CalibrationEnv::getInstance()->getCalibration();
+    for(int index=0; index < list.size(); index++ )
+    {
+        bool ok = calibration->removeDisabledGroup(list[index]->text().toStdString());
+        if(ok)
+            delete list.at(index);
+        else
+            QMessageBox::warning(this,tr("Error"),tr("Could not remove group from list"));
+    }
+}
+
+void MainWindow::on_add_ignored_groups_clicked()
+{
+    Calibration *calibration = CalibrationEnv::getInstance()->getCalibration();
+    bool ok;
+    QStringList items;
+
+    //iteration parameters
+    map<string,bool> available = calibration->getDisabledGroups();
+    std::pair<string,bool>p;
+
+    BOOST_FOREACH(p, available)
+        if(!p.second)
+            items.push_back(QString::fromStdString(p.first));
+
+    QString text = QInputDialog::getItem ( this, "Groups", "Available", items, 0, false, &ok);
+
+    if (!ok || text.isEmpty())
+        return;
+
+    ok = calibration->addDisabledGroup(text.toStdString());
+    if(ok)
+        ui->ignored_groups->addItem(text);
+}
+
+void MainWindow::on_calsimulation_currentIndexChanged(QString name)
+{
+    if(name=="")
+    {
+        ui->button_calsimulation_advanced->setEnabled(false);
+        return;
+    }
+
+    if(!CalibrationEnv::getInstance()->getModelSimulatorReg()->getSettingTypes(name.toStdString()).size())
+        ui->button_calsimulation_advanced->setEnabled(false);
+    else
+        ui->button_calsimulation_advanced->setEnabled(true);
+
+    Calibration *calibration = CalibrationEnv::getInstance()->getCalibration();
+    IModelSimulator *fun = CalibrationEnv::getInstance()->getModelSimulatorReg()->getFunction(name.toStdString());
+    calibration->setModelSimulator(name.toStdString(), fun->getParameterValues());
+    delete fun;
+}
+
+void MainWindow::on_button_calsimulation_advanced_clicked()
+{
+    Logger(Debug) << "NOT IMPLEMENTED";
+}
+
+void MainWindow::groups_visible_entered()
+{
+    Calibration *calibration = CalibrationEnv::getInstance()->getCalibration();
+
+    std::pair<string,bool>p;
+    map<string,bool> enabledgroups = calibration->getEnabledGroups();
+    BOOST_FOREACH(p, enabledgroups)
+            if(p.second)
+                ui->monitored_groups->addItem(QString::fromStdString(p.first));
+
+    map<string,bool> disabledgroups = calibration->getDisabledGroups();
+    BOOST_FOREACH(p, disabledgroups)
+            if(p.second)
+                ui->ignored_groups->addItem(QString::fromStdString(p.first));
+}
+
+void MainWindow::show_cal_ofun()
+{
+    Calibration *calibration = CalibrationEnv::getInstance()->getCalibration();
+
+    set<string> ofunlist = calibration->evalObjectiveFunctionParameters();
+    set<string>::iterator iterator;
+
+    for(iterator = ofunlist.begin() ;iterator != ofunlist.end();iterator++)
+        ui->cal_ofunction->addItem(QString::fromStdString(*iterator));
 }

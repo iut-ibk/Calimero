@@ -80,6 +80,8 @@ public:
     set<string> evalObjectiveFunctionParameters();
     ExternalParameterRegistry* getExternalParameterRegistry();
     vector<string> getAllGroups();
+    map<string,bool> getDisabledGroups();
+    map<string,bool> getEnabledGroups();
 
     //destroy
     void clear();
