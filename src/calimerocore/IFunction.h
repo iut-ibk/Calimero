@@ -110,6 +110,15 @@ public:
         parametervalues[name]=value;
         return  true;
     }
+
+    bool setValues(map<string,string> values)
+    {
+        std::pair<string,string>p;
+        bool ok = true;
+        BOOST_FOREACH(p, values)
+                ok = ok && setValueOfParameter(p.first,p.second);
+        return ok;
+    }
 };
 
 #endif // IFUNCTION_H

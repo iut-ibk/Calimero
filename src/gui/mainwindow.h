@@ -74,6 +74,7 @@ public:
         void on_calsimulation_currentIndexChanged(QString name);
         void groups_visible_entered();
         void show_cal_ofun();
+        void on_ovaradvanced_clicked();
 
     Q_SIGNALS:
         void show_var();

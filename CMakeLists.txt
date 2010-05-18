@@ -60,4 +60,3 @@ else()
 endif()
 
 INSTALL(TARGETS calimero RUNTIME DESTINATION bin)
-

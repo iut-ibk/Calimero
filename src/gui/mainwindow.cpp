@@ -15,6 +15,7 @@
 #include <groupmanager.h>
 #include <ICalibrationAlg.h>
 #include <IModelSimulator.h>
+#include <functionparametersdialog.h>
 
 
 
@@ -952,7 +953,18 @@ void MainWindow::on_calfun_currentIndexChanged(QString name)
 
 void MainWindow::on_button_calfun_advanced_clicked()
 {
-    Logger(Debug) << "NOT IMPLEMENTED";
+    Calibration* calibration = CalibrationEnv::getInstance()->getCalibration();
+    ICalibrationAlg *function = CalibrationEnv::getInstance()->getCalibrationAlgReg()->getFunction(calibration->getCalibrationAlg());
+    function->setValues(calibration->getCalibrationAlgSettings());
+    FunctionParametersDialog np(function);
+
+    if(np.exec())
+    {
+        np.updateFunctionParameters();
+        calibration->setCalibrationAlg(calibration->getCalibrationAlg(),function->getParameterValues());
+    }
+
+    delete function;
 }
 
 void MainWindow::on_cal_ofunction_itemSelectionChanged()
@@ -1112,7 +1124,18 @@ void MainWindow::on_calsimulation_currentIndexChanged(QString name)
 
 void MainWindow::on_button_calsimulation_advanced_clicked()
 {
-    Logger(Debug) << "NOT IMPLEMENTED";
+    Calibration* calibration = CalibrationEnv::getInstance()->getCalibration();
+    IModelSimulator *function = CalibrationEnv::getInstance()->getModelSimulatorReg()->getFunction(calibration->getModelSimulator());
+    function->setValues(calibration->getModelSimulatorSettings());
+    FunctionParametersDialog np(function);
+
+    if(np.exec())
+    {
+        np.updateFunctionParameters();
+        calibration->setModelSimulator(calibration->getModelSimulator(),function->getParameterValues());
+    }
+
+    delete function;
 }
 
 void MainWindow::groups_visible_entered()
@@ -1140,4 +1163,21 @@ void MainWindow::show_cal_ofun()
 
     for(iterator = ofunlist.begin() ;iterator != ofunlist.end();iterator++)
         ui->cal_ofunction->addItem(QString::fromStdString(*iterator));
+}
+
+void MainWindow::on_ovaradvanced_clicked()
+{
+    Calibration* calibration = CalibrationEnv::getInstance()->getCalibration();
+    ObjectiveFunctionVariable *var = static_cast<ObjectiveFunctionVariable*>(calibration->getDomain()->getPar(ui->vars->currentItem()->text().toStdString()));
+    IObjectiveFunction *function = CalibrationEnv::getInstance()->getObjectiveFunctionReg()->getFunction(var->getObjectiveFunction());
+    function->setValues(var->getObjectiveFunctionSettings());
+    FunctionParametersDialog np(function);
+
+    if(np.exec())
+    {
+        np.updateFunctionParameters();
+        var->setObjectiveFunction(var->getObjectiveFunction(),function->getParameterValues());
+    }
+
+    delete function;
 }
