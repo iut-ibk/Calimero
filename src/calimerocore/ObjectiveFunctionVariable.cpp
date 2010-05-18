@@ -6,6 +6,7 @@
 #include <Registry.h>
 #include <Calibration.h>
 #include <CalibrationEnv.h>
+#include <Exception.h>
 
 using namespace std;
 
@@ -168,7 +169,15 @@ bool ObjectiveFunctionVariable::calc()
     BOOST_FOREACH(string var, objectivefunctionparameters)
         objectivevector.push_back(static_cast<ObjectiveFunctionVariable*>(domain->getPar(var)));
 
-    values=tmpfunction->eval(iterationvector,observedvector,objectivevector);
+    try
+    {
+        values=tmpfunction->eval(iterationvector,observedvector,objectivevector);
+    }
+    catch (CalimeroException e)
+    {
+        Logger(Error) << e.exceptionmsg;
+    }
+
     delete tmpfunction;
     return true;
 }

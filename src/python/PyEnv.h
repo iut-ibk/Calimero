@@ -13,7 +13,7 @@
 using namespace std;
 using namespace boost::python;
 
-void handle_python_exception();
+void handle_python_exception(const std::string &msg);
 
 struct PyEnvPriv;
 
@@ -23,9 +23,7 @@ public:
         static PyEnv *getInstance();
         static void destroy();
         void addPythonPath(std::string path);
-        void registerFunctions(Registry<IObjectiveFunction> *registry, const string &module);
-        void registerFunctions(Registry<ICalibrationAlg> *registry, const string &module);
-        void registerFunctions(Registry<IModelSimulator> *registry, const string &module);
+        void registerFunctions(IRegistry *registry, const string &module);
 
 private:
         PyEnv();

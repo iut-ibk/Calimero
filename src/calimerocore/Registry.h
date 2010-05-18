@@ -18,20 +18,35 @@ using namespace std;
 
 class IFunctionFactory;
 
+class IRegistry{
+protected:
+    IFUNCTIONTYPE type;
+public:
+    IFUNCTIONTYPE getType()
+    {
+        return type;
+    }
+
+    virtual bool registerFunction(IFunctionFactory* factory) = 0;
+    virtual bool addNativePlugin(const std::string &plugin_path) = 0;
+    virtual IFunction* getFunction(string name) = 0;
+    virtual map<string,DATATYPE> getSettingTypes(string name) = 0;
+    virtual bool contains(string name) = 0;
+    virtual vector<string> getAvailableFunctions() = 0;
+};
+
 template <typename T> class Registry;
 
-template <typename T> class Registry
+template <typename T> class Registry : public IRegistry
 {
     typedef void (*regProto) (Registry<T> *reg);
     typedef map<string, IFunctionFactory*> factorymap;
     private:
-        IFUNCTIONTYPE type;
         factorymap registered_factories;
 
     public:
         Registry();
         ~Registry();
-        IFUNCTIONTYPE getType();
         bool registerFunction(IFunctionFactory* factory);
         bool addNativePlugin(const std::string &plugin_path);
         T* getFunction(string name);
@@ -131,11 +146,6 @@ template <typename T> bool Registry<T>::addNativePlugin(const std::string &plugi
                 return false;
         }
         return true;
-}
-
-template <typename T> IFUNCTIONTYPE Registry<T>::getType()
-{
-    return type;
 }
 
 template <typename T > vector<string> Registry<T>::getAvailableFunctions()

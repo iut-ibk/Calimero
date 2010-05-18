@@ -1,10 +1,11 @@
 class MyOF(calimerocore.ObjectiveFunctionInterface):
 	def __init__(self):
-		print "python hallo new"
+		pycalimero.IObjectiveFunction.__init__(self)
 		calimerocore.ObjectiveFunctionInterface.__init__(self)
 
-	def eval(self):
+	def eval(self,iterationparameters, observedparameters, objectivefunctionparameters):
 		print "fein eval called in %s" % self.__class__.__name__
+		return pycalimero.doublevector()
 
 	def __del__(self):
 		print "python delete"
@@ -12,10 +13,11 @@ class MyOF(calimerocore.ObjectiveFunctionInterface):
 
 class MyOF1(calimerocore.ObjectiveFunctionInterface):
 	def __init__(self):
-		calimerocore.ObjectiveFunctionInterface.__init__(self)
+		pycalimero.IObjectiveFunction.__init__(self)
 
-	def eval(self):
+	def eval(self,iterationparameters, observedparameters, objectivefunctionparameters):
 		print "eval called in %s" % self.__class__.__name__
+		return pycalimero.doublevector()
 
 	def __del__(self):
 		print "python delete"

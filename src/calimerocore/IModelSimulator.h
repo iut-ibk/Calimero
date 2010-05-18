@@ -28,14 +28,13 @@ const char *functionname::getClassName() const { return functionname::name; }
 
 class CALIMERO_PUBLIC IModelSimulator : public IFunction
 {
-    protected:
-        map<string,DATATYPE> parametertypes;
-        map<string,string> parametervalues;
     public:
+        IModelSimulator(){};
         static IFUNCTIONTYPE getType()
         {
             return MODELSIMULATOR;
         }
+
 
         virtual bool exec(Domain *dom) = 0;
 };

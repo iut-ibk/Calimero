@@ -12,42 +12,38 @@ using namespace boost::python;
 using namespace std;
 
 
-struct CalibrationAlgWrapper : ICalibrationAlg, wrapper<ICalibrationAlg> {
-    CalibrationAlgWrapper(PyObject *self)
+struct CalibrationAlgWrapper : public ICalibrationAlg, wrapper<ICalibrationAlg> {
+    CalibrationAlgWrapper()
     {
-        this->self = self;
-        Py_INCREF(self);
     }
 
     virtual ~CalibrationAlgWrapper()
     {
-        Py_DECREF(self);
     }
 
     bool start(vector<CalibrationVariable*> calibrationpars, vector<ObjectiveFunctionVariable*> opars, CalibrationEnv *env, Calibration *calibration)
     {
         try {
-                if (python::override f = this->get_override("start")) {
+                if (python::override f = this->get_override("start"))
                         return f(calibrationpars,opars,env,calibration);
-                } else {
-                        //TODO do something here now reason there is no f method
-                }
-        } catch(python::error_already_set const &) {
-                Logger(Error) << __FILE__ << ":" << __LINE__;
-                handle_python_exception();
+                else
+                        throw CalimeroException("No methode with name \"start\" found");
+        }
+        catch(python::error_already_set const &)
+        {
+                handle_python_exception("Error in start methode of a calibration algorithm");
         }
 
         return false;
     }
 
-private:
-    PyObject *self;
+    object self;
 };
 
 void wrapCalAlgFunction()
 {
     python::implicitly_convertible<auto_ptr<CalibrationAlgWrapper>, auto_ptr<ICalibrationAlg> >();
-    class_<ICalibrationAlg, bases<IFunction>, auto_ptr<CalibrationAlgWrapper>, boost::noncopyable>("ICalibrationAlg")
+    class_<CalibrationAlgWrapper, bases<IFunction>, auto_ptr<CalibrationAlgWrapper>, boost::noncopyable>("ICalibrationAlg")
             .def("start", pure_virtual(&CalibrationAlgWrapper::start))
             ;
 }

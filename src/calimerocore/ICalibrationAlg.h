@@ -23,16 +23,13 @@ const char *functionname::getClassName() const { return functionname::name; }
 
 class CALIMERO_PUBLIC ICalibrationAlg : public IFunction
 {
-    protected:
-        map<string,DATATYPE> parametertypes;
-        map<string,string> parametervalues;
     public:
         static IFUNCTIONTYPE getType()
         {
             return CALIBRATIONALGORITHM;
         };
 
-        virtual ~ICalibrationAlg(){}
+        ICalibrationAlg(){};
         virtual bool start(vector<CalibrationVariable*> calibrationpars, vector<ObjectiveFunctionVariable*> opars, CalibrationEnv *env, Calibration *calibration) = 0;
 };
 

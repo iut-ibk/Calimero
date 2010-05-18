@@ -1,7 +1,7 @@
 #include <IFunctionFactory.h>
 #include <boost/python.hpp>
 #include <string>
-#include <PyException.h>
+#include <Exception.h>
 #include <PyEnv.h>
 #include <PyIFunctionWrapper.h>
 
@@ -44,7 +44,7 @@ template <typename T> T* PyFunctionFactory<T>::createFunction() const {
                 fw->self = function;
                 return static_cast<T*>(f);
         } catch(error_already_set const &) {
-            handle_python_exception();
+            handle_python_exception("Could not create an instance of function \"" + priv->name + "\"");
         }
         return 0;
 }

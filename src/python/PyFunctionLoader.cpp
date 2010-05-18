@@ -1,7 +1,7 @@
 #include <PyFunctionLoader.h>
 #include <QDir>
 #include <PyEnv.h>
-#include <PyException.h>
+#include <Exception.h>
 #include <CalibrationEnv.h>
 
 using namespace std;

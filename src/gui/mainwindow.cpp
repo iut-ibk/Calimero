@@ -7,11 +7,11 @@
 #include <guilogsink.h>
 #include <PyEnv.h>
 #include <FunctionLoader.h>
-#include <PyException.h>
+#include <Exception.h>
 #include <CalibrationEnv.h>
 #include <PyFunctionLoader.h>
 #include <QtGui>
-#include <PyException.h>
+#include <Exception.h>
 #include <groupmanager.h>
 #include <ICalibrationAlg.h>
 #include <IModelSimulator.h>

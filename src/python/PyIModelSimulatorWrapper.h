@@ -14,55 +14,51 @@ using namespace std;
 
 
 struct IModelSimulatorWrapper : IModelSimulator, wrapper<IModelSimulator> {
-    IModelSimulatorWrapper(PyObject *self)
+    IModelSimulatorWrapper()
     {
-        this->self = self;
-        Py_INCREF(self);
     }
 
     virtual ~IModelSimulatorWrapper()
     {
-        Py_DECREF(self);
     }
 
     bool exec(Domain *dom)
     {
         try {
-                if (python::override f = this->get_override("exec")) {
+                if (python::override f = this->get_override("exec"))
                         return f(dom);
-                } else {
-                        //TODO do something here now reason there is no f method
-                }
-        } catch(python::error_already_set const &) {
-                Logger(Error) << __FILE__ << ":" << __LINE__;
-                handle_python_exception();
-        }
+                else
+                        throw CalimeroException("No methode with name \"exec\" found");
+            }
+            catch(python::error_already_set const &)
+            {
+                    handle_python_exception("Error in exec methode of a model simulator");
+            }
+
         return false;
     }
 
     void stop()
     {
         try {
-                if (python::override f = this->get_override("stop")) {
+                if (python::override f = this->get_override("stop"))
                         f();
-                } else {
-                        //TODO do something here now reason there is no f method
-                }
-        } catch(python::error_already_set const &) {
-                Logger(Error) << __FILE__ << ":" << __LINE__;
-                handle_python_exception();
-        }
+                else
+                    throw CalimeroException("No methode with name \"start\" found");
+            }
+            catch(python::error_already_set const &)
+            {
+                    handle_python_exception("Error in start methode of a calibration algorithm");
+            }
     }
 
-
-private:
-    PyObject *self;
+    object self;
 };
 
 void wrapIModelSimulator()
 {
         python::implicitly_convertible<auto_ptr<IModelSimulatorWrapper>, auto_ptr<IModelSimulator> >();
-        class_<IModelSimulator, bases<IFunction>, auto_ptr<IModelSimulatorWrapper>, boost::noncopyable>("IModelSimulator")
+        class_<IModelSimulatorWrapper, bases<IFunction>, auto_ptr<IModelSimulatorWrapper>, boost::noncopyable>("IModelSimulator")
                 .def("exec", pure_virtual(&IModelSimulatorWrapper::exec))
                 ;
 }

@@ -14,7 +14,7 @@
 #include <Calibration.h>
 #include <IModelSimulator.h>
 #include <CalibrationEnv.h>
-#include <PyException.h>
+#include <Exception.h>
 
 int main()
 {

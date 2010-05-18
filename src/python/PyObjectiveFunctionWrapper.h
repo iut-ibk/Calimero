@@ -6,6 +6,7 @@
 #include <ObjectiveFunctionVariable.h>
 #include <Variable.h>
 #include <PyEnv.h>
+#include <Exception.h>
 
 using namespace boost::python;
 using namespace std;
@@ -25,16 +26,18 @@ struct ObjectiveFunctionInterfaceWrapper : public IObjectiveFunction, wrapper<IO
                              std::vector<ObjectiveFunctionVariable*> objectivefunctionparameters)
     {
         try {
-                if (python::override f = this->get_override("eval")) {
-                        return f(iterationparameters, observedparameters, objectivefunctionparameters);
-                } else {
-                   Logger(Error) << "eval not implemented in objective function";
-                }
-        } catch(python::error_already_set const &) {
-                Logger(Error) << __FILE__ << ":" << __LINE__;
-                handle_python_exception();
+                if (python::override f = this->get_override("eval"))
+                    return f(iterationparameters, observedparameters, objectivefunctionparameters);
+                else
+                   throw CalimeroException("No methode with name \"eval\" found");
+
         }
-        return vector<double>();
+        catch(python::error_already_set const &exception)
+        {
+            handle_python_exception("Error in eval methode of an objective function");
+        }
+
+        return vector<double>(0);
     }
 
     object self;
