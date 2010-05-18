@@ -50,11 +50,7 @@ public:
             return false;
         }
 
-        parametertypes[name]=DOUBLE;
-
-        std::pair<string,DATATYPE> p;
-        BOOST_FOREACH(p, parametertypes)
-            Logger(Debug) << p.first << " : " << p.second;
+        parametertypes[name]=type;
 
         return true;
 
