@@ -21,15 +21,30 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_3">
-    <item row="0" column="1">
+    <item row="0" column="0">
      <widget class="QSplitter" name="splitter">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="orientation">
        <enum>Qt::Vertical</enum>
       </property>
+      <property name="opaqueResize">
+       <bool>true</bool>
+      </property>
       <property name="childrenCollapsible">
-       <bool>false</bool>
+       <bool>true</bool>
       </property>
       <widget class="QTabWidget" name="tab_calibrationedit_2">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="minimumSize">
         <size>
          <width>1000</width>
@@ -1290,7 +1305,11 @@
         <attribute name="title">
          <string>Results</string>
         </attribute>
-        <layout class="QGridLayout" name="gridLayout_12"/>
+        <layout class="QGridLayout" name="gridLayout_12">
+         <item row="0" column="0">
+          <widget class="DiagramGui" name="diagram_widget" native="true"/>
+         </item>
+        </layout>
        </widget>
       </widget>
       <widget class="QWidget" name="layoutWidget">
@@ -1551,6 +1570,12 @@
    <class>ParameterTextEdit</class>
    <extends>QTextEdit</extends>
    <header>parametertextedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>DiagramGui</class>
+   <extends>QWidget</extends>
+   <header location="global">diagramgui.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

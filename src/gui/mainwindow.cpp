@@ -1181,3 +1181,13 @@ void MainWindow::on_ovaradvanced_clicked()
 
     delete function;
 }
+
+void MainWindow::on_calstop_clicked()
+{
+    CalibrationEnv::getInstance()->stopCalibration();
+}
+
+void MainWindow::on_calstart_clicked()
+{
+    CalibrationEnv::getInstance()->startCalibration();
+}

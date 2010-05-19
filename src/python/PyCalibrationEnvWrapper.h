@@ -24,7 +24,7 @@ void wrapCalibrationEnv()
             .def("getCalibrationAlgReg", &CalibrationEnv::getCalibrationAlgReg,
                  return_internal_reference<1,
                          with_custodian_and_ward<1, 2> >())
-            .def("exec", &CalibrationEnv::exec)
+            .def("execIteration", &CalibrationEnv::execIteration)
             ;
 }
 

@@ -59,6 +59,9 @@ BOOST_PYTHON_MODULE(pycalimero)
         class_<std::vector<Variable*> >("variablevector")
                 .def(vector_indexing_suite<std::vector<Variable*> >());
 
+        class_<std::vector<CalibrationVariable*> >("calibrationvariablevector")
+                .def(vector_indexing_suite<std::vector<CalibrationVariable*> >());
+
         class_<std::map<string,string> >("stringmap")
                 .def(map_indexing_suite<std::map<string,string> >());
 
@@ -100,6 +103,9 @@ BOOST_PYTHON_MODULE(pycalimero)
         register_ptr_to_python< ObjectiveFunctionVariable* >();
         register_ptr_to_python< CalibrationVariable* >();
         register_ptr_to_python< IterationResult* >();
+        register_ptr_to_python< CalibrationEnv* >();
+        register_ptr_to_python< Calibration* >();
+        register_ptr_to_python< Domain* >();
 
         def("init", ::init, "must be called first\n initializes the logger");
         def("log", logdebug);
@@ -224,7 +230,10 @@ void handle_python_exception(const std::string &msg)
     catch(...) //is a little bit dirty but it catches all boost/python exceptions
     {
         throw PythonException(error, msg);
+        return;
     }
+
+    throw PythonException(error, msg);
 }
 
 void wrapPyEnv()

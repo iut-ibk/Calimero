@@ -12,14 +12,5 @@ int main(int argc, char *argv[]) {
         CalibrationEnv::getInstance()->setCalibration(new Calibration());
         MainWindow w;
         w.show();
-
-        try
-        {
-            return a.exec();
-        }
-        catch(...)
-        {
-            cout << "This should not happen :-(";
-            return 0;
-        }
+        return a.exec();
 }

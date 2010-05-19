@@ -33,8 +33,13 @@ void PyFunctionLoader::loadScripts(const string &path)
         }
         catch (PythonException e)
         {
+            Logger(Error) << e.exceptionmsg;
             Logger(Error) << e.type;
             Logger(Error) << e.value;
+        }
+        catch (CalimeroException e)
+        {
+            Logger(Error) << e.exceptionmsg;
         }
     }
 }

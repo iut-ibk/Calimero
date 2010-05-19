@@ -26,7 +26,7 @@ struct IModelSimulatorWrapper : IModelSimulator, wrapper<IModelSimulator> {
     {
         try {
                 if (python::override f = this->get_override("exec"))
-                        return f(dom);
+                        return f(ptr(dom));
                 else
                         throw CalimeroException("No methode with name \"exec\" found");
             }

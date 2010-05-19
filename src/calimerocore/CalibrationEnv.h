@@ -50,7 +50,7 @@ public:
     //calibration
     bool startCalibration();
     void stopCalibration();
-    bool exec(vector<CalibrationVariable*> calibrationparameters);
+    bool execIteration(vector<CalibrationVariable*> calibrationparameters);
 };
 
 #endif // CALIBRATIONENV_H

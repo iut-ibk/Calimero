@@ -3,6 +3,7 @@
 #include <boost/foreach.hpp>
 #include <Domain.h>
 #include <assert.h>
+#include <Exception.h>
 
 CalibrationEnv* CalibrationEnv::instance = 0;
 
@@ -14,7 +15,7 @@ CalibrationEnv::CalibrationEnv()
     mreg = new  Registry<IModelSimulator>();
     creg = new Registry<ICalibrationAlg>();
     threadpool = 0;
-    numthread=1;
+    numthread=4;
     calibration=0;
 }
 
@@ -62,6 +63,12 @@ Registry<ICalibrationAlg>* CalibrationEnv::getCalibrationAlgReg()
 
 bool CalibrationEnv::startCalibration()
 {
+    if(stopthread)
+    {
+        Logger(Error) << "CALIMERO CORE CRASH --- PLEASE RESTART";
+        return false;
+    };
+
     if(calstate!=CALIBRATIONNOTRUNNING)
     {
         Logger(Warning) << "Calibration is already started";
@@ -75,6 +82,12 @@ bool CalibrationEnv::startCalibration()
 
 void CalibrationEnv::stopCalibration()
 {
+    if(stopthread)
+    {
+        Logger(Error) << "CALIMERO CORE CRASH --- PLEASE RESTART CALIMERO";
+        return;
+    }
+
     if(calstate==CALIBRATIONNOTRUNNING)
     {
         Logger(Standard) << "No calibration running";
@@ -159,7 +172,22 @@ void CalibrationEnv::runCalibration()
         return;
     }
 
-    ICalibrationAlg *tmpalg = creg->getFunction(calibration->getCalibrationAlg());
+    ICalibrationAlg *tmpalg;
+
+    try
+    {
+         tmpalg = creg->getFunction(calibration->getCalibrationAlg());
+    }
+    catch(const PythonException &exception)
+    {
+        Logger(Error) << exception.type;
+        Logger(Error) << exception.traceback;
+        Logger(Error) << exception.value;
+    }
+    catch(const CalimeroException &exception)
+    {
+        Logger(Error) << exception.exceptionmsg;
+    }
 
     std::pair<string,string> p;
     BOOST_FOREACH(p, calibration->getCalibrationAlgSettings())
@@ -168,9 +196,13 @@ void CalibrationEnv::runCalibration()
     int realthreads = 0;
 
     if(tmpalg->containsParameter("parallel"))
+    {
         realthreads = (boost::lexical_cast<double>(tmpalg->getValueOfParameter("parallel"))) ? numthread : 1;
+    }
     else
         realthreads = 1;
+
+    Logger(Standard) << "Enabled cores: " << realthreads;
 
     threadpool = new ModelSimThreadPool(realthreads);
 
@@ -187,9 +219,22 @@ void CalibrationEnv::runCalibration()
     for(set<string>::const_iterator it = opars.begin(); it != opars.end(); ++it)
         newopars.push_back(static_cast<ObjectiveFunctionVariable*>(calibration->getDomain()->getPar(*it)));
 
-
-    if(!tmpalg->start(newcalpars,newopars,this,calibration))
-        Logger(Error) << "Calibration algorithm terminates with failure";
+    try
+    {
+        if(!tmpalg->start(newcalpars,newopars,this,calibration))
+            Logger(Error) << "Calibration algorithm terminates with failure";
+    }
+    catch(const PythonException &exception)
+    {
+        Logger(Error) << exception.exceptionmsg;
+        Logger(Error) << exception.type;
+        Logger(Error) << exception.traceback;
+        Logger(Error) << exception.value;
+    }
+    catch(const CalimeroException &exception)
+    {
+        Logger(Error) << exception.exceptionmsg;
+    }
 
     delete threadpool;
     delete tmpalg;
@@ -200,18 +245,15 @@ bool CalibrationEnv::isCalibrationRunning()
     return (calstate==CALIBRATIONNOTRUNNING) ? 0 : 1;
 }
 
-bool CalibrationEnv::exec(vector<CalibrationVariable*> calibrationparameters)
+bool CalibrationEnv::execIteration(vector<CalibrationVariable*> calibrationparameters)
 {
-    if(calstate!=CALIBRATIONSHUTDOWN)
+    if(calstate==CALIBRATIONSHUTDOWN)
     {
         Logger(Error) << "Shut down running calibration";
         return false;
     }
 
-    if(!threadpool->pushIteration(calibrationparameters,calibration))
-        return false;
-
-    return true;
+    return threadpool->pushIteration(calibrationparameters,calibration);
 }
 
 vector<string> CalibrationEnv::getAvailableObjectiveFunctions()

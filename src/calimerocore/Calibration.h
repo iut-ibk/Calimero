@@ -14,6 +14,8 @@
 #include <ICalibrationAlg.h>
 #include <Domain.h>
 #include <ExternalParameterRegistry.h>
+#include <QMutex>
+#include <QMutexLocker>
 
 #define DEFAULTGROUP "default"
 
@@ -36,6 +38,7 @@ private:
     map<string,string> modelsimulatorsettings;
     Domain *domain;
     ExternalParameterRegistry *externalfilehandler;
+    QMutex *mutex;
 
 public:
     //create

@@ -7,8 +7,7 @@
 #include <CalibrationVariable.h>
 #include <ObjectiveFunctionVariable.h>
 
-class CalibrationEnv;
-class Calibration;
+
 
 #define CALIMERO_DECLARE_CALFUNCTION(function)  \
 class CALIMERO_PUBLIC function : public ICalibrationAlg { \
@@ -20,6 +19,9 @@ private:
 #define CALIMERO_DECLARE_CALFUNCTION_NAME(functionname) \
 const char *functionname::name = #functionname; \
 const char *functionname::getClassName() const { return functionname::name; }
+
+class CalibrationEnv;
+class Calibration;
 
 class CALIMERO_PUBLIC ICalibrationAlg : public IFunction
 {

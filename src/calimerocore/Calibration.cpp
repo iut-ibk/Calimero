@@ -14,6 +14,7 @@ Calibration::Calibration()
     alg = "";
     domain = new Domain();
     externalfilehandler = new ExternalParameterRegistry();
+    mutex = new QMutex();
 }
 
 Calibration::~Calibration()
@@ -21,6 +22,7 @@ Calibration::~Calibration()
     clear();
     delete domain;
     delete externalfilehandler;
+    delete mutex;
 }
 
 void Calibration::clear()
@@ -386,11 +388,12 @@ map<string,string> Calibration::getModelSimulatorSettings()
 }
 
 IterationResult* Calibration::newIterationResult()
- {
-     IterationResult* result = new IterationResult(iterationresults.size());
-     iterationresults[result->getIterationNumber()]=result;
-     return result;
- }
+{
+    QMutexLocker locker(mutex);
+    IterationResult* result = new IterationResult(iterationresults.size());
+    iterationresults[result->getIterationNumber()]=result;
+    return result;
+}
 
 vector<string> Calibration::getAllCalibrationParameters()
 {

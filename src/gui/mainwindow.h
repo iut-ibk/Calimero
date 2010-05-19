@@ -6,7 +6,7 @@
 #include <QListWidgetItem>
 
 
-#define DEFAULTLOGLEVEL Debug
+#define DEFAULTLOGLEVEL Standard
 
 namespace Ui {
 	class MainWindow;
@@ -75,6 +75,8 @@ public:
         void groups_visible_entered();
         void show_cal_ofun();
         void on_ovaradvanced_clicked();
+        void on_calstart_clicked();
+        void on_calstop_clicked();
 
     Q_SIGNALS:
         void show_var();

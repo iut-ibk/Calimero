@@ -111,7 +111,7 @@ int main()
         (void)env;
     }
 
-    CalibrationEnv::getInstance()->getCalibration()->setCalibrationAlg("TestCalibrationAlg",map<string,string>());
+    CalibrationEnv::getInstance()->getCalibration()->setCalibrationAlg("MyCalibration",map<string,string>());
     cal->startCalibration();
     while(cal->isCalibrationRunning())
     {

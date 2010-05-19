@@ -7,6 +7,10 @@
 #include <iostream>
 #include <ICalibrationAlg.h>
 #include <PyEnv.h>
+#include <CalibrationVariable.h>
+#include <ObjectiveFunctionVariable.h>
+#include <CalibrationEnv.h>
+#include <Calibration.h>
 
 using namespace boost::python;
 using namespace std;
@@ -21,17 +25,18 @@ struct CalibrationAlgWrapper : public ICalibrationAlg, wrapper<ICalibrationAlg> 
     {
     }
 
-    bool start(vector<CalibrationVariable*> calibrationpars, vector<ObjectiveFunctionVariable*> opars, CalibrationEnv *env, Calibration *calibration)
+    bool start(vector<CalibrationVariable*> calibrationpars, vector<ObjectiveFunctionVariable*> opars,CalibrationEnv *env, Calibration *calibration)
     {
         try {
                 if (python::override f = this->get_override("start"))
-                        return f(calibrationpars,opars,env,calibration);
+                    return f(calibrationpars,opars, ptr(env), ptr(calibration));
                 else
                         throw CalimeroException("No methode with name \"start\" found");
         }
         catch(python::error_already_set const &)
         {
                 handle_python_exception("Error in start methode of a calibration algorithm");
+                return false;
         }
 
         return false;

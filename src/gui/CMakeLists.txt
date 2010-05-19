@@ -7,7 +7,7 @@ SET(MOC_HEADERS mainwindow.h
                 parametertextedit.h
                 groupmanager.h
                 stringparameteredit.h
-                functionparametersdialog.h)
+                diagramgui.h)
 QT4_WRAP_CPP(GUI_CPP ${MOC_HEADERS})
 #QT4_ADD_RESOURCES(GUI_CPP ../../data/resources/calimero-gui.qrc)
 

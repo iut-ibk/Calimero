@@ -20,7 +20,7 @@ void wrapCalibration()
                 .def("removeDisabledGroup", &Calibration::removeDisabledGroup)
                 .def("addEnabledOParameter", &Calibration::addEnabledOParameter)
                 .def("removeEnabledOParameter", &Calibration::removeEnabledOParameter)
-                .def("newIterationResult", &Calibration::newIterationResult,
+                .def("newIterationResult", &Calibration::newIterationResult ,
                      return_internal_reference<1,
                         with_custodian_and_ward<1, 2> >())
                 .def("containsGroup", &Calibration::containsGroup)
