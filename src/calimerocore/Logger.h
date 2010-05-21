@@ -3,9 +3,10 @@
 
 #include <Log.h>
 #include <CalimeroGlob.h>
+#include <QMutex>
+#include <QMutexLocker>
 
 using namespace boost;
-
 using namespace std;
 
 class QString;
@@ -31,6 +32,7 @@ private:
         string date() const;
         LogSink &sink;
         LogLevel level, max;
+        QMutex mutex;
         bool dirty;
 };
 

@@ -30,7 +30,6 @@ class DiagramGui : public QGraphicsView
     public:
         DiagramGui(QWidget *parent);
         ~DiagramGui();
-        void reset();
         void contextMenuEvent(QContextMenuEvent *event);
         void resizeEvent ( QResizeEvent * event );
         void enableFollow(bool f);

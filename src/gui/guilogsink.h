@@ -4,10 +4,13 @@
 #include <LogSink.h>
 #include <QObject>
 #include <QString>
+#include <QMutex>
+#include <QMutexLocker>
 
 class GuiLogSink : public QObject, public LogSink {
 	Q_OBJECT
 public:
+        QMutex *mutex;
 	GuiLogSink();
 	virtual ~GuiLogSink();
 

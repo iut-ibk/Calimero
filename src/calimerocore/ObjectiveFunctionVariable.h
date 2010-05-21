@@ -4,9 +4,12 @@
 #include <Variable.h>
 #include <IObjectiveFunction.h>
 #include <string>
+#include <QMutex>
+#include <QMutexLocker>
 
 class ObjectiveFunctionVariable;
 class Domain;
+class IObjectiveFunction;
 
 class CALIMERO_PUBLIC ObjectiveFunctionVariable : public Variable
 {
@@ -15,8 +18,9 @@ class CALIMERO_PUBLIC ObjectiveFunctionVariable : public Variable
         set<string> observedparameters;
         set<string> objectivefunctionparameters;
         bool needupdate;
-        std::string function;
-        std::map<string,string> functionsettings;
+        std::string functionname;
+        QMutex mutex;
+        IObjectiveFunction *function;
 
     public:
         ObjectiveFunctionVariable(const ObjectiveFunctionVariable &oldvar);

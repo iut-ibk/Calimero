@@ -72,6 +72,7 @@ void CalibrationVariable::setMin(double value)
 
 double CalibrationVariable::getMin()
 {
+
     return min;
 }
 

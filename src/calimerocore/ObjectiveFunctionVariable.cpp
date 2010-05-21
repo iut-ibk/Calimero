@@ -13,17 +13,20 @@ using namespace std;
 ObjectiveFunctionVariable::ObjectiveFunctionVariable(string Name) : Variable(Name, vector<double>(),OBJECTIVEFUNCTIONVARIABLE)
 {
     needupdate = true;
-    function="";
+    functionname="";
+    function=0;
 }
 
 ObjectiveFunctionVariable::ObjectiveFunctionVariable(const ObjectiveFunctionVariable &oldvar) : Variable(oldvar)
 {
     needupdate = true;
-    function=oldvar.function;
-    functionsettings=oldvar.functionsettings;
+    functionname="";
+    function=0;
     iterationparameters=oldvar.iterationparameters;
     objectivefunctionparameters=oldvar.objectivefunctionparameters;
     observedparameters=oldvar.observedparameters;
+    if(oldvar.functionname!="")
+        setObjectiveFunction(oldvar.functionname,oldvar.function->getParameterValues());
 }
 
 ObjectiveFunctionVariable::~ObjectiveFunctionVariable()
@@ -39,6 +42,8 @@ ObjectiveFunctionVariable::~ObjectiveFunctionVariable()
     set<string> objective = objectivefunctionparameters;
     BOOST_FOREACH(string variable, objective)
             removeParameter(variable);
+
+    delete function;
 }
 
 void ObjectiveFunctionVariable::fireUpdate()
@@ -143,18 +148,11 @@ bool ObjectiveFunctionVariable::calc()
     Logger(Debug) << this << "calc called";
     needupdate=false;
 
-    if(function=="")
+    if(functionname=="")
     {
         Logger(Warning) << this << " no objective function set";
         return false;
     }
-
-    IObjectiveFunction *tmpfunction = CalibrationEnv::getInstance()->getObjectiveFunctionReg()->getFunction(function);
-
-    std::pair<string,string> p;
-
-    BOOST_FOREACH(p, functionsettings)
-            tmpfunction->setValueOfParameter(p.first,p.second);
 
     vector<Variable*> iterationvector;
     vector<Variable*> observedvector;
@@ -171,19 +169,19 @@ bool ObjectiveFunctionVariable::calc()
 
     try
     {
-        values=tmpfunction->eval(iterationvector,observedvector,objectivevector);
+        values=function->eval(iterationvector,observedvector,objectivevector);
     }
     catch (CalimeroException e)
     {
         Logger(Error) << e.exceptionmsg;
     }
 
-    delete tmpfunction;
     return true;
 }
 
 vector<double>  ObjectiveFunctionVariable::getValues()
-{
+{ 
+    QMutexLocker locker(&mutex);
     Logger(Debug) << this << "getValues called";
     if(needupdate)
        calc();
@@ -197,37 +195,39 @@ bool ObjectiveFunctionVariable::setValues(vector<double> value)
 
 bool ObjectiveFunctionVariable::setObjectiveFunction(std::string ofunction, map<string,string> settings)
 {
+
     if(!CalibrationEnv::getInstance()->getObjectiveFunctionReg()->contains(ofunction))
     {
         Logger(Error) << this << "No objective function registered with name: " << ofunction << "-";
         return false;
     }
 
-    IObjectiveFunction *testofunc = CalibrationEnv::getInstance()->getObjectiveFunctionReg()->getFunction(ofunction);
+    IObjectiveFunction *tmpfunction = CalibrationEnv::getInstance()->getObjectiveFunctionReg()->getFunction(ofunction);
 
-    std::pair<string,string> p;
-    BOOST_FOREACH(p,settings)
-            if(!testofunc->containsParameter(p.first))
-            {
-                delete testofunc;
-                Logger(Error) <<  "Wrong values for \"" << ofunction << "\"";
-                return false;
-            }
+    if(!tmpfunction->setValues(settings))
+    {
+        delete tmpfunction;
+        return false;
+    }
 
-    functionsettings=settings;
-    function=ofunction;
+    functionname=ofunction;
+    if(function!=0)
+        delete function;
+    function=tmpfunction;
     fireUpdate();
     return true;
 }
 
 map<string,string> ObjectiveFunctionVariable::getObjectiveFunctionSettings()
 {
-    return functionsettings;
+    if(!function)
+        return map<string,string>();
+    return function->getParameterValues();
 }
 
 std::string ObjectiveFunctionVariable::getObjectiveFunction()
 {
-    return function;
+    return functionname;
 }
 
 set<string> ObjectiveFunctionVariable::getIterationParameters()

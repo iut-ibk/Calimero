@@ -14,7 +14,7 @@ Calibration::Calibration()
     alg = "";
     domain = new Domain();
     externalfilehandler = new ExternalParameterRegistry();
-    mutex = new QMutex();
+    mutex = new QMutex(QMutex::Recursive);
 }
 
 Calibration::~Calibration()
@@ -27,6 +27,7 @@ Calibration::~Calibration()
 
 void Calibration::clear()
 {
+    QMutexLocker locker(mutex);
     alg="";
 
     delete domain;
@@ -54,6 +55,7 @@ void Calibration::clear()
 
 bool Calibration::setCalibrationAlg(string ca, map<string,string>  settings)
 {   
+    QMutexLocker locker(mutex);
     if(!CalibrationEnv::getInstance()->getCalibrationAlgReg()->contains(ca))
     {
         Logger(Error) <<  "No calibration algorithm registered with name \"" << ca << "\"";
@@ -77,6 +79,7 @@ bool Calibration::setCalibrationAlg(string ca, map<string,string>  settings)
 
 bool Calibration::setModelSimulator(string ms, map<string,string> settings)
 {
+    QMutexLocker locker(mutex);
     if(!CalibrationEnv::getInstance()->getModelSimulatorReg()->contains(ms))
     {
         Logger(Error) <<  "No model simulator registered with name \"" << ms << "\"";
@@ -110,6 +113,7 @@ string Calibration::getModelSimulator()
 
 bool Calibration::addParameter(Variable *parameter)
 {
+    QMutexLocker locker(mutex);
     string parname = parameter->getName();
 
     if(domain->contains(parname))
@@ -134,7 +138,7 @@ bool Calibration::addParameter(Variable *parameter)
 
     case CALIBRATIONVARIABLE:
         if(!groups.size())
-            groups[DEFAULTGROUP] = new set<string>();
+            addGroup(DEFAULTGROUP);
         calibrationparameters.insert(parname);
         groups[DEFAULTGROUP]->insert(parname);
     }
@@ -146,6 +150,7 @@ bool Calibration::addParameter(Variable *parameter)
 
 bool Calibration::removeParameter(string parname)
 {
+    QMutexLocker locker(mutex);
     if(!domain->contains(parname))
         return false;
 
@@ -188,6 +193,7 @@ bool Calibration::removeParameter(string parname)
 
 bool Calibration::addGroup(std::string name)
 {
+    QMutexLocker locker(mutex);
     if(groups.find(name)!=groups.end())
         return false;
 
@@ -199,11 +205,13 @@ bool Calibration::addGroup(std::string name)
         enabledgroups[name]=false;
 
     disabledgroups[name]=false;
+
     return true;
 }
 
 bool Calibration::removeGroup(std::string name)
 {
+    QMutexLocker locker(mutex);
     if(groups.find(name)==groups.end())
         return false;
 
@@ -231,6 +239,7 @@ bool Calibration::containsGroup(std::string groupname)
 
 bool Calibration::addParameterToGroup(string var, std::string groupname)
 {
+    QMutexLocker locker(mutex);
     if(!containsParameter(var))
         return false;
 
@@ -247,6 +256,7 @@ bool Calibration::addParameterToGroup(string var, std::string groupname)
 
 bool Calibration::removeParameterFromGroup(string var, std::string groupname)
 {
+    QMutexLocker locker(mutex);
     if(!containsGroup(groupname) || !containsParameter(var))
         return false;
 
@@ -263,6 +273,7 @@ bool Calibration::removeParameterFromGroup(string var, std::string groupname)
 
 bool Calibration::addEnabledGroup(std::string groupname)
 {
+    QMutexLocker locker(mutex);
     if(!containsGroup(groupname))
         return false;
 
@@ -272,6 +283,7 @@ bool Calibration::addEnabledGroup(std::string groupname)
 
 bool Calibration::removeEnabledGroup(std::string groupname)
 {
+    QMutexLocker locker(mutex);
     if(!containsGroup(groupname))
         return false;
 
@@ -282,6 +294,7 @@ bool Calibration::removeEnabledGroup(std::string groupname)
 
 bool Calibration::addDisabledGroup(std::string groupname)
 {
+    QMutexLocker locker(mutex);
     if(!containsGroup(groupname))
         return false;
 
@@ -291,6 +304,7 @@ bool Calibration::addDisabledGroup(std::string groupname)
 
 bool Calibration::removeDisabledGroup(std::string groupname)
 {
+    QMutexLocker locker(mutex);
     if(!containsGroup(groupname))
         return false;
 
@@ -301,6 +315,7 @@ bool Calibration::removeDisabledGroup(std::string groupname)
 
 bool Calibration::addEnabledOParameter(string parameter)
 {
+    QMutexLocker locker(mutex);
     if(!containsParameter(parameter))
         return false;
 
@@ -315,6 +330,7 @@ bool Calibration::addEnabledOParameter(string parameter)
 
 bool Calibration::removeEnabledOParameter(string parameter)
 {
+    QMutexLocker locker(mutex);
     if(!containsParameter(parameter))
         return false;
 
@@ -335,18 +351,19 @@ set<string> Calibration::evalCalibrationParameters()
 
     //add all enabled parameters
     std::pair<string, bool> p;
+
     BOOST_FOREACH(p, enabledgroups)
             if(p.second)
             {
-                for (set<string>::const_iterator it = groups[p.first]->begin(); it != groups[p.first]->end(); ++it)
+                for (set<string>::const_iterator it = groups[p.first]->begin(); it != groups[p.first]->end(); it++)
                     tmp.insert(*it);
              }
 
     //remove all disabled parameters
     BOOST_FOREACH(p, disabledgroups)
-            if(!p.second)
+            if(p.second)
             {
-                for (set<string>::const_iterator it = groups[p.first]->begin(); it != groups[p.first]->end(); ++it)
+                for (set<string>::const_iterator it = groups[p.first]->begin(); it != groups[p.first]->end(); it++)
                     tmp.erase(tmp.find(*it));
             }
 
@@ -365,11 +382,19 @@ int Calibration::getNumOfComplete()
 
 map<int,IterationResult*> Calibration::getIterationResults()
 {
-    return iterationresults;
+    QMutexLocker locker(mutex);
+    map<int,IterationResult*> result;
+
+    std::pair<int,IterationResult*>p;
+    BOOST_FOREACH(p,iterationresults)
+            if(p.second->isComplete())
+                result[p.second->getIterationNumber()]=p.second;
+    return result;
 }
 
 void Calibration::clearIterationResults()
 {
+    QMutexLocker locker(mutex);
     std::pair<int,IterationResult*>p;
     BOOST_FOREACH(p, iterationresults)
             delete p.second;
@@ -448,9 +473,10 @@ bool Calibration::containsGroupMember(string varname, string groupname)
 
 vector<string> Calibration::getAllGroups()
 {
-
     if(!groups.size())
+    {
         addGroup(DEFAULTGROUP);
+    }
 
     vector<string> result;
     std::pair<string, set<string>* > p;

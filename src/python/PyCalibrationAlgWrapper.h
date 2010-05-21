@@ -27,6 +27,7 @@ struct CalibrationAlgWrapper : public ICalibrationAlg, wrapper<ICalibrationAlg> 
 
     bool start(vector<CalibrationVariable*> calibrationpars, vector<ObjectiveFunctionVariable*> opars,CalibrationEnv *env, Calibration *calibration)
     {
+        ScopedGILRelease scoped;
         try {
                 if (python::override f = this->get_override("start"))
                     return f(calibrationpars,opars, ptr(env), ptr(calibration));

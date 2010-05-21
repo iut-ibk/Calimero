@@ -25,6 +25,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         log_updater = new GuiLogSink();
         Log::init(log_updater,DEFAULTLOGLEVEL);
         ui->log_widget->connect(log_updater, SIGNAL(newLogLine(QString)), SLOT(appendPlainText(QString)), Qt::QueuedConnection);
+        this->connect(&updatetimer, SIGNAL(timeout()), SLOT(updatetimer_timeout()));
+        ui->diagram_widget->connect(this, SIGNAL(updateDiagram(Calibration *)), SLOT(showResults(Calibration *)), Qt::QueuedConnection);
 }
 
 MainWindow::~MainWindow() {
@@ -312,27 +314,35 @@ void MainWindow::on_newvar_clicked()
     {
         switch(ui->comboBox->currentIndex())
         {
-        case 0:
-            ok = CalibrationEnv::getInstance()->getCalibration()->addParameter(new CalibrationVariable(text.toStdString(),vector<double>(1)));
+        case 0:{
+            CalibrationVariable caltmp(text.toStdString(),vector<double>(1));
+            ok = CalibrationEnv::getInstance()->getCalibration()->addParameter(&caltmp);
             if(ok)
                 ui->vars->addItem(text);
             break;
-        case 1:
-            ok = CalibrationEnv::getInstance()->getCalibration()->addParameter(new Variable(text.toStdString(),vector<double>(1),ITERATIONVARIABLE));
+        }
+        case 1:{
+            Variable vartmp(text.toStdString(),vector<double>(1),ITERATIONVARIABLE);
+            ok = CalibrationEnv::getInstance()->getCalibration()->addParameter(&vartmp);
             if(ok)
                 ui->vars->addItem(text);
             break;
-        case 2:
-            ok = CalibrationEnv::getInstance()->getCalibration()->addParameter(new Variable(text.toStdString(),vector<double>(1),OBSERVEDVARIABLE));
+        }
+        case 2:{
+            Variable vartmp(text.toStdString(),vector<double>(1),OBSERVEDVARIABLE);
+            ok = CalibrationEnv::getInstance()->getCalibration()->addParameter(&vartmp);
             if(ok)
                 ui->vars->addItem(text);
             show_var();
             break;
-        case 3:
-            ok = CalibrationEnv::getInstance()->getCalibration()->addParameter(new ObjectiveFunctionVariable(text.toStdString()));
+        }
+        case 3:{
+            ObjectiveFunctionVariable otmp(text.toStdString());
+            ok = CalibrationEnv::getInstance()->getCalibration()->addParameter(&otmp);
             if(ok)
                 ui->vars->addItem(text);
             break;
+        }
         }
     }
 }
@@ -1189,5 +1199,20 @@ void MainWindow::on_calstop_clicked()
 
 void MainWindow::on_calstart_clicked()
 {
+    ui->diagram_widget->enableFollow(true);
+    updatetimer.start(UPDATETIME);
     CalibrationEnv::getInstance()->startCalibration();
+}
+
+void MainWindow::updatetimer_timeout()
+{
+    Logger(Debug) << "Update GUI";
+
+    if(!CalibrationEnv::getInstance()->isCalibrationRunning())
+    {
+        updatetimer.stop();
+        ui->diagram_widget->enableFollow(false);
+    }
+
+    Q_EMIT updateDiagram(CalibrationEnv::getInstance()->getCalibration());
 }

@@ -5,6 +5,7 @@
 #include <map>
 #include <string>
 #include <CalimeroGlob.h>
+#include <QAtomicInt>
 
 class ObjectiveFunctionVariable;
 class Variable;

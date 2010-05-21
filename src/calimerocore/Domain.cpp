@@ -42,7 +42,7 @@ void Domain::setPar(Variable* var)
 
 Variable* Domain::getPar(const string &name)
 {
-    if(members.find(name)!=members.end())
+    if(contains(name))
             return members[name];
 
     Logger(Warning) << "Domain return null pointer";
@@ -62,34 +62,14 @@ bool Domain::removePar(const string &name)
 
 bool Domain::contains(string var)
 {
-    if(!getPar(var))
-        return false;
-
-    return true;
+    return (members.find(var)!=members.end());
 }
 
 Domain::Domain(const Domain &olddomain)
 {
     std::pair<string, Variable*>p;
     BOOST_FOREACH(p, olddomain.members)
-    {
-        const Variable *oldvar = p.second;
-        Variable *newvar;
-
-        switch(oldvar->getType())
-        {
-        case OBJECTIVEFUNCTIONVARIABLE:
-                newvar = new ObjectiveFunctionVariable(*(static_cast<const ObjectiveFunctionVariable*>(oldvar)));
-                break;
-        case CALIBRATIONVARIABLE:
-                newvar = new CalibrationVariable(*(static_cast<const CalibrationVariable*>(oldvar)));
-                break;
-        default:
-                newvar = new Variable(*oldvar);
-                break;
-        }
-        setPar(newvar);
-    }
+        setPar(p.second);
 }
 
 vector<Variable*> Domain::getAllPars(const VARTYPE &type)

@@ -5,6 +5,9 @@
 #include <Logger.h>
 #include <Variable.h>
 #include <Domain.h>
+#include <assert.h>
+#include <CalibrationEnv.h>
+#include <Calibration.h>
 
 IterationResult::IterationResult(int iterationnum)
 {
@@ -15,12 +18,12 @@ IterationResult::IterationResult(int iterationnum)
     }
 
     iterationnumber=iterationnum;
+    complete=0;
 }
 
 void IterationResult::setResults(Domain *dom)
 {
-    if(isComplete())
-        return;
+    assert(!complete);
 
     vector<Variable*> tmpvec;
 
@@ -44,8 +47,9 @@ void IterationResult::setResults(Domain *dom)
     BOOST_FOREACH(Variable *var, tmpvec)
         objectivefucntionparameters[var->getName()]=var->getValues();
 
-    this->complete=true;
 
+    Logger(Debug) << "Iteration " << iterationnumber << "is complete";
+    complete=1;
 }
 
 bool IterationResult::isComplete()
@@ -55,6 +59,8 @@ bool IterationResult::isComplete()
 
 vector<double> IterationResult::getIterationParameterResults(string name)
 {
+    assert(complete);
+
     if(iterationparameters.find(name)==iterationparameters.end())
         Logger(Error) << "Result container does not contain parameter [" << name << "]";
 
@@ -63,6 +69,8 @@ vector<double> IterationResult::getIterationParameterResults(string name)
 
 vector<double> IterationResult::getObservedParameterResults(string name)
 {
+    assert(complete);
+
     if(observedparameters.find(name)==observedparameters.end())
         Logger(Error) << "Result container does not contain parameter [" << name << "]";
 
@@ -71,6 +79,8 @@ vector<double> IterationResult::getObservedParameterResults(string name)
 
 vector<double> IterationResult::getCalibrationParameterResults(string name)
 {
+    assert(complete);
+
     if(calibrationparameters.find(name)==calibrationparameters.end())
         Logger(Error) << "Result container does not contain parameter [" << name << "]";
 
@@ -79,6 +89,8 @@ vector<double> IterationResult::getCalibrationParameterResults(string name)
 
 vector<double> IterationResult::getObjectiveFunctionParameterResults(string name)
 {
+    assert(complete);
+
     if(objectivefucntionparameters.find(name)==objectivefucntionparameters.end())
         Logger(Error) << "Result container does not contain parameter [" << name << "]";
 

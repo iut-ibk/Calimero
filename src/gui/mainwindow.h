@@ -4,15 +4,18 @@
 #include <QMainWindow>
 #include <QObject>
 #include <QListWidgetItem>
+#include <QTimer>
 
 
 #define DEFAULTLOGLEVEL Standard
+#define UPDATETIME 1000
 
 namespace Ui {
 	class MainWindow;
 }
 
 class QStateMachine;
+class Calibration;
 class GuiLogSink;
 class QTableWidgetItem;
 
@@ -25,6 +28,7 @@ public:
 	Ui::MainWindow *ui;
         QStateMachine *state_machine;
         GuiLogSink *log_updater;
+        QTimer updatetimer;
 
     public Q_SLOTS:
         void on_comboBox_currentIndexChanged ( int index );
@@ -77,6 +81,7 @@ public:
         void on_ovaradvanced_clicked();
         void on_calstart_clicked();
         void on_calstop_clicked();
+        void updatetimer_timeout();
 
     Q_SIGNALS:
         void show_var();
@@ -92,6 +97,7 @@ public:
         void enable_groups();
         void disable_groups();
         void clean_calofun();
+        void updateDiagram(Calibration *calibration);
 };
 
 #endif // MAINWINDOW_H

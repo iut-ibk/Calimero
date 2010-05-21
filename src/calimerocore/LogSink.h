@@ -4,6 +4,8 @@
 #include <string>
 #include <ostream>
 #include <CalimeroGlob.h>
+#include <QMutex>
+#include <QMutexLocker>
 
 class LSEndl {};
 
@@ -21,7 +23,7 @@ public:
 class CALIMERO_PUBLIC OStreamLogSink : public LogSink {
 public:
         OStreamLogSink(std::ostream &ostream);
-
+        ~OStreamLogSink();
         void close() {}
         LogSink &operator<<(const std::string &string);
         LogSink &operator<<(const char *string);
@@ -30,6 +32,7 @@ public:
 
 private:
         std::ostream &out;
+        QMutex *mutex;
 };
 
 #endif // LOGSINK_H

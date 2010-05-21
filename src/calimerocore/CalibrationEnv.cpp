@@ -17,6 +17,7 @@ CalibrationEnv::CalibrationEnv()
     threadpool = 0;
     numthread=4;
     calibration=0;
+    mutex = new QMutex(QMutex::Recursive);
 }
 
 CalibrationEnv::~CalibrationEnv()
@@ -69,13 +70,13 @@ bool CalibrationEnv::startCalibration()
         return false;
     };
 
-    if(calstate!=CALIBRATIONNOTRUNNING)
+    if(getCalibrationState()!=CALIBRATIONNOTRUNNING)
     {
         Logger(Warning) << "Calibration is already started";
         return false;
     }
 
-    calstate=CALIBRATIONINIT;
+    setCalibrationState(CALIBRATIONINIT);
 
     return true;
 }
@@ -88,18 +89,18 @@ void CalibrationEnv::stopCalibration()
         return;
     }
 
-    if(calstate==CALIBRATIONNOTRUNNING)
+    if(getCalibrationState()==CALIBRATIONNOTRUNNING)
     {
         Logger(Standard) << "No calibration running";
         return;
     }
 
-    calstate=CALIBRATIONSHUTDOWN;
+    setCalibrationState(CALIBRATIONSHUTDOWN);
 }
 
 bool CalibrationEnv::setCalibration(Calibration *cal)
 {
-    if(calstate!=CALIBRATIONNOTRUNNING)
+    if(getCalibrationState()!=CALIBRATIONNOTRUNNING)
     {
         Logger(Error) << "Already running calibration";
         return false;
@@ -117,7 +118,7 @@ int CalibrationEnv::getNumThreads()
 
 bool CalibrationEnv::setNumThreads(int num)
 {
-    if(calstate!=CALIBRATIONNOTRUNNING)
+    if(getCalibrationState()!=CALIBRATIONNOTRUNNING)
     {
         Logger(Error) << "Already running calibration - could not set number of threads";
         return false;
@@ -144,11 +145,11 @@ void CalibrationEnv::run()
 {
     while(!stopthread)
     {
-        if(calstate==CALIBRATIONINIT)
+        if(getCalibrationState()==CALIBRATIONINIT)
         {
             Logger(Standard) << "Calibration started";
             runCalibration();
-            calstate=CALIBRATIONNOTRUNNING;
+            setCalibrationState(CALIBRATIONNOTRUNNING);
             Logger(Standard) << "Calibration stopped";
         }
 
@@ -158,7 +159,7 @@ void CalibrationEnv::run()
 
 void CalibrationEnv::runCalibration()
 {
-    calstate=CALIBRATIONRUNNING;
+    setCalibrationState(CALIBRATIONRUNNING);
 
     if(calibration->getCalibrationAlg()=="")
     {
@@ -242,12 +243,12 @@ void CalibrationEnv::runCalibration()
 
 bool CalibrationEnv::isCalibrationRunning()
 {
-    return (calstate==CALIBRATIONNOTRUNNING) ? 0 : 1;
+    return (getCalibrationState()==CALIBRATIONNOTRUNNING) ? 0 : 1;
 }
 
 bool CalibrationEnv::execIteration(vector<CalibrationVariable*> calibrationparameters)
 {
-    if(calstate==CALIBRATIONSHUTDOWN)
+    if(getCalibrationState()==CALIBRATIONSHUTDOWN)
     {
         Logger(Error) << "Shut down running calibration";
         return false;
@@ -269,4 +270,19 @@ vector<string> CalibrationEnv::getAvailableModelSimulators()
 vector<string> CalibrationEnv::getAvailableCalibrationAlgs()
 {
     return getCalibrationAlgReg()->getAvailableFunctions();
+}
+
+CalibrationEnv::CALIBRATIONSTATE CalibrationEnv::getCalibrationState()
+{
+    lock.lockForRead();
+    CALIBRATIONSTATE result = calstate;
+    lock.unlock();
+    return result;
+}
+
+void CalibrationEnv::setCalibrationState(CALIBRATIONSTATE state)
+{
+    lock.lockForWrite();
+    calstate=state;
+    lock.unlock();
 }

@@ -5,7 +5,7 @@
 
 CALIMERO_DECLARE_CALFUNCTION(TestCalibrationAlg)
 public:
-        TestCalibrationAlg(){};
+        TestCalibrationAlg();
         virtual ~TestCalibrationAlg();
         virtual bool start(vector<CalibrationVariable*> calibrationpars, vector<ObjectiveFunctionVariable*> opars, CalibrationEnv *env, Calibration *calibration);
 };

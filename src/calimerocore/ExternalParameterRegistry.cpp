@@ -137,7 +137,7 @@ bool ExternalParameterRegistry::updateParameters(Domain *domain, int iteration)
             return false;
     }
 
-    return false;
+    return true;
 }
 
 bool ExternalParameterRegistry::updateParameters(Domain *domain, const string &templatename, const string &values)

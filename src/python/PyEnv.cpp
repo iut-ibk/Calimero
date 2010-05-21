@@ -126,8 +126,16 @@ PyEnv *PyEnv::instance = 0;
 
 PyEnv::PyEnv() {
         priv = new PyEnvPriv();
+
         if(!Py_IsInitialized())
             Py_Initialize();
+
+        PyEval_InitThreads();
+        
+        PyThreadState *pts = PyGILState_GetThisThreadState();
+        PyEval_ReleaseThread(pts);
+
+        ScopedGILRelease scoped;
         priv->main_module = import("__main__");
         priv->main_namespace = priv->main_module.attr("__dict__");
 }
@@ -156,11 +164,13 @@ void PyEnv::addPythonPath(std::string path) {
         boost::format fmt("import sys\n"
                           "sys.path.append('%1%')\n");
         fmt % path;
+        ScopedGILRelease scoped;
         exec(fmt.str().c_str(),priv->main_namespace,priv->main_namespace);
 }
 
 void PyEnv::registerFunctions(IRegistry *registry, const string &module)
 {
+    ScopedGILRelease scoped;
     boost::format fmt("import sys\n"
                       "import pycalimero\n"
                       "import %1%\n"

@@ -25,9 +25,15 @@ struct ObjectiveFunctionInterfaceWrapper : public IObjectiveFunction, wrapper<IO
                              std::vector<Variable*> observedparameters,
                              std::vector<ObjectiveFunctionVariable*> objectivefunctionparameters)
     {
+        ScopedGILRelease scoped;
+
         try {
+
                 if (python::override f = this->get_override("eval"))
-                    return f(iterationparameters, observedparameters, objectivefunctionparameters);
+                {
+                    std::vector<double> result = f(iterationparameters, observedparameters, objectivefunctionparameters);
+                    return result;
+                }
                 else
                    throw CalimeroException("No methode with name \"eval\" found");
 

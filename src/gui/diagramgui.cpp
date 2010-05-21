@@ -7,6 +7,8 @@
 #include <Calibration.h>
 #include <IterationResult.h>
 
+#include <iostream>
+
 DiagramGui::~DiagramGui()
 {
      QObject::disconnect(menu, SIGNAL(triggered(QAction*)), this, SLOT(menuAction(QAction*)));
@@ -18,6 +20,7 @@ DiagramGui::DiagramGui(QWidget *parent) : QGraphicsView(parent)
     follow=false;
     forceupdate=false;
     updaterunning=false;
+    calibration=0;
 
     //creating cotextmenue
     menu = new QMenu(this);
@@ -44,7 +47,7 @@ DiagramGui::DiagramGui(QWidget *parent) : QGraphicsView(parent)
     calibrationscene = new DiagramScene(this);
     currentscene = calibrationscene;
     currentscene->enableScene();
-    lastiteration=1;
+    lastiteration=-1;
     comparescene->updateScene(QMap<QString,QVector<QVector<double> > >());
     calibrationscene->updateScene(QMap<QString,QVector<QVector<double> > >());
 }
@@ -130,14 +133,11 @@ void DiagramGui::showResults(Calibration *c)
 
    if(c==NULL)
         return;
-    QMutexLocker locker(&mutex);
 
+   QMutexLocker locker(&mutex);
 
     if(c!=calibration)
         calibration=c;
-
-    if(!isVisible())
-        return;
 
     if(lastiteration == calibration->getNumOfComplete())
         return;
@@ -155,26 +155,35 @@ void DiagramGui::showResults(Calibration *c)
 
     for(iterator=calibrationparameters.begin(); iterator!=calibrationparameters.end(); iterator++)
     {
-        QVector<QVector<double> > result(calibration->getNumOfComplete());
-        for(int index = 0; index < calibration->getNumOfComplete(); index++)
-            result[index]=QVector<double>::fromStdVector(results[index]->getCalibrationParameterResults(*iterator));
+        QVector<QVector<double> > result;
+        for(uint index = 0; index < results.size(); index++)
+        {
+            QVector<double> tmp = QVector<double>::fromStdVector(results[index]->getCalibrationParameterResults(*iterator));
+            if(tmp.size() > 0)
+                result.append(tmp);
+        }
 
         algpar[QString::fromStdString(*iterator)]=result;
     }
 
+
     for(iterator=objectivefunctionparameters.begin(); iterator!=objectivefunctionparameters.end(); iterator++)
     {
-        QVector<QVector<double> > result(calibration->getNumOfComplete());
-        for(int index = 0; index < calibration->getNumOfComplete(); index++)
-            result[index]=QVector<double>::fromStdVector(results[index]->getObjectiveFunctionParameterResults(*iterator));
+        QVector<QVector<double> > result;
+        for(uint index = 0; index < results.size(); index++)
+        {
+            QVector<double> tmp = QVector<double>::fromStdVector(results[index]->getObjectiveFunctionParameterResults(*iterator));
+            if(tmp.size() > 0)
+                result.append(tmp);
+        }
 
         evalpar[QString::fromStdString(*iterator)]=result;
     }
 
     //calibrationscene->setPositionText("Best calibration at iteration " + QString::number(iteration) + " with value " + QString::number(value));
     //comparescene->setPositionText("Best calibration at iteration " + QString::number(iteration) + " with value " + QString::number(value));
-    calibrationscene->updateScene(evalpar);
-    comparescene->updateScene(algpar);
+    calibrationscene->updateScene(algpar);
+    comparescene->updateScene(evalpar);
 
     updaterunning = false;
     lastiteration=calibration->getNumOfComplete();
@@ -202,6 +211,12 @@ void DiagramGui::enableFollow(bool f)
     comparescene->setFollow(f);
     calibrationscene->setFollow(f);
     follow=f;
+
+    if(follow)
+        setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    else
+        setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+
     lastiteration=-1;
     showResults(calibration);
 }

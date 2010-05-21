@@ -29,11 +29,10 @@ private:
     ExternalParameterRegistry *externalfilehandler;
     IterationResult *result;
     Calibration *calibration;
-    vector<CalibrationVariable*> newcalpars;
+    IModelSimulator *sim;
 
 public:
-    ModelSimRunnable(vector<CalibrationVariable*> newcalpars,
-                     Calibration *calibration);
+    ModelSimRunnable(vector<CalibrationVariable*> newcalpars,Calibration *calibration);
     ~ModelSimRunnable();
     void run();
 };

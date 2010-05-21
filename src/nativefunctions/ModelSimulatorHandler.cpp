@@ -1,5 +1,8 @@
 #include <ModelSimulatorHandler.h>
 #include <Logger.h>
+#include <Domain.h>
+#include <CalibrationVariable.h>
+#include <IterationResult.h>
 
 CALIMERO_DECLARE_MODELSIMULATOR_NAME(ModelSimulatorHandler)
 
@@ -18,8 +21,10 @@ int ModelSimulatorHandler::getThreadsNumber()
 
 bool ModelSimulatorHandler::exec(Domain *dom)
 {
-    double index = 0;
-    while(index < 500000)
-        index++;
+    CalibrationVariable* pi = static_cast<CalibrationVariable*>(dom->getAllPars(CALIBRATIONVARIABLE).at(0));
+    Variable* iterationresult = dom->getAllPars(ITERATIONVARIABLE).at(0);
+    vector<double> result = iterationresult->getValues();
+    result[0]=pi->getValues()[0]*5;
+    iterationresult->setValues(result);
     return true;
 }

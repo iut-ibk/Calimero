@@ -2,6 +2,7 @@
 #include <QtCore>
 #include <QSvgGenerator>
 #include <QPainter>
+#include <Logger.h>
 
 DiagramScene::DiagramScene(QGraphicsView *view)
 {
@@ -132,7 +133,15 @@ bool DiagramScene::showResultOfParameter(QString name, QPen pen)
         }
         else
         {
-            value = result.at(counter).at(0);
+            if(!result.at(counter).size())
+            {
+                Logger(Warning) << "No value set in function";
+                value=0;
+            }
+            else
+            {
+                value = result.at(counter).at(0);
+            }
         }
 
         if(counter==startiteration)

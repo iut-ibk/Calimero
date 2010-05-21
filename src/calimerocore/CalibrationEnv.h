@@ -10,6 +10,9 @@
 #include <CalimeroGlob.h>
 #include <ModelSimThreadPool.h>
 #include <ExternalParameterRegistry.h>
+#include <QMutex>
+#include <QMutexLocker>
+#include <QReadWriteLock>
 
 class CALIMERO_PUBLIC CalibrationEnv : public QThread
 {
@@ -19,6 +22,8 @@ private:
     int numthread;
     bool stopthread;
     static CalibrationEnv *instance;
+    QMutex *mutex;
+    QReadWriteLock lock;
     Calibration *calibration;
     ModelSimThreadPool *threadpool;
     Registry<IObjectiveFunction>* oreg;
@@ -28,6 +33,8 @@ private:
 
     CalibrationEnv();
     void runCalibration();
+    CALIBRATIONSTATE getCalibrationState();
+    void setCalibrationState(CALIBRATIONSTATE state);
 
 public:
     ~CalibrationEnv();

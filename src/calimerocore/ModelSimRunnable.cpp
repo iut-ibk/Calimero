@@ -11,37 +11,25 @@
 ModelSimRunnable::ModelSimRunnable(vector<CalibrationVariable*> newcalpars,
                                    Calibration *calibration)
 {
-    this->newcalpars=newcalpars;
-    this->calibration=calibration;
-}
-
-ModelSimRunnable::~ModelSimRunnable()
-{
-
-}
-
-void ModelSimRunnable::run()
-{
+    //clone all
     dom = new Domain(*(calibration->getDomain()));
     externalfilehandler = new ExternalParameterRegistry(*(calibration->getExternalParameterRegistry()));
 
     //create result container and save all calibration parameters
     result = calibration->newIterationResult();
+    this->calibration = calibration;
 
     //add calibration parameters to new domain
-    BOOST_FOREACH(CalibrationVariable *var, this->newcalpars)
-    {
-            dom->setPar(new CalibrationVariable(*var));
-            delete var;
-    }
+    BOOST_FOREACH(CalibrationVariable *var, newcalpars)
+        dom->setPar(var);
 
-    //create instance of model simulator
-    IModelSimulator *sim = CalibrationEnv::getInstance()->getModelSimulatorReg()->getFunction(calibration->getModelSimulator());
-
-    std::pair<string,string> p;
     vector<string> templatenames = externalfilehandler->getAllTemplateNames();
 
+    //create instance of model simulator
+    sim = CalibrationEnv::getInstance()->getModelSimulatorReg()->getFunction(calibration->getModelSimulator());
+
     //convert each modelsimulator setting
+    std::pair<string,string> p;
     BOOST_FOREACH(p, calibration->getModelSimulatorSettings())
     {
         QString setting = QString::fromStdString(p.second);
@@ -59,10 +47,17 @@ void ModelSimRunnable::run()
             delete sim;
             delete dom;
             delete externalfilehandler;
-            return;
+            sim = 0;
         }
     }
+}
 
+ModelSimRunnable::~ModelSimRunnable()
+{
+}
+
+void ModelSimRunnable::run()
+{
     //create all external files
     if(!externalfilehandler->createValueFiles(this->dom,result->getIterationNumber()))
     {
@@ -73,6 +68,9 @@ void ModelSimRunnable::run()
     }
 
     //run simulator
+    if(!sim)
+        return;
+
     if(!sim->exec(dom))
         CalibrationEnv::getInstance()->stopCalibration();
 

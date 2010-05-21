@@ -3,8 +3,17 @@
 #include <boost/format.hpp>
 #include <Logger.h>
 #include <CalibrationEnv.h>
+#include <CalibrationVariable.h>
+#include <IFunction.h>
 
 CALIMERO_DECLARE_CALFUNCTION_NAME(TestCalibrationAlg)
+
+TestCalibrationAlg::TestCalibrationAlg()
+{
+    setDataType("parallel",DOUBLE);
+    setValueOfParameter("parallel","1");
+}
+
 
 TestCalibrationAlg::~TestCalibrationAlg()
 {
@@ -14,12 +23,16 @@ bool TestCalibrationAlg::start(vector<CalibrationVariable*> calibrationpars, vec
 {
     Logger(Debug) << "start called in native class \"TestCalibrationAlg\"";
 
-    double index = 0;
-    while(index < 100000)
+    CalibrationVariable *pi = calibrationpars[0];
+
+    for(double index=pi->getMin(); index<pi->getMax();index=index+pi->getStep())
     {
-        env->execIteration(calibrationpars);
-        index++;
-        //sleep(1);
+        vector<double> result = pi->getValues();
+        result[0]=index;
+        pi->setValues(result);
+        if(!env->execIteration(calibrationpars))
+            return true;
     }
-    return false;
+
+    return true;
 }
