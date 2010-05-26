@@ -12,6 +12,7 @@
 Calibration::Calibration()
 {
     alg = "";
+    simulator = "";
     domain = new Domain();
     externalfilehandler = new ExternalParameterRegistry();
     mutex = new QMutex(QMutex::Recursive);
@@ -29,6 +30,7 @@ void Calibration::clear()
 {
     QMutexLocker locker(mutex);
     alg="";
+    simulator = "";
 
     delete domain;
     delete externalfilehandler;
@@ -51,6 +53,7 @@ void Calibration::clear()
     algsettings.clear();
     modelsimulatorsettings.clear();
     groups.clear();
+    Logger(Standard) << "Calimero project cleaned";
 }
 
 bool Calibration::setCalibrationAlg(string ca, map<string,string>  settings)
@@ -144,7 +147,7 @@ bool Calibration::addParameter(Variable *parameter)
     }
 
     domain->setPar(parameter);
-    Logger(Debug) << parameter << " registered for calibration";
+    Logger(Standard) << parameter << " registered for calibration";
     return true;
 }
 
@@ -494,4 +497,35 @@ map<string,bool> Calibration::getDisabledGroups()
 map<string,bool> Calibration::getEnabledGroups()
 {
     return enabledgroups;
+}
+
+set<string> Calibration::getGroupMembers(const string &name)
+{
+    if(!containsGroup(name))
+        return set<string>();
+
+    return *groups[name];
+}
+
+bool Calibration::isEnabledGroup(const string &name)
+{
+    if(!containsGroup(name))
+        return false;
+
+    return enabledgroups[name];
+}
+
+bool Calibration::isDisabledGroup(const string &name)
+{
+    if(!containsGroup(name))
+        return false;
+
+    return disabledgroups[name];
+}
+
+bool Calibration::setIterationResults(map<int,IterationResult*> iterationresults)
+{
+    clearIterationResults();
+    this->iterationresults=iterationresults;
+    return true;
 }

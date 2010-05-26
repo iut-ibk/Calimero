@@ -22,6 +22,7 @@ CalibrationVariable::CalibrationVariable(const CalibrationVariable &oldvar) : Va
     initvalues=oldvar.initvalues;
     min = oldvar.min;
     max = oldvar.max;
+    step = oldvar.step;
 }
 
 CalibrationVariable::~CalibrationVariable()

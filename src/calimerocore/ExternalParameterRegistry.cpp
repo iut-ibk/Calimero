@@ -90,6 +90,14 @@ bool ExternalParameterRegistry::containsParameter(const string &parametername)
     return regparameters.find(parametername)!=regparameters.end();
 }
 
+bool ExternalParameterRegistry::containsParameter(const string &parametername, const string &templatename)
+{
+    if(!containsParameter(parametername))
+        return false;
+
+    return regparameters[parametername]==templatename;
+}
+
 bool ExternalParameterRegistry::deleteTemplate(const string &templatename)
 {
     if(regtemplates.find(templatename)==regtemplates.end())

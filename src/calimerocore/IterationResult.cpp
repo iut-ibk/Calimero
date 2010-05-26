@@ -21,6 +21,27 @@ IterationResult::IterationResult(int iterationnum)
     complete=0;
 }
 
+IterationResult::IterationResult(int iterationnum,
+                map<string, vector<double> > calibrationparameters,
+                map<string, vector<double> > iterationparameters,
+                map<string, vector<double> > objectivefunctionparameters,
+                map<string, vector<double> > observedparameters)
+{
+    if(iterationnum < 0)
+    {
+       Logger(Error) << "Iteration number invalid";
+       abort();
+    }
+
+    this->iterationnumber=iterationnum;
+    this->calibrationparameters=calibrationparameters;
+    this->iterationparameters=iterationparameters;
+    this->observedparameters=observedparameters;
+    this->objectivefucntionparameters=objectivefunctionparameters;
+    complete = 1;
+}
+
+
 void IterationResult::setResults(Domain *dom)
 {
     assert(!complete);

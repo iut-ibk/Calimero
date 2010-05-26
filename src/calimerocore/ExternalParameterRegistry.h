@@ -30,6 +30,7 @@ public:
     bool registerTemplate(const string &name, const string &templatepath, const string &templatestring, Calibration* calibration, VARTYPE type);
     bool registerParameter(const string &parametername, const string &templatename, Domain *domain);
     bool containsParameter(const string &paramtername);
+    bool containsParameter(const string &parametername, const string &templatename);
     bool updateTemplate(const string &templatename, string templatestring, Calibration* calibration);
     bool updatePath(const string &templatename, string path);
     bool updateParameters(Domain *domain, int iteration);

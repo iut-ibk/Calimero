@@ -5,7 +5,7 @@
 #include <QObject>
 #include <QListWidgetItem>
 #include <QTimer>
-
+#include <Persistence.h>
 
 #define DEFAULTLOGLEVEL Standard
 #define UPDATETIME 1000
@@ -29,6 +29,8 @@ public:
         QStateMachine *state_machine;
         GuiLogSink *log_updater;
         QTimer updatetimer;
+        Persistence *persistence;
+        QString savefilepath;
 
     public Q_SLOTS:
         void on_comboBox_currentIndexChanged ( int index );
@@ -82,6 +84,11 @@ public:
         void on_calstart_clicked();
         void on_calstop_clicked();
         void updatetimer_timeout();
+        void updateAll();
+        void on_actionopen_activated();
+        void on_actionsaveas_activated();
+        void on_actionsave_activated();
+        void on_actionnew_activated();
 
     Q_SIGNALS:
         void show_var();

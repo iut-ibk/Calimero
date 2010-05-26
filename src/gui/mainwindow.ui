@@ -203,7 +203,7 @@
                <property name="geometry">
                 <rect>
                  <x>0</x>
-                 <y>0</y>
+                 <y>-250</y>
                  <width>648</width>
                  <height>866</height>
                 </rect>
@@ -530,7 +530,7 @@
                       <set>QAbstractItemView::AllEditTriggers</set>
                      </property>
                      <attribute name="horizontalHeaderVisible">
-                      <bool>false</bool>
+                      <bool>true</bool>
                      </attribute>
                      <attribute name="horizontalHeaderCascadingSectionResizes">
                       <bool>false</bool>
@@ -542,7 +542,7 @@
                       <number>185</number>
                      </attribute>
                      <attribute name="verticalHeaderVisible">
-                      <bool>false</bool>
+                      <bool>true</bool>
                      </attribute>
                      <attribute name="verticalHeaderDefaultSectionSize">
                       <number>20</number>
@@ -551,7 +551,7 @@
                       <number>20</number>
                      </attribute>
                      <attribute name="verticalHeaderVisible">
-                      <bool>false</bool>
+                      <bool>true</bool>
                      </attribute>
                      <attribute name="verticalHeaderDefaultSectionSize">
                       <number>20</number>
@@ -560,7 +560,7 @@
                       <bool>false</bool>
                      </attribute>
                      <attribute name="horizontalHeaderVisible">
-                      <bool>false</bool>
+                      <bool>true</bool>
                      </attribute>
                      <attribute name="horizontalHeaderMinimumSectionSize">
                       <number>185</number>
@@ -975,7 +975,7 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>962</width>
+              <width>373</width>
               <height>446</height>
              </rect>
             </property>

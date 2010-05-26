@@ -60,6 +60,7 @@ public:
     bool removeDisabledGroup(string groupname);
     bool addEnabledOParameter(string parameter);
     bool removeEnabledOParameter(string parameter);
+    bool setIterationResults(map<int,IterationResult*> iterationresults);
     IterationResult* newIterationResult();
 
     //contains
@@ -85,6 +86,9 @@ public:
     vector<string> getAllGroups();
     map<string,bool> getDisabledGroups();
     map<string,bool> getEnabledGroups();
+    set<string> getGroupMembers(const string &name);
+    bool isEnabledGroup(const string &name);
+    bool isDisabledGroup(const string &name);
 
     //destroy
     void clear();

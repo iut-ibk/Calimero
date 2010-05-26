@@ -57,6 +57,7 @@ QWidget *FunctionParametersDialog::widgetForParameter(std::string name)
             widget->setDecimals(10);
             double value = QString::fromStdString(function->getValueOfParameter(name)).toDouble();
             widget->setValue(value);
+            Logger(Debug) << "set " << value;
             return widget;
             break;
         }

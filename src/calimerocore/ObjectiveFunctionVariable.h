@@ -19,8 +19,8 @@ class CALIMERO_PUBLIC ObjectiveFunctionVariable : public Variable
         set<string> objectivefunctionparameters;
         bool needupdate;
         std::string functionname;
+        std::map<std::string, std::string> functionsettings;
         QMutex mutex;
-        IObjectiveFunction *function;
 
     public:
         ObjectiveFunctionVariable(const ObjectiveFunctionVariable &oldvar);

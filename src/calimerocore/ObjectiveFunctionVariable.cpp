@@ -14,19 +14,17 @@ ObjectiveFunctionVariable::ObjectiveFunctionVariable(string Name) : Variable(Nam
 {
     needupdate = true;
     functionname="";
-    function=0;
 }
 
 ObjectiveFunctionVariable::ObjectiveFunctionVariable(const ObjectiveFunctionVariable &oldvar) : Variable(oldvar)
 {
     needupdate = true;
     functionname="";
-    function=0;
     iterationparameters=oldvar.iterationparameters;
     objectivefunctionparameters=oldvar.objectivefunctionparameters;
     observedparameters=oldvar.observedparameters;
-    if(oldvar.functionname!="")
-        setObjectiveFunction(oldvar.functionname,oldvar.function->getParameterValues());
+    functionname=oldvar.functionname;
+    functionsettings=oldvar.functionsettings;
 }
 
 ObjectiveFunctionVariable::~ObjectiveFunctionVariable()
@@ -42,14 +40,11 @@ ObjectiveFunctionVariable::~ObjectiveFunctionVariable()
     set<string> objective = objectivefunctionparameters;
     BOOST_FOREACH(string variable, objective)
             removeParameter(variable);
-
-    delete function;
 }
 
 void ObjectiveFunctionVariable::fireUpdate()
 {
     needupdate=true;
-
     Variable::fireUpdate();
 }
 
@@ -169,7 +164,10 @@ bool ObjectiveFunctionVariable::calc()
 
     try
     {
-        values=function->eval(iterationvector,observedvector,objectivevector);
+        IObjectiveFunction *tmpfunction = CalibrationEnv::getInstance()->getObjectiveFunctionReg()->getFunction(functionname);
+        tmpfunction->setValues(functionsettings);
+        values=tmpfunction->eval(iterationvector,observedvector,objectivevector);
+        delete tmpfunction;
     }
     catch (CalimeroException e)
     {
@@ -211,18 +209,15 @@ bool ObjectiveFunctionVariable::setObjectiveFunction(std::string ofunction, map<
     }
 
     functionname=ofunction;
-    if(function!=0)
-        delete function;
-    function=tmpfunction;
+    functionsettings=settings;
+    delete tmpfunction;
     fireUpdate();
     return true;
 }
 
 map<string,string> ObjectiveFunctionVariable::getObjectiveFunctionSettings()
 {
-    if(!function)
-        return map<string,string>();
-    return function->getParameterValues();
+    return functionsettings;
 }
 
 std::string ObjectiveFunctionVariable::getObjectiveFunction()

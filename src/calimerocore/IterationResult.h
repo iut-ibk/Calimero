@@ -26,6 +26,11 @@ private:
 
 public:
     IterationResult(int iterationnum);
+    IterationResult(int iterationnum,
+                    map<string, vector<double> > calibrationparameters,
+                    map<string, vector<double> > iterationparameters,
+                    map<string, vector<double> > objectivefunctionparameters,
+                    map<string, vector<double> > observedparameters);
     void setResults(Domain *dom);
     bool isComplete();
     int getIterationNumber();

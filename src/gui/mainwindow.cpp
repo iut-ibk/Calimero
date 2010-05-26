@@ -27,10 +27,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         ui->log_widget->connect(log_updater, SIGNAL(newLogLine(QString)), SLOT(appendPlainText(QString)), Qt::QueuedConnection);
         this->connect(&updatetimer, SIGNAL(timeout()), SLOT(updatetimer_timeout()));
         ui->diagram_widget->connect(this, SIGNAL(updateDiagram(Calibration *)), SLOT(showResults(Calibration *)), Qt::QueuedConnection);
+        persistence = new Persistence(CalibrationEnv::getInstance()->getCalibration());
+        savefilepath = "";
 }
 
 MainWindow::~MainWindow() {
 	delete ui;
+        delete persistence;
 }
 
 void MainWindow::setupStateMachine() {
@@ -137,18 +140,14 @@ void MainWindow::setupStateMachine() {
                     calvar_clean->assignProperty(ui->calvarinit,"singleStep",1);
 
                     calvar_clean->assignProperty(ui->calvarmin,"value",0);
-                    calvar_clean->assignProperty(ui->calvarmin,"minimum",-100000000);
-                    calvar_clean->assignProperty(ui->calvarmin,"maximum",0);
                     calvar_clean->assignProperty(ui->calvarmin,"singleStep",1);
 
                     calvar_clean->assignProperty(ui->calvarmax,"value",0);
-                    calvar_clean->assignProperty(ui->calvarmax,"minimum",0);
-                    calvar_clean->assignProperty(ui->calvarmax,"maximum",1000000000);
                     calvar_clean->assignProperty(ui->calvarmax,"singleStep",1);
 
                     calvar_clean->assignProperty(ui->calvarstep,"value",1);
-                    calvar_clean->assignProperty(ui->calvarstep,"minimum",0);
-                    calvar_clean->assignProperty(ui->calvarstep,"maximum",1);
+                    calvar_clean->assignProperty(ui->calvarstep,"minimum",-1000000000);
+                    calvar_clean->assignProperty(ui->calvarstep,"maximum",1000000000);
                     calvar_clean->assignProperty(ui->calvarstep,"singleStep",0.0000001);
                     calvar_clean->assignProperty(ui->del_group,"enabled",false);
 
@@ -420,6 +419,7 @@ void MainWindow::on_vars_itemClicked ( QListWidgetItem * item )
             ui->calvarstep->setValue(calvar->getStep());
             ui->calvarmin->setValue(calvar->getMin());
             ui->calvarmax->setValue(calvar->getMax());
+            ui->calvarmin->setValue(calvar->getMin());
             ui->calvarinit->setValue(calvar->getInitValues()[0]);
 
             ui->groups->clear();
@@ -479,6 +479,7 @@ void MainWindow::on_vars_itemClicked ( QListWidgetItem * item )
                 index++;
 
             ui->ovarofun->setCurrentIndex(index);
+            on_ovarofun_currentIndexChanged(QString::fromStdString(ovar->getObjectiveFunction()));
 
             //set current values
             uint i;
@@ -494,8 +495,6 @@ void MainWindow::on_vars_itemClicked ( QListWidgetItem * item )
                 Logger(Error) << e.type;
                 Logger(Error) << e.value;
             }
-
-
 
             for(i=0; i < vec.size(); i++)
             {
@@ -659,16 +658,16 @@ void MainWindow::on_ovarofun_currentIndexChanged(QString name)
         return;
     }
 
-    if(!CalibrationEnv::getInstance()->getObjectiveFunctionReg()->getSettingTypes(name.toStdString()).size())
-        ui->ovaradvanced->setEnabled(false);
-    else
+    if(CalibrationEnv::getInstance()->getObjectiveFunctionReg()->getSettingTypes(name.toStdString()).size() > 0)
         ui->ovaradvanced->setEnabled(true);
+    else
+        ui->ovaradvanced->setEnabled(false);
 
     QListWidgetItem *selecteditem = ui->vars->currentItem();
     ObjectiveFunctionVariable* ovar = static_cast<ObjectiveFunctionVariable*>(CalibrationEnv::getInstance()->getCalibration()->getDomain()->getPar(selecteditem->text().toStdString()));
     IObjectiveFunction *fun = CalibrationEnv::getInstance()->getObjectiveFunctionReg()->getFunction(name.toStdString());
-    ovar->setObjectiveFunction(name.toStdString(), fun->getParameterValues());
-    on_vars_itemClicked ( selecteditem );
+    if(ovar->getObjectiveFunction() != name.toStdString())
+        ovar->setObjectiveFunction(name.toStdString(), fun->getParameterValues());
     delete fun;
 }
 
@@ -957,7 +956,8 @@ void MainWindow::on_calfun_currentIndexChanged(QString name)
 
     Calibration *calibration = CalibrationEnv::getInstance()->getCalibration();
     ICalibrationAlg *fun = CalibrationEnv::getInstance()->getCalibrationAlgReg()->getFunction(name.toStdString());
-    calibration->setCalibrationAlg(name.toStdString(), fun->getParameterValues());
+    if(calibration->getCalibrationAlg() != name.toStdString())
+        calibration->setCalibrationAlg(name.toStdString(), fun->getParameterValues());
     delete fun;
 }
 
@@ -1128,7 +1128,8 @@ void MainWindow::on_calsimulation_currentIndexChanged(QString name)
 
     Calibration *calibration = CalibrationEnv::getInstance()->getCalibration();
     IModelSimulator *fun = CalibrationEnv::getInstance()->getModelSimulatorReg()->getFunction(name.toStdString());
-    calibration->setModelSimulator(name.toStdString(), fun->getParameterValues());
+    if(calibration->getModelSimulator() != name.toStdString())
+        calibration->setModelSimulator(name.toStdString(), fun->getParameterValues());
     delete fun;
 }
 
@@ -1150,6 +1151,8 @@ void MainWindow::on_button_calsimulation_advanced_clicked()
 
 void MainWindow::groups_visible_entered()
 {
+    ui->monitored_groups->clear();
+    ui->ignored_groups->clear();
     Calibration *calibration = CalibrationEnv::getInstance()->getCalibration();
 
     std::pair<string,bool>p;
@@ -1215,4 +1218,92 @@ void MainWindow::updatetimer_timeout()
     }
 
     Q_EMIT updateDiagram(CalibrationEnv::getInstance()->getCalibration());
+}
+
+void MainWindow::updateAll()
+{
+    Calibration *calibration = CalibrationEnv::getInstance()->getCalibration();
+    //update all variables
+    on_comboBox_currentIndexChanged ( ui->comboBox->currentIndex() );
+
+    //update calibratinalg
+    QString functionname = QString::fromStdString(calibration->getCalibrationAlg());
+    int index=0;
+    while(ui->calfun->itemText(index)!=functionname)
+        index++;
+
+    ui->calfun->setCurrentIndex(index);
+    on_calfun_currentIndexChanged(functionname);
+
+    //update modelsimulatoralg
+    functionname = QString::fromStdString(calibration->getModelSimulator());
+    index=0;
+    while(ui->calsimulation->itemText(index)!=functionname)
+        index++;
+
+    ui->calsimulation->setCurrentIndex(index);
+    on_calsimulation_currentIndexChanged(functionname);
+
+    //update enabled objective functions
+    ui->cal_ofunction->clear();
+    set<string> enabledparameters = calibration->evalObjectiveFunctionParameters();
+    for( std::set<string>::const_iterator it = enabledparameters.begin(); it != enabledparameters.end(); ++it)
+    {
+        ui->cal_ofunction->addItem(QString::fromStdString(*it));
+    }
+
+    //update groups
+    groups_visible_entered();
+
+    if(calibration->getEnabledGroups().size() > 1)
+        Q_EMIT enable_groups();
+    else
+        Q_EMIT disable_groups();
+
+    //update templates
+    on_comboBox_templates_currentIndexChanged(ui->comboBox_templates->currentIndex());
+
+    //update iterationresults
+    Q_EMIT updateDiagram(CalibrationEnv::getInstance()->getCalibration());
+}
+
+void MainWindow::on_actionopen_activated()
+{
+    QString fileName = QFileDialog::getOpenFileName(this,tr("Calimero project file"), QDir::homePath(), tr("*.cmp"));
+
+    if(persistence->loadCalibration(fileName))
+    {
+        savefilepath=fileName;
+        updateAll();
+    }
+    else
+        QMessageBox::warning(this,tr("Error"),tr("Could not load file"));
+}
+
+void MainWindow::on_actionsaveas_activated()
+{
+    QString filename = QFileDialog::getSaveFileName(this, tr("Save as"), QDir::homePath());
+
+    if(filename.isEmpty())
+        return;
+
+    savefilepath=filename;
+    on_actionsave_activated();
+}
+
+void MainWindow::on_actionsave_activated()
+{
+    if(savefilepath.isEmpty())
+        return on_actionsaveas_activated();
+
+    if(!persistence->buildXMLTree() || !persistence->saveCalibration(savefilepath))
+        QMessageBox::warning(this,tr("Error"),tr("Could not save current project"));
+}
+
+void MainWindow::on_actionnew_activated()
+{
+    CalibrationEnv::getInstance()->getCalibration()->clear();
+    persistence->buildXMLTree();
+    savefilepath="";
+    updateAll();
 }

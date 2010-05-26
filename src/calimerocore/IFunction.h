@@ -113,6 +113,7 @@ public:
         bool ok = true;
         BOOST_FOREACH(p, values)
                 ok = ok && setValueOfParameter(p.first,p.second);
+
         return ok;
     }
 };
