@@ -128,13 +128,12 @@ void DiagramGui::menuAction(QAction *a)
 
 void DiagramGui::showResults(Calibration *c)
 {
+   QMutexLocker locker(&mutex);
    if(updaterunning)
         return;
 
    if(c==NULL)
         return;
-
-   QMutexLocker locker(&mutex);
 
     if(c!=calibration)
         calibration=c;
@@ -158,6 +157,8 @@ void DiagramGui::showResults(Calibration *c)
         QVector<QVector<double> > result;
         for(uint index = 0; index < results.size(); index++)
         {
+            if(!results[index])
+                break;
             QVector<double> tmp = QVector<double>::fromStdVector(results[index]->getCalibrationParameterResults(*iterator));
             if(tmp.size() > 0)
                 result.append(tmp);
@@ -172,6 +173,8 @@ void DiagramGui::showResults(Calibration *c)
         QVector<QVector<double> > result;
         for(uint index = 0; index < results.size(); index++)
         {
+            if(!results[index])
+                break;
             QVector<double> tmp = QVector<double>::fromStdVector(results[index]->getObjectiveFunctionParameterResults(*iterator));
             if(tmp.size() > 0)
                 result.append(tmp);

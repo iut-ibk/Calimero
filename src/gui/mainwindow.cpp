@@ -41,6 +41,8 @@ void MainWindow::setupStateMachine() {
 
         //init
         QState *init = new QState();
+        init->assignProperty(ui->calstart, "enabled", true);
+        init->assignProperty(ui->calstop, "enabled", false);
 
         //Parameter tab
         QState *tab_states = new QState(QState::ParallelStates);
@@ -687,6 +689,7 @@ void MainWindow::on_ovarofun_currentIndexChanged(QString name)
     {
         if(fun)
             delete fun;
+        Logger(Error) << exception.exceptionmsg;
         QMessageBox::warning(this,tr("Error"),tr("Error in objective function with name: ") + name);
     }
 }
@@ -968,17 +971,36 @@ void MainWindow::on_calfun_currentIndexChanged(QString name)
         ui->button_calfun_advanced->setEnabled(false);
         return;
     }
+    ICalibrationAlg *fun=0;
 
-    if(!CalibrationEnv::getInstance()->getCalibrationAlgReg()->getSettingTypes(name.toStdString()).size())
-        ui->button_calfun_advanced->setEnabled(false);
-    else
-        ui->button_calfun_advanced->setEnabled(true);
+    try{
+        if(!CalibrationEnv::getInstance()->getCalibrationAlgReg()->getSettingTypes(name.toStdString()).size())
+            ui->button_calfun_advanced->setEnabled(false);
+        else
+            ui->button_calfun_advanced->setEnabled(true);
 
-    Calibration *calibration = CalibrationEnv::getInstance()->getCalibration();
-    ICalibrationAlg *fun = CalibrationEnv::getInstance()->getCalibrationAlgReg()->getFunction(name.toStdString());
-    if(calibration->getCalibrationAlg() != name.toStdString())
-        calibration->setCalibrationAlg(name.toStdString(), fun->getParameterValues());
-    delete fun;
+        Calibration *calibration = CalibrationEnv::getInstance()->getCalibration();
+        fun = CalibrationEnv::getInstance()->getCalibrationAlgReg()->getFunction(name.toStdString());
+        if(calibration->getCalibrationAlg() != name.toStdString())
+            calibration->setCalibrationAlg(name.toStdString(), fun->getParameterValues());
+        delete fun;
+    }
+    catch(PythonException &exception)
+    {
+        if(fun)
+            delete fun;
+        Logger(Error) << exception.exceptionmsg;
+        Logger(Error) << exception.type;
+        Logger(Error) << exception.value;
+        QMessageBox::warning(this,tr("Error"),tr("Error in objective function with name: ") + name);
+    }
+    catch(CalimeroException &exception)
+    {
+        if(fun)
+            delete fun;
+        Logger(Error) << exception.exceptionmsg;
+        QMessageBox::warning(this,tr("Error"),tr("Error in objective function with name: ") + name);
+    }
 }
 
 void MainWindow::on_button_calfun_advanced_clicked()
@@ -1141,16 +1163,35 @@ void MainWindow::on_calsimulation_currentIndexChanged(QString name)
         return;
     }
 
-    if(!CalibrationEnv::getInstance()->getModelSimulatorReg()->getSettingTypes(name.toStdString()).size())
-        ui->button_calsimulation_advanced->setEnabled(false);
-    else
-        ui->button_calsimulation_advanced->setEnabled(true);
+    IModelSimulator *fun = 0;
+    try{
+        if(!CalibrationEnv::getInstance()->getModelSimulatorReg()->getSettingTypes(name.toStdString()).size())
+            ui->button_calsimulation_advanced->setEnabled(false);
+        else
+            ui->button_calsimulation_advanced->setEnabled(true);
 
-    Calibration *calibration = CalibrationEnv::getInstance()->getCalibration();
-    IModelSimulator *fun = CalibrationEnv::getInstance()->getModelSimulatorReg()->getFunction(name.toStdString());
-    if(calibration->getModelSimulator() != name.toStdString())
-        calibration->setModelSimulator(name.toStdString(), fun->getParameterValues());
-    delete fun;
+        Calibration *calibration = CalibrationEnv::getInstance()->getCalibration();
+        IModelSimulator *fun = CalibrationEnv::getInstance()->getModelSimulatorReg()->getFunction(name.toStdString());
+        if(calibration->getModelSimulator() != name.toStdString())
+            calibration->setModelSimulator(name.toStdString(), fun->getParameterValues());
+        delete fun;
+    }
+    catch(PythonException &exception)
+    {
+        if(fun)
+            delete fun;
+        Logger(Error) << exception.exceptionmsg;
+        Logger(Error) << exception.type;
+        Logger(Error) << exception.value;
+        QMessageBox::warning(this,tr("Error"),tr("Error in objective function with name: ") + name);
+    }
+    catch(CalimeroException &exception)
+    {
+        if(fun)
+            delete fun;
+        Logger(Error) << exception.exceptionmsg;
+        QMessageBox::warning(this,tr("Error"),tr("Error in objective function with name: ") + name);
+    }
 }
 
 void MainWindow::on_button_calsimulation_advanced_clicked()
@@ -1231,14 +1272,22 @@ void MainWindow::on_calstart_clicked()
 void MainWindow::updatetimer_timeout()
 {
     Logger(Debug) << "Update GUI";
-
+    updatetimer.stop();
     if(!CalibrationEnv::getInstance()->isCalibrationRunning())
     {
         updatetimer.stop();
+        ui->calstart->setEnabled(true);
+        ui->calstop->setEnabled(false);
         ui->diagram_widget->enableFollow(false);
+        Q_EMIT updateDiagram(CalibrationEnv::getInstance()->getCalibration());
     }
-
-    Q_EMIT updateDiagram(CalibrationEnv::getInstance()->getCalibration());
+    else
+    {
+        ui->calstart->setEnabled(false);
+        ui->calstop->setEnabled(true);
+        Q_EMIT updateDiagram(CalibrationEnv::getInstance()->getCalibration());
+        updatetimer.start(UPDATETIME);
+    }
 }
 
 void MainWindow::updateAll()

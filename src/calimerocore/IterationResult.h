@@ -5,7 +5,6 @@
 #include <map>
 #include <string>
 #include <CalimeroGlob.h>
-#include <QAtomicInt>
 
 class ObjectiveFunctionVariable;
 class Variable;
@@ -17,7 +16,7 @@ using namespace std;
 class CALIMERO_PUBLIC IterationResult
 {
 private:
-    bool complete;
+    int complete;
     int iterationnumber;
     map<string, vector<double> > calibrationparameters;
     map<string, vector<double> > iterationparameters;

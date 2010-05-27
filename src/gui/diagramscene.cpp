@@ -146,17 +146,17 @@ bool DiagramScene::showResultOfParameter(QString name, QPen pen)
 
         if(counter==startiteration)
         {
-            tmppath.moveTo(counter+1,-value);
+            tmppath.moveTo(counter,-value);
         }
 
-        if(!tmppath.contains(QPoint(counter+1,static_cast<int>(-value))))
+        if(!tmppath.contains(QPoint(counter,static_cast<int>(-value))))
         {
 
-            tmppath.lineTo(counter+1,-value);
+            tmppath.lineTo(counter,-value);
         }
         else
         {
-            tmppath.moveTo(counter+1,-value);
+            tmppath.moveTo(counter,-value);
         }
 
         if(maxvalue<value)

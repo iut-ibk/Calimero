@@ -13,7 +13,10 @@ enum IFUNCTIONTYPE { NOTYPE = -1,
                     };
 
 enum DATATYPE { STRING = 1,
-                DOUBLE = 2
+                DOUBLE = 2,
+                INT = 3,
+                BOOL = 4,
+                UINT = 5
               };
 
 using namespace std;
@@ -87,19 +90,62 @@ public:
 
         switch(parametertypes[name])
         {
+        case BOOL:
+            {
+                try
+                {
+                    int test = boost::lexical_cast<int>(value);
+                    if(test!=0 && test!=1)
+                        return false;
+                }
+                catch (const std::exception&)
+                {
+                    Logger(Error) << "Wrong DATATYPE in IFunction";
+                    return false;
+                }
+                break;
+            }
+        case UINT:
+            {
+                try
+                {
+                    boost::lexical_cast<uint>(value);
+                }
+                catch (const std::exception&)
+                {
+                    Logger(Error) << "Wrong DATATYPE in IFunction";
+                    return false;
+                }
+                break;
+            }
+        case INT:
+            {
+                try
+                {
+                    boost::lexical_cast<int>(value);
+                }
+                catch (const std::exception&)
+                {
+                    Logger(Error) << "Wrong DATATYPE in IFunction";
+                    return false;
+                }
+                break;
+            }
         case STRING:
             break;
         case DOUBLE:
-            try
             {
-                boost::lexical_cast<double>(value);
+                try
+                {
+                    boost::lexical_cast<double>(value);
+                }
+                catch (const std::exception&)
+                {
+                    Logger(Error) << "Wrong DATATYPE in IFunction";
+                    return false;
+                }
+                break;
             }
-            catch (const std::exception&)
-            {
-                Logger(Error) << "Wrong DATATYPE in IFunction";
-                return false;
-            }
-            break;
         }
 
         parametervalues[name]=value;

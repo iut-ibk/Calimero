@@ -4,6 +4,7 @@
 #include <Domain.h>
 #include <assert.h>
 #include <Exception.h>
+#include <QTime>
 
 CalibrationEnv* CalibrationEnv::instance = 0;
 
@@ -148,9 +149,28 @@ void CalibrationEnv::run()
         if(getCalibrationState()==CALIBRATIONINIT)
         {
             Logger(Standard) << "Calibration started";
-            runCalibration();
-            setCalibrationState(CALIBRATIONNOTRUNNING);
-            Logger(Standard) << "Calibration stopped";
+            try{
+                QTime time;
+                time.start();
+                runCalibration();
+                setCalibrationState(CALIBRATIONNOTRUNNING);
+                Logger(Standard) << "Time elapsed: " << time.elapsed() << "ms";
+                Logger(Standard) << "Calibration stopped";
+            }
+            catch(PythonException &exception)
+            {
+                Logger(Error) << exception.exceptionmsg;
+                Logger(Error) << exception.type;
+                Logger(Error) << exception.value;
+                setCalibrationState(CALIBRATIONNOTRUNNING);
+                Logger(Standard) << "Calibration stopped";
+            }
+            catch(CalimeroException &exception)
+            {
+                Logger(Error) << exception.exceptionmsg;
+                setCalibrationState(CALIBRATIONNOTRUNNING);
+                Logger(Standard) << "Calibration stopped";
+            }
         }
 
         msleep(10);
@@ -160,6 +180,7 @@ void CalibrationEnv::run()
 void CalibrationEnv::runCalibration()
 {
     setCalibrationState(CALIBRATIONRUNNING);
+    int startiteration = this->getCalibration()->getNumOfComplete();
 
     if(calibration->getCalibrationAlg()=="")
     {
@@ -194,11 +215,18 @@ void CalibrationEnv::runCalibration()
     BOOST_FOREACH(p, calibration->getCalibrationAlgSettings())
             tmpalg->setValueOfParameter(p.first,p.second);
 
-    int realthreads = 0;
+    if(tmpalg->containsParameter("clean results"))
+        if(boost::lexical_cast<int>(tmpalg->getValueOfParameter("clean results")))
+            calibration->clearIterationResults();
+    else
+        calibration->clearIterationResults();
 
+    int realthreads = 0;
     if(tmpalg->containsParameter("parallel"))
     {
-        realthreads = (boost::lexical_cast<double>(tmpalg->getValueOfParameter("parallel"))) ? numthread : 1;
+        realthreads = (boost::lexical_cast<int>(tmpalg->getValueOfParameter("parallel")));
+        if(numthread < realthreads)
+            realthreads=numthread;
     }
     else
         realthreads = 1;
@@ -239,6 +267,7 @@ void CalibrationEnv::runCalibration()
 
     delete threadpool;
     delete tmpalg;
+    Logger(Standard) << "Samples: " << (this->getCalibration()->getNumOfComplete()-startiteration);
 }
 
 bool CalibrationEnv::isCalibrationRunning()

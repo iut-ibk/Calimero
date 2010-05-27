@@ -77,6 +77,9 @@ BOOST_PYTHON_MODULE(pycalimero)
         enum_<DATATYPE>("DATATYPE")
                 .value("STRING", STRING)
                 .value("DOUBLE", DOUBLE)
+                .value("BOOL", BOOL)
+                .value("INT", INT)
+                .value("UINT", UINT);
                 ;
 
         class_<IFunction, boost::noncopyable>("IFunction")

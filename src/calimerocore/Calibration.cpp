@@ -8,6 +8,7 @@
 #include <Registry.h>
 #include <CalibrationEnv.h>
 #include <Domain.h>
+#include <assert.h>
 
 Calibration::Calibration()
 {
@@ -375,6 +376,7 @@ set<string> Calibration::evalCalibrationParameters()
 
 int Calibration::getNumOfComplete()
 {
+    QMutexLocker locker(mutex);
     int result=0;
     std::pair<int,IterationResult*>p;
     BOOST_FOREACH(p, iterationresults)
@@ -387,11 +389,10 @@ map<int,IterationResult*> Calibration::getIterationResults()
 {
     QMutexLocker locker(mutex);
     map<int,IterationResult*> result;
-
     std::pair<int,IterationResult*>p;
     BOOST_FOREACH(p,iterationresults)
             if(p.second->isComplete())
-                result[p.second->getIterationNumber()]=p.second;
+                result.insert(std::pair<int, IterationResult*>(p.second->getIterationNumber(),p.second));
     return result;
 }
 
@@ -418,9 +419,8 @@ map<string,string> Calibration::getModelSimulatorSettings()
 IterationResult* Calibration::newIterationResult()
 {
     QMutexLocker locker(mutex);
-    IterationResult* result = new IterationResult(iterationresults.size());
-    iterationresults[result->getIterationNumber()]=result;
-    return result;
+    iterationresults.insert(pair<int,IterationResult*>(iterationresults.size(),new IterationResult(iterationresults.size())));
+    return iterationresults[iterationresults.size()-1];
 }
 
 vector<string> Calibration::getAllCalibrationParameters()
