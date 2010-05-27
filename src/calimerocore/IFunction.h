@@ -42,7 +42,7 @@ public:
         return parametervalues;
     }
 
-    bool setDataType(string name, DATATYPE type)
+    bool setDataType(string name, DATATYPE type, string value)
     {
         if(containsParameter(name))
         {
@@ -52,8 +52,7 @@ public:
 
         parametertypes[name]=type;
 
-        return true;
-
+        return setValueOfParameter(name,value);
     }
 
     bool containsParameter(string name)

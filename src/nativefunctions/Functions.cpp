@@ -13,7 +13,8 @@
 #include <TestCalibrationAlg.h>
 
 //Model simulator includes
-#include <ModelSimulatorHandler.h>
+#include <ExternalModel.h>
+#include <TestModel.h>
 
 extern "C"
 {
@@ -29,6 +30,7 @@ extern "C"
 
     void CALIMERO_PUBLIC registerModelSimulations(Registry<IModelSimulator> *registry)
     {
-        registry->registerFunction(new NativeFunctionFactory<ModelSimulatorHandler>());
+        registry->registerFunction(new NativeFunctionFactory<ExternalModel>());
+        registry->registerFunction(new NativeFunctionFactory<TestModel>());
     }
 }

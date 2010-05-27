@@ -10,8 +10,7 @@ CALIMERO_DECLARE_CALFUNCTION_NAME(TestCalibrationAlg)
 
 TestCalibrationAlg::TestCalibrationAlg()
 {
-    setDataType("parallel",DOUBLE);
-    setValueOfParameter("parallel","1");
+    setDataType("parallel",DOUBLE,"1");
 }
 
 

@@ -652,23 +652,43 @@ void MainWindow::on_varvalues_itemSelectionChanged ()
 
 void MainWindow::on_ovarofun_currentIndexChanged(QString name)
 {
+    IObjectiveFunction *fun = 0;
+
     if(name=="")
     {
         ui->ovaradvanced->setEnabled(false);
         return;
     }
 
-    if(CalibrationEnv::getInstance()->getObjectiveFunctionReg()->getSettingTypes(name.toStdString()).size() > 0)
-        ui->ovaradvanced->setEnabled(true);
-    else
-        ui->ovaradvanced->setEnabled(false);
+    try{
+        if(CalibrationEnv::getInstance()->getObjectiveFunctionReg()->getSettingTypes(name.toStdString()).size() > 0)
+            ui->ovaradvanced->setEnabled(true);
+        else
+            ui->ovaradvanced->setEnabled(false);
 
-    QListWidgetItem *selecteditem = ui->vars->currentItem();
-    ObjectiveFunctionVariable* ovar = static_cast<ObjectiveFunctionVariable*>(CalibrationEnv::getInstance()->getCalibration()->getDomain()->getPar(selecteditem->text().toStdString()));
-    IObjectiveFunction *fun = CalibrationEnv::getInstance()->getObjectiveFunctionReg()->getFunction(name.toStdString());
-    if(ovar->getObjectiveFunction() != name.toStdString())
-        ovar->setObjectiveFunction(name.toStdString(), fun->getParameterValues());
-    delete fun;
+        QListWidgetItem *selecteditem = ui->vars->currentItem();
+        ObjectiveFunctionVariable* ovar = static_cast<ObjectiveFunctionVariable*>(CalibrationEnv::getInstance()->getCalibration()->getDomain()->getPar(selecteditem->text().toStdString()));
+
+        fun = CalibrationEnv::getInstance()->getObjectiveFunctionReg()->getFunction(name.toStdString());
+        if(ovar->getObjectiveFunction() != name.toStdString())
+            ovar->setObjectiveFunction(name.toStdString(), fun->getParameterValues());
+        delete fun;
+    }
+    catch(PythonException &exception)
+    {
+        if(fun)
+            delete fun;
+        Logger(Error) << exception.exceptionmsg;
+        Logger(Error) << exception.type;
+        Logger(Error) << exception.value;
+        QMessageBox::warning(this,tr("Error"),tr("Error in objective function with name: ") + name);
+    }
+    catch(CalimeroException &exception)
+    {
+        if(fun)
+            delete fun;
+        QMessageBox::warning(this,tr("Error"),tr("Error in objective function with name: ") + name);
+    }
 }
 
 void MainWindow::on_ovardelmember_clicked()
@@ -1182,6 +1202,7 @@ void MainWindow::on_ovaradvanced_clicked()
 {
     Calibration* calibration = CalibrationEnv::getInstance()->getCalibration();
     ObjectiveFunctionVariable *var = static_cast<ObjectiveFunctionVariable*>(calibration->getDomain()->getPar(ui->vars->currentItem()->text().toStdString()));
+    
     IObjectiveFunction *function = CalibrationEnv::getInstance()->getObjectiveFunctionReg()->getFunction(var->getObjectiveFunction());
     function->setValues(var->getObjectiveFunctionSettings());
     FunctionParametersDialog np(function);
@@ -1272,12 +1293,11 @@ void MainWindow::on_actionopen_activated()
     QString fileName = QFileDialog::getOpenFileName(this,tr("Calimero project file"), QDir::homePath(), tr("*.cmp"));
 
     if(persistence->loadCalibration(fileName))
-    {
         savefilepath=fileName;
-        updateAll();
-    }
     else
         QMessageBox::warning(this,tr("Error"),tr("Could not load file"));
+
+    updateAll();
 }
 
 void MainWindow::on_actionsaveas_activated()
