@@ -15,6 +15,5 @@ bool TestModel::exec(Domain *dom)
     vector<double> result = iterationresult->getValues();
     result[0]=pi->getValues()[0]*5;
     iterationresult->setValues(result);
-    sleep(1);
     return true;
 }
