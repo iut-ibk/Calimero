@@ -975,7 +975,7 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>373</width>
+              <width>962</width>
               <height>446</height>
              </rect>
             </property>
@@ -1468,6 +1468,7 @@
     <addaction name="actionopen"/>
     <addaction name="actionsave"/>
     <addaction name="actionsaveas"/>
+    <addaction name="actionLoad_Python_script"/>
     <addaction name="separator"/>
     <addaction name="actionSchlie_en"/>
    </widget>
@@ -1559,6 +1560,14 @@
   <action name="actionOpen_with_script_import">
    <property name="text">
     <string>Open with script import</string>
+   </property>
+  </action>
+  <action name="actionLoad_Python_script">
+   <property name="text">
+    <string>Load Python script</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+X</string>
    </property>
   </action>
  </widget>

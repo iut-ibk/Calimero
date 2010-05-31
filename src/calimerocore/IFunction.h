@@ -5,6 +5,8 @@
 #include <map>
 #include <Logger.h>
 #include <boost/foreach.hpp>
+#include <QFile>
+#include <QDir>
 
 enum IFUNCTIONTYPE { NOTYPE = -1,
                      OBJECTIVEFUNCTION = 0,
@@ -16,7 +18,9 @@ enum DATATYPE { STRING = 1,
                 DOUBLE = 2,
                 INT = 3,
                 BOOL = 4,
-                UINT = 5
+                UINT = 5,
+                FILESTRING = 6,
+                DIRSTRING = 7
               };
 
 using namespace std;
@@ -133,6 +137,24 @@ public:
             }
         case STRING:
             break;
+        case FILESTRING:
+            {
+                if(!QFile::exists(QString::fromStdString(value)) && value != "")
+                {
+                    Logger(Error) << "\"" << value << "\" does not exist";
+                    return false;
+                }
+                break;
+            }
+        case DIRSTRING:
+            {
+                if(!QFile::exists(QString::fromStdString(value)) && value != "")
+                {
+                    Logger(Error) << "\"" << value << "\" does not exist";
+                    return false;
+                }
+                break;
+            }
         case DOUBLE:
             {
                 try

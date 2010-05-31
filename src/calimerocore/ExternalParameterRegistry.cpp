@@ -126,6 +126,9 @@ bool ExternalParameterRegistry::updateParameters(Domain *domain, int iteration)
     std::pair<string,string> p;
     BOOST_FOREACH(p,templatepaths)
     {
+        if(types[p.first]!=ITERATIONVARIABLE)
+            continue;
+
         QString path = QString::fromStdString(p.second);
         path.replace(QRegExp("\\$iteration\\$"), QString::number(iteration));
         if(!QFile::exists(path))
@@ -141,6 +144,7 @@ bool ExternalParameterRegistry::updateParameters(Domain *domain, int iteration)
          values+=inputstream.readAll();
          inputfile.close();
 
+         QFile::remove(path);
         if(!updateParameters(domain,p.first,values.toStdString()))
             return false;
     }

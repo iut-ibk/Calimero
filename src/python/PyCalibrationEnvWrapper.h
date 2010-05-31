@@ -25,6 +25,7 @@ void wrapCalibrationEnv()
                  return_internal_reference<1,
                          with_custodian_and_ward<1, 2> >())
             .def("execIteration", &CalibrationEnv::execIteration)
+            .def("barrier", &CalibrationEnv::barrier)
             ;
 }
 

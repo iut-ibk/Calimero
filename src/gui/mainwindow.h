@@ -89,6 +89,7 @@ public:
         void on_actionsaveas_activated();
         void on_actionsave_activated();
         void on_actionnew_activated();
+        void on_actionLoad_Python_script_activated();
 
     Q_SIGNALS:
         void show_var();

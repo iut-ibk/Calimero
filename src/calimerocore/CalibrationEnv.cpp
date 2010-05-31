@@ -5,6 +5,7 @@
 #include <assert.h>
 #include <Exception.h>
 #include <QTime>
+#include <boost/thread/thread.hpp>
 
 CalibrationEnv* CalibrationEnv::instance = 0;
 
@@ -180,7 +181,6 @@ void CalibrationEnv::run()
 void CalibrationEnv::runCalibration()
 {
     setCalibrationState(CALIBRATIONRUNNING);
-    int startiteration = this->getCalibration()->getNumOfComplete();
 
     if(calibration->getCalibrationAlg()=="")
     {
@@ -216,11 +216,14 @@ void CalibrationEnv::runCalibration()
             tmpalg->setValueOfParameter(p.first,p.second);
 
     if(tmpalg->containsParameter("clean results"))
+    {
         if(boost::lexical_cast<int>(tmpalg->getValueOfParameter("clean results")))
             calibration->clearIterationResults();
+    }
     else
         calibration->clearIterationResults();
 
+    numthread = thread::hardware_concurrency();
     int realthreads = 0;
     if(tmpalg->containsParameter("parallel"))
     {
@@ -234,6 +237,8 @@ void CalibrationEnv::runCalibration()
     Logger(Standard) << "Enabled cores: " << realthreads;
 
     threadpool = new ModelSimThreadPool(realthreads);
+
+    int startiteration = this->getCalibration()->getNumOfComplete();
 
     //extract parameters
     vector<CalibrationVariable*> newcalpars;
@@ -284,6 +289,11 @@ bool CalibrationEnv::execIteration(vector<CalibrationVariable*> calibrationparam
     }
 
     return threadpool->pushIteration(calibrationparameters,calibration);
+}
+
+void CalibrationEnv::barrier()
+{
+    threadpool->waitForDone();
 }
 
 vector<string> CalibrationEnv::getAvailableObjectiveFunctions()

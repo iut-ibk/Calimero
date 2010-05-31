@@ -79,7 +79,9 @@ BOOST_PYTHON_MODULE(pycalimero)
                 .value("DOUBLE", DOUBLE)
                 .value("BOOL", BOOL)
                 .value("INT", INT)
-                .value("UINT", UINT);
+                .value("UINT", UINT)
+                .value("FILESTRING", FILESTRING)
+                .value("DIRSTRING", DIRSTRING)
                 ;
 
         class_<IFunction, boost::noncopyable>("IFunction")
@@ -174,10 +176,22 @@ void PyEnv::addPythonPath(std::string path) {
 void PyEnv::registerFunctions(IRegistry *registry, const string &module)
 {
     ScopedGILRelease scoped;
-    boost::format fmt("import sys\n"
+    boost::format fmt;
+
+    if(loadedmodules.find(module)==loadedmodules.end())
+    {
+        fmt = boost::format("import sys\n"
                       "import pycalimero\n"
                       "import %1%\n"
                       "clss = pycalimero.%2%.__subclasses__()\n");
+    }
+    else
+    {
+        fmt = boost::format("import sys\n"
+                      "import pycalimero\n"
+                      "reload(%1%)\n"
+                      "clss = pycalimero.%2%.__subclasses__()\n");
+    }
 
     switch(registry->getType())
     {
@@ -195,8 +209,6 @@ void PyEnv::registerFunctions(IRegistry *registry, const string &module)
         abort();
         break;
     }
-
-
 
    try {
            exec(fmt.str().c_str(), priv->main_namespace, priv->main_namespace);
@@ -222,6 +234,8 @@ void PyEnv::registerFunctions(IRegistry *registry, const string &module)
 
                numn++;
            }
+
+           loadedmodules.insert(module);
 
    } catch(error_already_set const &) {
            handle_python_exception("Could not register python function");

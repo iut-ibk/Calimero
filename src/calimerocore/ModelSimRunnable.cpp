@@ -72,7 +72,10 @@ void ModelSimRunnable::run()
         return;
 
     if(!sim->exec(dom))
+    {
+        Logger(Error) << "Could not execute \"Model\"";
         CalibrationEnv::getInstance()->stopCalibration();
+    }
 
     //clean sim
     delete sim;
@@ -80,6 +83,8 @@ void ModelSimRunnable::run()
     //extract all files
     if(!externalfilehandler->updateParameters(dom,result->getIterationNumber()))
     {
+        Logger(Error) << "Could not extract result files";
+        CalibrationEnv::getInstance()->stopCalibration();
         delete dom;
         delete externalfilehandler;
         return;

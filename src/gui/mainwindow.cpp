@@ -1369,6 +1369,34 @@ void MainWindow::on_actionsave_activated()
         QMessageBox::warning(this,tr("Error"),tr("Could not save current project"));
 }
 
+void MainWindow::on_actionLoad_Python_script_activated()
+{
+    try{
+        QString fileName = QFileDialog::getOpenFileName(this,tr("Python script file"), QDir::homePath(), tr("*.py"));
+        QFileInfo fi(fileName);
+
+        if(fileName.isEmpty())
+            return;
+
+        PyEnv::getInstance()->addPythonPath(fi.absolutePath().toStdString());
+        PyEnv::getInstance()->registerFunctions(CalibrationEnv::getInstance()->getCalibrationAlgReg(),fi.fileName().replace(".py","").toStdString());
+        PyEnv::getInstance()->registerFunctions(CalibrationEnv::getInstance()->getObjectiveFunctionReg(),fi.fileName().replace(".py","").toStdString());
+        PyEnv::getInstance()->registerFunctions(CalibrationEnv::getInstance()->getModelSimulatorReg(),fi.fileName().replace(".py","").toStdString());
+    }
+    catch(PythonException &exception)
+    {
+        Logger(Error) << exception.exceptionmsg;
+        Logger(Error) << exception.type;
+        Logger(Error) << exception.value;
+        QMessageBox::warning(this,tr("Error"),tr("Not able to load python script file"));
+    }
+    catch(CalimeroException &exception)
+    {
+        Logger(Error) << exception.exceptionmsg;
+        QMessageBox::warning(this,tr("Error"),tr("Not able to load python script file"));
+    }
+}
+
 void MainWindow::on_actionnew_activated()
 {
     CalibrationEnv::getInstance()->getCalibration()->clear();

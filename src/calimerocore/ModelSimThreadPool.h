@@ -18,7 +18,7 @@ class Calibration;
 
 using namespace std;
 
-class CALIMERO_PUBLIC ModelSimThreadPool : private QThreadPool
+class CALIMERO_PUBLIC ModelSimThreadPool : public QThreadPool
 {
 public:
     ModelSimThreadPool(int threadnum);

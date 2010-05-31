@@ -72,15 +72,18 @@ template <typename T> bool Registry<T>::registerFunction(IFunctionFactory* facto
 {
     if(!contains(factory->getFunctionName()))
     {
-        Logger(Debug) << factory->getFunctionName() << " not registered yet";
+        Logger(Standard) << factory->getFunctionName() << " not registered yet";
         registered_factories[factory->getFunctionName()]=factory;
         return true;
     }
     else
     {
-        Logger(Debug) << factory->getFunctionName() << " already registered";
-        return false;
+        Logger(Standard) << factory->getFunctionName() << " reloaded registered function";
+        delete registered_factories[factory->getFunctionName()];
+        registered_factories[factory->getFunctionName()]=factory;
+        return true;
     }
+    return false;
 }
 
 template <typename T> T*  Registry<T>::getFunction(string name)

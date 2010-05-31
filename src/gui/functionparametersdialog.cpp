@@ -51,6 +51,22 @@ QWidget *FunctionParametersDialog::widgetForParameter(std::string name)
             return widget;
             break;
         }
+    case FILESTRING:
+        {
+            StringParameterEdit *widget = new StringParameterEdit(this,FILEDIALOG);
+            std::string value = (std::string) function->getValueOfParameter(name);
+            widget->setValue(QString::fromStdString(value));
+            return widget;
+            break;
+        }
+    case DIRSTRING:
+        {
+            StringParameterEdit *widget = new StringParameterEdit(this,DIRDIALOG);
+            std::string value = (std::string) function->getValueOfParameter(name);
+            widget->setValue(QString::fromStdString(value));
+            return widget;
+            break;
+        }
     case STRING:
         {
             StringParameterEdit *widget = new StringParameterEdit(this);
@@ -104,6 +120,18 @@ bool FunctionParametersDialog::updateFunctionParameters() {
             switch(function->getDataTypes()[p])
             {
             case STRING:
+                {
+                StringParameterEdit *widget = (StringParameterEdit *) widgets[p];
+                function->setValueOfParameter(p,widget->value().toStdString());
+                continue;
+            }
+            case FILESTRING:
+                {
+                StringParameterEdit *widget = (StringParameterEdit *) widgets[p];
+                function->setValueOfParameter(p,widget->value().toStdString());
+                continue;
+            }
+            case DIRSTRING:
                 {
                 StringParameterEdit *widget = (StringParameterEdit *) widgets[p];
                 function->setValueOfParameter(p,widget->value().toStdString());

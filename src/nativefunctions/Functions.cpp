@@ -11,6 +11,7 @@
 
 //Calibration algorithm includes
 #include <TestCalibrationAlg.h>
+#include <BruteForceSearch.h>
 
 //Model simulator includes
 #include <ExternalModel.h>
@@ -26,6 +27,7 @@ extern "C"
     void CALIMERO_PUBLIC registerCalibrationAlgs(Registry<ICalibrationAlg> *registry)
     {
         registry->registerFunction(new NativeFunctionFactory<TestCalibrationAlg>());
+        registry->registerFunction(new NativeFunctionFactory<BruteForceSearch>());
     }
 
     void CALIMERO_PUBLIC registerModelSimulations(Registry<IModelSimulator> *registry)

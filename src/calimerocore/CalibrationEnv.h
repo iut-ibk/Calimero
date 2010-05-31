@@ -58,6 +58,7 @@ public:
     bool startCalibration();
     void stopCalibration();
     bool execIteration(vector<CalibrationVariable*> calibrationparameters);
+    void barrier();
 };
 
 #endif // CALIBRATIONENV_H

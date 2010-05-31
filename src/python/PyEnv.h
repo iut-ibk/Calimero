@@ -9,6 +9,7 @@
 #include <IModelSimulator.h>
 #include <CalimeroGlob.h>
 #include <boost/python.hpp>
+#include <set>
 
 using namespace std;
 using namespace boost::python;
@@ -46,6 +47,7 @@ private:
         PyEnv();
         PyEnvPriv *priv;
         static PyEnv *instance;
+        set<string> loadedmodules;
 };
 
 void wrapPyEnv();

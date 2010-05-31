@@ -14,7 +14,7 @@ class MyOF(pycalimero.IObjectiveFunction):
 class MyOF1(pycalimero.IObjectiveFunction):
 	def __init__(self):
 		pycalimero.IObjectiveFunction.__init__(self)
-		self.setDataType("testparameter",pycalimero.DATATYPE.DOUBLE)
+		self.setDataType("testparameter",pycalimero.DATATYPE.DOUBLE,"100")
 		pycalimero.log("init done in %s" % self.__class__.__name__)
 		
 
