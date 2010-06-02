@@ -28,6 +28,7 @@ Variable::~Variable()
     set<string> cpsucc = successors;
     BOOST_FOREACH( string var ,cpsucc )
             static_cast<ObjectiveFunctionVariable*>(domain->getPar(var))->removeParameter(name);
+
 }
 
 vector<double> Variable::getValues()

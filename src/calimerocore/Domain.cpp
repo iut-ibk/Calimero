@@ -12,8 +12,10 @@ Domain::Domain(){
 Domain::~Domain()
 {
     std::pair<string,Variable*> p;
-    BOOST_FOREACH(p,members)
-            delete p.second;
+
+    map<string, Variable*> mem = members;
+    BOOST_FOREACH(p,mem)
+            removePar(p.first);
 }
 
 void Domain::setPar(Variable* var)
@@ -56,6 +58,7 @@ bool Domain::removePar(const string &name)
 
     Variable *var  = getPar(name);
     delete var;
+
     members.erase(members.find(name));
     return true;
 }

@@ -25,7 +25,7 @@ class CALIMERO_PUBLIC ObjectiveFunctionVariable : public Variable
     public:
         ObjectiveFunctionVariable(const ObjectiveFunctionVariable &oldvar);
         ObjectiveFunctionVariable(string Name);
-        ~ObjectiveFunctionVariable();
+        virtual ~ObjectiveFunctionVariable();
         bool addParameter(const string &var);
         bool removeParameter(const string &var);
         set<string> getIterationParameters();

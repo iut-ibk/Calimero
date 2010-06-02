@@ -27,7 +27,7 @@ class CALIMERO_PUBLIC Variable
     public:
         Variable(string Name, vector<double> value, VARTYPE TYPE);
         Variable(const Variable &oldvar);
-        ~Variable();
+        virtual ~Variable();
         virtual vector<double> getValues();
         virtual bool setValues(const vector<double> values);
         virtual bool addSuccessor(const string &var);

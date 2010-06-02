@@ -1264,7 +1264,6 @@ void MainWindow::on_calstop_clicked()
 
 void MainWindow::on_calstart_clicked()
 {
-    ui->diagram_widget->enableFollow(true);
     updatetimer.start(UPDATETIME);
     CalibrationEnv::getInstance()->startCalibration();
 }
@@ -1278,7 +1277,6 @@ void MainWindow::updatetimer_timeout()
         updatetimer.stop();
         ui->calstart->setEnabled(true);
         ui->calstop->setEnabled(false);
-        ui->diagram_widget->enableFollow(false);
         Q_EMIT updateDiagram(CalibrationEnv::getInstance()->getCalibration());
     }
     else

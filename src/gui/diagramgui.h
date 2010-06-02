@@ -8,6 +8,8 @@
 #include <QtCore>
 #include <diagramscene.h>
 
+#define PREC 100
+
 class QMenu;
 class Calibration;
 
@@ -16,23 +18,16 @@ class DiagramGui : public QGraphicsView
     Q_OBJECT
 
     public:
-        DiagramScene *calibrationscene, *comparescene, *currentscene;
+        DiagramScene *calibrationscene, *comparescene;
         QAction *actionminvar;
         QAction *actioncalvar;
-        QAction *actionsave;
-        QAction *actionsvg;
         QMenu *menu;
-        bool follow, forceupdate, updaterunning, calibrationparameters;
-        Calibration *calibration;
-        QMutex mutex;
-        int lastiteration;
 
     public:
         DiagramGui(QWidget *parent);
         ~DiagramGui();
         void contextMenuEvent(QContextMenuEvent *event);
         void resizeEvent ( QResizeEvent * event );
-        void enableFollow(bool f);
 
     public Q_SLOTS:
         void showResults(Calibration *calibration);
