@@ -59,6 +59,8 @@ bool Persistence::buildXMLTree()
         return false;
     if(!Persistence::saveIterationResults())
         return false;
+    if(!Persistence::saveResultHandler())
+        return false;
     return true;
 }
 
@@ -155,6 +157,46 @@ bool Persistence::saveObjectiveFunctionParameters()
             connection.setAttribute("source",QString::fromStdString(*it));
             connection.setAttribute("destination",QString::fromStdString(tmpvar->getName()));
         }
+    }
+
+    return true;
+}
+
+bool Persistence::loadResultHandler()
+{
+    QDomNodeList handlers = root.elementsByTagName("resulthandler");
+
+    for(int index=0; index<handlers.size(); index++)
+    {
+        QDomElement handler = handlers.at(index).toElement();
+        map<string, string> functionparameters;
+        QString functionname;
+        bool enabled = false;
+
+        if(!loadFunction(functionname,functionparameters,&handler))
+            return false;
+
+        if(handler.attribute("enabled").toDouble())
+            enabled=true;
+
+        if(!calibration->addResultHandler(handler.attribute("name").toStdString(),functionname.toStdString(),functionparameters,enabled))
+            return false;
+    }
+    return true;
+}
+
+bool Persistence::saveResultHandler()
+{
+    map<string, string> handlers = calibration->getResultHandlers();
+    std::pair<string, string> p;
+
+    BOOST_FOREACH(p, handlers)
+    {
+        QDomElement handler = doc->createElement("resulthandler");
+        root.appendChild(handler);
+        handler.setAttribute("name", QString::fromStdString(p.first));
+        handler.setAttribute("enabled",QString::number(calibration->isResultHandlerEnabled(p.first)));
+        saveFunction(QString::fromStdString(p.second),calibration->getResultHandlerSettings(p.first),&handler);
     }
 
     return true;
@@ -325,12 +367,10 @@ bool Persistence::saveFunction(QString functionname, map<std::string, std::strin
 
 bool Persistence::saveIterationResults()
 {
-    std::pair<int, IterationResult*>p;
-    map<int,IterationResult*> results = calibration->getIterationResults();
+    vector<IterationResult*> results = calibration->getIterationResults();
 
-    BOOST_FOREACH(p,results)
+    BOOST_FOREACH(IterationResult* result,results)
     {
-        IterationResult* result = p.second;
         QDomElement currentresult = doc->createElement("iterationresult");
         root.appendChild(currentresult);
         currentresult.setAttribute("iterationnumber", QString::number(result->getIterationNumber()));
@@ -777,6 +817,9 @@ bool Persistence::loadCalibration(QString filename)
 
     if(!error)
         error = error || !loadTemplates();
+
+    if(!error)
+        error = error || !loadResultHandler();
 
     if(!error)
         error = error || !loadIterationResults();

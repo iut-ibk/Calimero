@@ -35,6 +35,7 @@ void Calibration::clear()
 
     delete domain;
     delete externalfilehandler;
+
     domain = new Domain();
     externalfilehandler = new ExternalParameterRegistry();
 
@@ -43,6 +44,10 @@ void Calibration::clear()
     std::pair<string, set<string>* >p;
     BOOST_FOREACH(p,groups)
             delete p.second;
+
+    resulthandlers.clear();
+    resulthandlersettings.clear();
+    enabledresulthandlers.clear();
 
     calibrationparameters.clear();
     iterationparameters.clear();
@@ -385,14 +390,14 @@ int Calibration::getNumOfComplete()
     return result;
 }
 
-map<int,IterationResult*> Calibration::getIterationResults()
+vector<IterationResult*> Calibration::getIterationResults()
 {
     QMutexLocker locker(mutex);
-    map<int,IterationResult*> result;
+    vector<IterationResult*> result;
     std::pair<int,IterationResult*>p;
     BOOST_FOREACH(p,iterationresults)
             if(p.second->isComplete())
-                result.insert(std::pair<int, IterationResult*>(p.second->getIterationNumber(),p.second));
+                result.push_back(p.second);
     return result;
 }
 
@@ -527,5 +532,44 @@ bool Calibration::setIterationResults(map<int,IterationResult*> iterationresults
 {
     clearIterationResults();
     this->iterationresults=iterationresults;
+    return true;
+}
+
+map<string, string> Calibration::getResultHandlers()
+{
+    return resulthandlers;
+}
+
+map<string, string> Calibration::getResultHandlerSettings(string name)
+{
+    return resulthandlersettings[name];
+}
+
+bool Calibration::isResultHandlerEnabled(string name)
+{
+    return enabledresulthandlers[name];
+}
+
+bool Calibration::addResultHandler(string name, string functionname, map<string,string> settings, bool enabled)
+{
+    if(!CalibrationEnv::getInstance()->getResultHandlerReg()->contains(functionname))
+    {
+        Logger(Error) <<  "No result handler registered with name \"" << functionname << "\"";
+        return false;
+    }
+    resulthandlers[name]=functionname;
+    resulthandlersettings[name]=settings;
+    enabledresulthandlers[name]=enabled;
+    return true;
+}
+
+bool Calibration::removeResultHandler(string name)
+{
+    if(resulthandlers.find(name)==resulthandlers.end())
+        return false;
+
+    resulthandlers.erase(resulthandlers.find(name));
+    resulthandlersettings.erase(resulthandlersettings.find(name));
+    enabledresulthandlers.erase(enabledresulthandlers.find(name));
     return true;
 }

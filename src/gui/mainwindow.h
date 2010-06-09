@@ -18,6 +18,7 @@ class QStateMachine;
 class Calibration;
 class GuiLogSink;
 class QTableWidgetItem;
+class ResultAnalysisDialog;
 
 class MainWindow : public QMainWindow {
 Q_OBJECT
@@ -26,6 +27,7 @@ public:
 	virtual ~MainWindow();
         void setupStateMachine();
 	Ui::MainWindow *ui;
+        ResultAnalysisDialog *resultanalysis;
         QStateMachine *state_machine;
         GuiLogSink *log_updater;
         QTimer updatetimer;
@@ -90,6 +92,7 @@ public:
         void on_actionsave_activated();
         void on_actionnew_activated();
         void on_actionLoad_Python_script_activated();
+        void on_resulthandler_clicked();
 
     Q_SIGNALS:
         void show_var();
@@ -105,7 +108,7 @@ public:
         void enable_groups();
         void disable_groups();
         void clean_calofun();
-        void updateDiagram(Calibration *calibration);
+        void updateDiagram(Calibration *calibration); 
 };
 
 #endif // MAINWINDOW_H

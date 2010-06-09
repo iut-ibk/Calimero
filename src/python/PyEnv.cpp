@@ -25,6 +25,7 @@
 #include <boost/python/scope.hpp>
 #include <IterationResult.h>
 #include <Exception.h>
+#include <PyResultHandlerWrapper.h>
 
 using namespace boost::python;
 
@@ -58,15 +59,15 @@ BOOST_PYTHON_MODULE(pycalimero)
 
         class_<std::vector<Variable*> >("variablevector")
                 .def(vector_indexing_suite<std::vector<Variable*> >());
+        
+        class_<std::vector<IterationResult*> >("iterationresultvector")
+                .def(vector_indexing_suite<std::vector<IterationResult*> >());
 
         class_<std::vector<CalibrationVariable*> >("calibrationvariablevector")
                 .def(vector_indexing_suite<std::vector<CalibrationVariable*> >());
 
         class_<std::map<string,string> >("stringmap")
                 .def(map_indexing_suite<std::map<string,string> >());
-
-        class_<std::map<int,IterationResult*> >("iterationresultmap")
-                .def(map_indexing_suite<std::map<int,boost::shared_ptr<IterationResult> > >());
 
         class_<std::map<int,DATATYPE> >("datatypemap")
                 .def(map_indexing_suite<std::map<int, DATATYPE> >());
@@ -100,6 +101,7 @@ BOOST_PYTHON_MODULE(pycalimero)
         wrapOFunction();
         wrapVariable();
         wrapCalAlgFunction();
+        wrapResultHandlerWrapper();
         wrapCalibration();
         wrapRegistry();
         wrapPyEnv();
@@ -201,6 +203,9 @@ void PyEnv::registerFunctions(IRegistry *registry, const string &module)
     case CALIBRATIONALGORITHM:
         fmt % module % "ICalibrationAlg";
         break;
+    case RESULTFUNCTION:
+        fmt % module % "IResultHandler";
+        break;
     case MODELSIMULATOR:
         fmt % module % "IModelSimulator";
         break;
@@ -227,6 +232,9 @@ void PyEnv::registerFunctions(IRegistry *registry, const string &module)
                    break;
                case MODELSIMULATOR:
                    registry->registerFunction(new PyFunctionFactory<IModelSimulator>(clss[i]));
+                   break;
+               case RESULTFUNCTION:
+                   registry->registerFunction(new PyFunctionFactory<IResultHandler>(clss[i]));
                    break;
                default:
                    break;

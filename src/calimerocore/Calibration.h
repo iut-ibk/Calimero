@@ -23,6 +23,9 @@ class CALIMERO_PUBLIC Calibration
 {
 
 private:
+    map<string, string> resulthandlers;
+    map<string, bool> enabledresulthandlers;
+    map<string, map<string, string> > resulthandlersettings;
     set<string> calibrationparameters;
     set<string> iterationparameters;
     set<string> observedparameters;
@@ -61,6 +64,8 @@ public:
     bool addEnabledOParameter(string parameter);
     bool removeEnabledOParameter(string parameter);
     bool setIterationResults(map<int,IterationResult*> iterationresults);
+    bool addResultHandler(string name, string functionname, map<string,string> settings, bool enabled);
+    bool removeResultHandler(string name);
     IterationResult* newIterationResult();
 
     //contains
@@ -71,10 +76,13 @@ public:
     //getter
     int getNumOfComplete();
     string getCalibrationAlg();
+    map<string, string> getResultHandlers();
+    map<string, string> getResultHandlerSettings(string name);
+    bool isResultHandlerEnabled(string name);
     string getModelSimulator();
     map<string,string> getCalibrationAlgSettings();
     map<string,string> getModelSimulatorSettings();
-    map<int,IterationResult*> getIterationResults();
+    vector<IterationResult*> getIterationResults();
     vector<string> getAllCalibrationParameters();
     vector<string> getAllObservedParameters();
     vector<string> getAllIterationParameters();

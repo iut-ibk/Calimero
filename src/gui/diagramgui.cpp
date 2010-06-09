@@ -80,7 +80,12 @@ void DiagramGui::menuAction(QAction *a)
 
 void DiagramGui::showResults(Calibration *calibration)
 {
-    map<int,IterationResult*> results = calibration->getIterationResults();
+    vector<IterationResult*> resultvec = calibration->getIterationResults();
+    map<int,IterationResult*> results;
+
+    BOOST_FOREACH(IterationResult* res, resultvec)
+            results[res->getIterationNumber()]=res;
+
     QMap<QString,QVector<QPointF> > evalpar;
     QMap<QString,QVector<QPointF> > algpar;
     set<string> calibrationparameters = calibration->evalCalibrationParameters();

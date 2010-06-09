@@ -11,7 +11,8 @@
 enum IFUNCTIONTYPE { NOTYPE = -1,
                      OBJECTIVEFUNCTION = 0,
                      CALIBRATIONALGORITHM = 1,
-                     MODELSIMULATOR = 2
+                     MODELSIMULATOR = 2,
+                     RESULTFUNCTION = 3
                     };
 
 enum DATATYPE { STRING = 1,

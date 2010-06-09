@@ -1311,8 +1311,8 @@
         <attribute name="title">
          <string>Results</string>
         </attribute>
-        <layout class="QGridLayout" name="gridLayout_12">
-         <item row="0" column="0">
+        <layout class="QGridLayout" name="gridLayout_10">
+         <item row="0" column="0" colspan="3">
           <widget class="DiagramGui" name="diagram_widget">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -1328,6 +1328,36 @@
            </property>
            <property name="viewportUpdateMode">
             <enum>QGraphicsView::SmartViewportUpdate</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <spacer name="horizontalSpacer_12">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>716</width>
+             <height>24</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="2" column="2">
+          <widget class="QCheckBox" name="enableddiagram">
+           <property name="text">
+            <string>Enable diagram</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QPushButton" name="resulthandler">
+           <property name="text">
+            <string>Result analysis</string>
            </property>
           </widget>
          </item>

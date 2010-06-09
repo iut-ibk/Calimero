@@ -16,6 +16,7 @@
 #include <ICalibrationAlg.h>
 #include <IModelSimulator.h>
 #include <functionparametersdialog.h>
+#include <resultanalysisdialog.h>
 
 
 
@@ -34,6 +35,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 MainWindow::~MainWindow() {
 	delete ui;
         delete persistence;
+        delete resultanalysis;
 }
 
 void MainWindow::setupStateMachine() {
@@ -257,6 +259,10 @@ void MainWindow::init()
     FunctionLoader::loadNative("./");
 
     CalibrationEnv *calibrationenv = CalibrationEnv::getInstance();
+
+    //resultanalysis
+    resultanalysis = new ResultAnalysisDialog(this);
+
 
     //ofunction
     vector<string> ofunvec = calibrationenv->getObjectiveFunctionReg()->getAvailableFunctions();
@@ -1283,7 +1289,8 @@ void MainWindow::updatetimer_timeout()
     {
         ui->calstart->setEnabled(false);
         ui->calstop->setEnabled(true);
-        Q_EMIT updateDiagram(CalibrationEnv::getInstance()->getCalibration());
+        if(ui->enableddiagram->isChecked())
+            Q_EMIT updateDiagram(CalibrationEnv::getInstance()->getCalibration());
         updatetimer.start(UPDATETIME);
     }
 }
@@ -1331,6 +1338,9 @@ void MainWindow::updateAll()
     //update templates
     on_comboBox_templates_currentIndexChanged(ui->comboBox_templates->currentIndex());
 
+    //update resulthandler
+    resultanalysis->updateAll();
+
     //update iterationresults
     Q_EMIT updateDiagram(CalibrationEnv::getInstance()->getCalibration());
 }
@@ -1338,6 +1348,9 @@ void MainWindow::updateAll()
 void MainWindow::on_actionopen_activated()
 {
     QString fileName = QFileDialog::getOpenFileName(this,tr("Calimero project file"), QDir::homePath(), tr("*.cmp"));
+
+    if(fileName.isEmpty())
+        return;
 
     if(persistence->loadCalibration(fileName))
         savefilepath=fileName;
@@ -1380,6 +1393,7 @@ void MainWindow::on_actionLoad_Python_script_activated()
         PyEnv::getInstance()->registerFunctions(CalibrationEnv::getInstance()->getCalibrationAlgReg(),fi.fileName().replace(".py","").toStdString());
         PyEnv::getInstance()->registerFunctions(CalibrationEnv::getInstance()->getObjectiveFunctionReg(),fi.fileName().replace(".py","").toStdString());
         PyEnv::getInstance()->registerFunctions(CalibrationEnv::getInstance()->getModelSimulatorReg(),fi.fileName().replace(".py","").toStdString());
+        PyEnv::getInstance()->registerFunctions(CalibrationEnv::getInstance()->getResultHandlerReg(),fi.fileName().replace(".py","").toStdString());
     }
     catch(PythonException &exception)
     {
@@ -1401,4 +1415,9 @@ void MainWindow::on_actionnew_activated()
     persistence->buildXMLTree();
     savefilepath="";
     updateAll();
+}
+
+void MainWindow::on_resulthandler_clicked()
+{
+    resultanalysis->exec();
 }

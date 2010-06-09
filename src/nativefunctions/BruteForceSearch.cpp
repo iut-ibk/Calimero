@@ -27,7 +27,6 @@ bool BruteForceSearch::start(vector<CalibrationVariable*> calibrationpars, vecto
 
 bool BruteForceSearch::bruteforcesearch(vector<CalibrationVariable*> calibrationpars, uint currentvar, CalibrationEnv *env)
 {
-    bool dirty = false;
     CalibrationVariable* var = calibrationpars.at(currentvar);
     for(double currentvalue=var->getMin(); currentvalue <= var->getMax();currentvalue=currentvalue+var->getStep())
     {

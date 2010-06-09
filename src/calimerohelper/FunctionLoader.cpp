@@ -23,5 +23,7 @@ void FunctionLoader::loadNative(const string &path)
             continue;
         if(!CalibrationEnv::getInstance()->getModelSimulatorReg()->addNativePlugin(file.toStdString()))
             continue;
+        if(!CalibrationEnv::getInstance()->getResultHandlerReg()->addNativePlugin(file.toStdString()))
+            continue;
     }
 }

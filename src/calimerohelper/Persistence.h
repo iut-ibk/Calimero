@@ -44,8 +44,10 @@ class CALIMERO_PUBLIC Persistence
         bool loadGroups();
         bool loadIterationResults();
         bool loadTemplates();
+        bool loadResultHandler();
 
         //save functions
+        bool saveResultHandler();
         bool saveTemplates();
         bool saveIterationResults();
         bool saveGroups();

@@ -6,6 +6,7 @@
 #include <Exception.h>
 #include <QTime>
 #include <boost/thread/thread.hpp>
+#include <IResultHandler.h>
 
 CalibrationEnv* CalibrationEnv::instance = 0;
 
@@ -30,6 +31,7 @@ CalibrationEnv::~CalibrationEnv()
     delete oreg;
     delete mreg;
     delete creg;
+    delete rreg;
     instance=0;
 }
 
@@ -55,6 +57,14 @@ Registry<IModelSimulator>* CalibrationEnv::getModelSimulatorReg()
     if(!mreg)
         mreg = new Registry<IModelSimulator>();
     return mreg;
+}
+
+
+Registry<IResultHandler>* CalibrationEnv::getResultHandlerReg()
+{
+    if(!rreg)
+        rreg = new Registry<IResultHandler>();
+    return rreg;
 }
 
 Registry<ICalibrationAlg>* CalibrationEnv::getCalibrationAlgReg()
@@ -177,6 +187,40 @@ void CalibrationEnv::run()
         msleep(10);
     }
 }
+
+void CalibrationEnv::runAllEnabledResultHandler()
+{
+    map<string, string> handlers = calibration->getResultHandlers();
+    std::pair<string, string>p;
+    BOOST_FOREACH(p,handlers)
+            if(calibration->isResultHandlerEnabled(p.first))
+                runResultHandler(p.first);
+}
+
+void CalibrationEnv::runResultHandler(string name)
+{
+    try{
+        map<string, string> handlers = calibration->getResultHandlers();
+        if(handlers.find(name)==handlers.end())
+            return;
+
+        IResultHandler *function = CalibrationEnv::getInstance()->getResultHandlerReg()->getFunction(handlers[name]);
+        function->setValues(calibration->getResultHandlerSettings(name));
+        function->run(calibration->getIterationResults());
+        delete function;
+    }
+    catch(PythonException &exception)
+    {
+        Logger(Error) << exception.exceptionmsg;
+        Logger(Error) << exception.type;
+        Logger(Error) << exception.value;
+    }
+    catch(CalimeroException &exception)
+    {
+        Logger(Error) << exception.exceptionmsg;
+    }
+}
+
 
 void CalibrationEnv::runCalibration()
 {
@@ -309,6 +353,11 @@ vector<string> CalibrationEnv::getAvailableModelSimulators()
 vector<string> CalibrationEnv::getAvailableCalibrationAlgs()
 {
     return getCalibrationAlgReg()->getAvailableFunctions();
+}
+
+vector<string> CalibrationEnv::getAvailableResultHandlers()
+{
+    return getResultHandlerReg()->getAvailableFunctions();
 }
 
 CalibrationEnv::CALIBRATIONSTATE CalibrationEnv::getCalibrationState()

@@ -13,6 +13,7 @@
 #include <QMutex>
 #include <QMutexLocker>
 #include <QReadWriteLock>
+#include <IResultHandler.h>
 
 class CALIMERO_PUBLIC CalibrationEnv : public QThread
 {
@@ -29,6 +30,7 @@ private:
     Registry<IObjectiveFunction>* oreg;
     Registry<IModelSimulator>* mreg;
     Registry<ICalibrationAlg>* creg;
+    Registry<IResultHandler>* rreg;
     CALIBRATIONSTATE calstate;
 
     CalibrationEnv();
@@ -43,9 +45,11 @@ public:
     Registry<IObjectiveFunction>* getObjectiveFunctionReg();
     Registry<IModelSimulator>* getModelSimulatorReg();
     Registry<ICalibrationAlg>* getCalibrationAlgReg();
+    Registry<IResultHandler>* getResultHandlerReg();
     vector<string> getAvailableObjectiveFunctions();
     vector<string> getAvailableModelSimulators();
     vector<string> getAvailableCalibrationAlgs();
+    vector<string> getAvailableResultHandlers();
 
     //calibration-settings
     bool setCalibration(Calibration *cal);
@@ -59,6 +63,10 @@ public:
     void stopCalibration();
     bool execIteration(vector<CalibrationVariable*> calibrationparameters);
     void barrier();
+
+    //result analysis
+    void runAllEnabledResultHandler();
+    void runResultHandler(string name);
 };
 
 #endif // CALIBRATIONENV_H

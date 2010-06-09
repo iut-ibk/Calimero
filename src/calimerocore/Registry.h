@@ -136,6 +136,9 @@ template <typename T> bool Registry<T>::addNativePlugin(const std::string &plugi
         case MODELSIMULATOR:
             regFunction =  (regProto) l.resolve("registerModelSimulations");
             break;
+        case RESULTFUNCTION:
+            regFunction =  (regProto) l.resolve("registerResultHandlers");
+            break;
         case NOTYPE:
             Logger(Error) << "Registry has no valid type";
             return false;
