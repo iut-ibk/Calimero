@@ -10,7 +10,7 @@
 
 using namespace std;
 
-ResultAnalysisDialog::ResultAnalysisDialog(QWidget *parent)
+ResultAnalysisDialog::ResultAnalysisDialog(QWidget *parent) : QDialog(parent)
 {
     ui = new Ui::ResultAnalysisDialog();
     ui->setupUi(this);

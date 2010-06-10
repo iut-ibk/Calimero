@@ -3,7 +3,7 @@
  <class>ResultAnalysisDialog</class>
  <widget class="QDialog" name="ResultAnalysisDialog">
   <property name="windowModality">
-   <enum>Qt::ApplicationModal</enum>
+   <enum>Qt::NonModal</enum>
   </property>
   <property name="geometry">
    <rect>

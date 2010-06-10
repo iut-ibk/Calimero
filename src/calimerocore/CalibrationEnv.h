@@ -15,6 +15,8 @@
 #include <QReadWriteLock>
 #include <IResultHandler.h>
 
+class QWidget;
+
 class CALIMERO_PUBLIC CalibrationEnv : public QThread
 {
 public:
