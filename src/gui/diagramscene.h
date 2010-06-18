@@ -23,15 +23,12 @@ class DiagramScene : public QGraphicsScene
         double minvaluey;
         double minvaluex;
         double prec;
-        uint minsceneh;
-        uint minscenew;
         uint update;
 
     public:
         DiagramScene(QGraphicsView *view);
         bool setMousePosition(qreal x, qreal y);
         void setValues(QMap<QString, QVector<QPointF> > values);
-        void setMinViewBox(uint h, uint w);
         void setPrec(double value);
         void setUpdate(uint value);
         double getMinValueX();

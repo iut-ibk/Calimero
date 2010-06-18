@@ -6,8 +6,6 @@
 
 DiagramScene::DiagramScene(QGraphicsView *view)  : QGraphicsScene(view)
 {
-    minsceneh=0;
-    minscenew=0;
     prec=100;
     update=1;
 }
@@ -32,12 +30,6 @@ double DiagramScene::getMaxValueY()
     return maxvaluey;
 }
 
-void DiagramScene::setMinViewBox(uint h, uint w)
-{
-    minscenew=w;
-    minsceneh=h;
-}
-
 void DiagramScene::setPrec(double value)
 {
     prec=value;
@@ -51,6 +43,8 @@ void DiagramScene::setUpdate(uint value)
 void DiagramScene::setValues(QMap<QString, QVector<QPointF> > values)
 {
     clear();
+    mouseline=0;
+
     for(int index=0; index < value.size(); index++)
         delete value[value.keys().at(index)];
 
@@ -109,31 +103,26 @@ void DiagramScene::setValues(QMap<QString, QVector<QPointF> > values)
 
     double w , h;
 
-    if(maxvaluex-minvaluex < minscenew)
-        w = minscenew;
-    else
-        w = maxvaluex-minvaluex;
-
-    if(maxvaluey-minvaluey < minsceneh)
-        h = minsceneh;
-    else
-        h = maxvaluey-minvaluey;
-
-
+    h = maxvaluey-minvaluey;
+    w = maxvaluex-minvaluex;
+    if(w < h * 3)
+        w = h * 3;
 
     setSceneRect(minvaluex*prec,-maxvaluey*prec,w*prec, h*prec);
-
 
     QList<QGraphicsView*> viewers = views();
     for(int index=0; index < viewers.size(); index++)
     {
         viewers.at(index)->fitInView(sceneRect(),Qt::KeepAspectRatioByExpanding);
-        viewers.at(index)->centerOn(sceneRect().topRight().x(),qRound(sceneRect().topRight().y()));
+        viewers.at(index)->centerOn(maxvaluex*prec,qRound(sceneRect().topRight().y()));
     }
 }
 
 bool DiagramScene::showGrid()
 {
+    if(maxvaluey==minvaluey)
+        maxvaluey=minvaluey+10;
+
     int split = 10;
     double xsteps = (maxvaluey-minvaluey)/4;
     QFont font;

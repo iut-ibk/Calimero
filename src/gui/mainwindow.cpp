@@ -17,7 +17,7 @@
 #include <IModelSimulator.h>
 #include <functionparametersdialog.h>
 #include <resultanalysisdialog.h>
-
+#include <settingsdialog.h>
 
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow){
@@ -48,6 +48,32 @@ void MainWindow::setupStateMachine() {
 
         //Parameter tab
         QState *tab_states = new QState(QState::ParallelStates);
+
+            //start/stop calibration
+            QState *calibrationstatus = new QState(tab_states);
+            QState *notrunning = new QState(calibrationstatus);
+            QState *running = new QState(calibrationstatus);
+            calibrationstatus->setInitialState(notrunning);
+
+            notrunning->assignProperty(ui->tab_parameters, "enabled", true);
+            notrunning->assignProperty(ui->tab_source, "enabled", true);
+            notrunning->assignProperty(ui->tab_calibration, "enabled", true);
+            notrunning->assignProperty(ui->resulthandler, "enabled", true);
+            notrunning->assignProperty(ui->calstart, "enabled", true);
+            notrunning->assignProperty(ui->calstop, "enabled", false);
+            notrunning->assignProperty(ui->menubar,"enabled", true);
+
+            running->assignProperty(ui->tab_parameters, "enabled", false);
+            running->assignProperty(ui->tab_source, "enabled", false);
+            running->assignProperty(ui->tab_calibration, "enabled", false);
+            running->assignProperty(ui->resulthandler, "enabled", false);
+            running->assignProperty(ui->calstart, "enabled", false);
+            running->assignProperty(ui->calstop, "enabled", true);
+            running->assignProperty(ui->menubar, "enabled", false);
+
+            notrunning->addTransition(this, SIGNAL(running()), running);
+            running->addTransition(this, SIGNAL(notrunning()), notrunning);
+
             //calibration groups settings
             QState *enabled_ofunctions = new QState(tab_states);
             QState *enabled_ofunctions_clean = new QState(enabled_ofunctions);
@@ -253,10 +279,6 @@ void MainWindow::setupStateMachine() {
 void MainWindow::init()
 {
     Logger(Debug) << "init called";
-
-    PyFunctionLoader::loadScripts("./");
-    PyFunctionLoader::loadScripts("../../scripts/");
-    FunctionLoader::loadNative("./");
 
     CalibrationEnv *calibrationenv = CalibrationEnv::getInstance();
 
@@ -1281,14 +1303,14 @@ void MainWindow::updatetimer_timeout()
     if(!CalibrationEnv::getInstance()->isCalibrationRunning())
     {
         updatetimer.stop();
-        ui->calstart->setEnabled(true);
-        ui->calstop->setEnabled(false);
+        Q_EMIT notrunning();
+
         Q_EMIT updateDiagram(CalibrationEnv::getInstance()->getCalibration());
     }
     else
     {
-        ui->calstart->setEnabled(false);
-        ui->calstop->setEnabled(true);
+        Q_EMIT running();
+
         if(ui->enableddiagram->isChecked())
             Q_EMIT updateDiagram(CalibrationEnv::getInstance()->getCalibration());
         updatetimer.start(UPDATETIME);
@@ -1380,6 +1402,39 @@ void MainWindow::on_actionsave_activated()
         QMessageBox::warning(this,tr("Error"),tr("Could not save current project"));
 }
 
+void MainWindow::closeEvent(QCloseEvent *event)
+ {
+    QMessageBox msgBox(this);
+    msgBox.setText("The calimero project has been modified.");
+    msgBox.setInformativeText("Do you want to save your changes?");
+    msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+    msgBox.setDefaultButton(QMessageBox::Cancel);
+    int ret = msgBox.exec();
+
+    switch (ret)
+    {
+        case QMessageBox::Save:{
+           on_actionsave_activated();
+           event->accept();
+           break;
+       }
+       case QMessageBox::Discard:
+           event->accept();
+           break;
+       case QMessageBox::Cancel:
+           event->ignore();
+           break;
+       default:
+           event->ignore();
+           break;
+     }
+ }
+
+void MainWindow::on_actionSchlie_en_activated()
+{
+    QMainWindow::close();
+}
+
 void MainWindow::on_actionLoad_Python_script_activated()
 {
     try{
@@ -1420,4 +1475,10 @@ void MainWindow::on_actionnew_activated()
 void MainWindow::on_resulthandler_clicked()
 {
     resultanalysis->exec();
+}
+
+void MainWindow::on_actionsettings_activated()
+{
+    SettingsDialog d(this);
+    d.exec();
 }

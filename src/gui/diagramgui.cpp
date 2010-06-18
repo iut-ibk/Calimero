@@ -39,9 +39,6 @@ DiagramGui::DiagramGui(QWidget *parent) : QGraphicsView(parent)
     comparescene = new DiagramScene(this);
     calibrationscene = new DiagramScene(this);
 
-    comparescene->setMinViewBox(5,50);
-    calibrationscene->setMinViewBox(5,50);
-
     comparescene->setPrec(PREC);
     calibrationscene->setPrec(PREC);
 

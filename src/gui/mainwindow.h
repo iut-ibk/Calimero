@@ -6,6 +6,7 @@
 #include <QListWidgetItem>
 #include <QTimer>
 #include <Persistence.h>
+#include <QCloseEvent>
 
 #define DEFAULTLOGLEVEL Standard
 #define UPDATETIME 1000
@@ -91,8 +92,11 @@ public:
         void on_actionsaveas_activated();
         void on_actionsave_activated();
         void on_actionnew_activated();
+        void on_actionsettings_activated();
         void on_actionLoad_Python_script_activated();
         void on_resulthandler_clicked();
+        void on_actionSchlie_en_activated();
+        void closeEvent(QCloseEvent *event);
 
     Q_SIGNALS:
         void show_var();
@@ -109,6 +113,8 @@ public:
         void disable_groups();
         void clean_calofun();
         void updateDiagram(Calibration *calibration); 
+        void running();
+        void notrunning();
 };
 
 #endif // MAINWINDOW_H

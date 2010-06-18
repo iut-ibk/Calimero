@@ -981,7 +981,7 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>962</width>
+              <width>373</width>
               <height>446</height>
              </rect>
             </property>
@@ -1601,19 +1601,6 @@
     <string>Options</string>
    </property>
   </action>
-  <action name="actionRun_in_Background">
-   <property name="text">
-    <string>Run in Background</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+B</string>
-   </property>
-  </action>
-  <action name="actionOpen_with_script_import">
-   <property name="text">
-    <string>Open with script import</string>
-   </property>
-  </action>
   <action name="actionLoad_Python_script">
    <property name="text">
     <string>Load Python script</string>
@@ -1636,38 +1623,5 @@
   </customwidget>
  </customwidgets>
  <resources/>
- <connections>
-  <connection>
-   <sender>actionSchlie_en</sender>
-   <signal>activated()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>close()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>369</x>
-     <y>296</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>MainWindow</sender>
-   <signal>destroyed()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>close()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>371</x>
-     <y>290</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>326</x>
-     <y>308</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

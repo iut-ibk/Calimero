@@ -17,6 +17,7 @@ CalibrationEnv::CalibrationEnv()
     oreg = new Registry<IObjectiveFunction>();
     mreg = new  Registry<IModelSimulator>();
     creg = new Registry<ICalibrationAlg>();
+    rreg = new Registry<IResultHandler>();
     threadpool = 0;
     numthread=4;
     calibration=0;
@@ -47,30 +48,22 @@ CalibrationEnv* CalibrationEnv::getInstance()
 
 Registry<IObjectiveFunction>* CalibrationEnv::getObjectiveFunctionReg()
 {
-    if(!oreg)
-        oreg = new Registry<IObjectiveFunction>();
     return oreg;
 }
 
 Registry<IModelSimulator>* CalibrationEnv::getModelSimulatorReg()
 {
-    if(!mreg)
-        mreg = new Registry<IModelSimulator>();
     return mreg;
 }
 
 
 Registry<IResultHandler>* CalibrationEnv::getResultHandlerReg()
 {
-    if(!rreg)
-        rreg = new Registry<IResultHandler>();
     return rreg;
 }
 
 Registry<ICalibrationAlg>* CalibrationEnv::getCalibrationAlgReg()
 {
-    if(!creg)
-        creg = new Registry<ICalibrationAlg>();
     return creg;
 }
 
