@@ -9,6 +9,9 @@
 #include <CalibrationEnv.h>
 #include <Domain.h>
 #include <assert.h>
+#include <boost/shared_ptr.hpp>
+
+using namespace boost;
 
 Calibration::Calibration()
 {
@@ -383,18 +386,18 @@ int Calibration::getNumOfComplete()
 {
     QMutexLocker locker(mutex);
     int result=0;
-    std::pair<int,IterationResult*>p;
+    std::pair<int,shared_ptr<IterationResult> > p;
     BOOST_FOREACH(p, iterationresults)
             result += (p.second->isComplete()) ? 1 : 0 ;
 
     return result;
 }
 
-vector<IterationResult*> Calibration::getIterationResults()
+vector<shared_ptr<IterationResult>  > Calibration::getIterationResults()
 {
     QMutexLocker locker(mutex);
-    vector<IterationResult*> result;
-    std::pair<int,IterationResult*>p;
+    vector<shared_ptr<IterationResult>  > result;
+    std::pair<int,shared_ptr<IterationResult>  >p;
     BOOST_FOREACH(p,iterationresults)
             if(p.second->isComplete())
                 result.push_back(p.second);
@@ -404,10 +407,6 @@ vector<IterationResult*> Calibration::getIterationResults()
 void Calibration::clearIterationResults()
 {
     QMutexLocker locker(mutex);
-    std::pair<int,IterationResult*>p;
-    BOOST_FOREACH(p, iterationresults)
-            delete p.second;
-
     iterationresults.clear();
 }
 
@@ -421,10 +420,10 @@ map<string,string> Calibration::getModelSimulatorSettings()
     return modelsimulatorsettings;
 }
 
-IterationResult* Calibration::newIterationResult()
+shared_ptr<IterationResult>   Calibration::newIterationResult()
 {
     QMutexLocker locker(mutex);
-    iterationresults.insert(pair<int,IterationResult*>(iterationresults.size(),new IterationResult(iterationresults.size())));
+    iterationresults.insert(pair<int,shared_ptr<IterationResult> >(iterationresults.size(),shared_ptr<IterationResult>(new IterationResult(iterationresults.size()))));
     return iterationresults[iterationresults.size()-1];
 }
 
@@ -528,7 +527,7 @@ bool Calibration::isDisabledGroup(const string &name)
     return disabledgroups[name];
 }
 
-bool Calibration::setIterationResults(map<int,IterationResult*> iterationresults)
+bool Calibration::setIterationResults(map<int,shared_ptr<IterationResult>  > iterationresults)
 {
     clearIterationResults();
     this->iterationresults=iterationresults;

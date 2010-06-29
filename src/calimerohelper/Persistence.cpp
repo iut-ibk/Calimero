@@ -17,7 +17,9 @@
 #include <Variable.h>
 #include <map>
 #include <ExternalParameterRegistry.h>
+#include <boost/shared_ptr.hpp>
 
+using namespace boost;
 using namespace std;
 
 Persistence::Persistence(Calibration *calibration)
@@ -367,9 +369,9 @@ bool Persistence::saveFunction(QString functionname, map<std::string, std::strin
 
 bool Persistence::saveIterationResults()
 {
-    vector<IterationResult*> results = calibration->getIterationResults();
+    vector<shared_ptr<IterationResult> > results = calibration->getIterationResults();
 
-    BOOST_FOREACH(IterationResult* result,results)
+    BOOST_FOREACH(shared_ptr<IterationResult> result,results)
     {
         QDomElement currentresult = doc->createElement("iterationresult");
         root.appendChild(currentresult);
@@ -574,7 +576,7 @@ bool Persistence::saveTemplates()
 bool Persistence::loadIterationResults()
 {
     QDomNodeList iterationresults = root.elementsByTagName("iterationresult");
-    map<int,IterationResult*> resultmap;
+    map<int,shared_ptr<IterationResult>  > resultmap;
 
     for(int index=0; index<iterationresults.size(); index++)
     {
@@ -614,7 +616,7 @@ bool Persistence::loadIterationResults()
             objectivefunctionresults[currentelement.attribute("name").toStdString()] = stringToVector(currentelement.attribute("values").toStdString());
         }
 
-        resultmap[iterationnumber] = new IterationResult(iterationnumber,calibrationresults,iterationresult, objectivefunctionresults, observedresults);
+        resultmap[iterationnumber] = shared_ptr<IterationResult>(new IterationResult(iterationnumber,calibrationresults,iterationresult, objectivefunctionresults, observedresults));
     }
 
     return calibration->setIterationResults(resultmap);

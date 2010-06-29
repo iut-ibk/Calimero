@@ -41,7 +41,6 @@ IterationResult::IterationResult(int iterationnum,
     complete = 1;
 }
 
-
 void IterationResult::setResults(Domain *dom)
 {
     assert(!complete);

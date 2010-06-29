@@ -33,7 +33,7 @@ private:
     map<string, bool> enabledgroups;
     map<string, bool> disabledgroups;
     map<string, set<string>* > groups;
-    map<int,IterationResult*> iterationresults;
+    map<int,shared_ptr<IterationResult>  > iterationresults;
     set<string> enabledobjectivefunctionparameters;
     string alg;
     map<string,string> algsettings;
@@ -63,10 +63,10 @@ public:
     bool removeDisabledGroup(string groupname);
     bool addEnabledOParameter(string parameter);
     bool removeEnabledOParameter(string parameter);
-    bool setIterationResults(map<int,IterationResult*> iterationresults);
+    bool setIterationResults(map<int,shared_ptr<IterationResult>  > iterationresults);
     bool addResultHandler(string name, string functionname, map<string,string> settings, bool enabled);
     bool removeResultHandler(string name);
-    IterationResult* newIterationResult();
+    shared_ptr<IterationResult>   newIterationResult();
 
     //contains
     bool containsGroup(std::string groupname);
@@ -82,7 +82,7 @@ public:
     string getModelSimulator();
     map<string,string> getCalibrationAlgSettings();
     map<string,string> getModelSimulatorSettings();
-    vector<IterationResult*> getIterationResults();
+    vector<shared_ptr<IterationResult>  > getIterationResults();
     vector<string> getAllCalibrationParameters();
     vector<string> getAllObservedParameters();
     vector<string> getAllIterationParameters();

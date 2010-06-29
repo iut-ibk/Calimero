@@ -20,9 +20,7 @@ void wrapCalibration()
                 .def("removeDisabledGroup", &Calibration::removeDisabledGroup)
                 .def("addEnabledOParameter", &Calibration::addEnabledOParameter)
                 .def("removeEnabledOParameter", &Calibration::removeEnabledOParameter)
-                .def("newIterationResult", &Calibration::newIterationResult ,
-                     return_internal_reference<1,
-                        with_custodian_and_ward<1, 2> >())
+                .def("newIterationResult", &Calibration::newIterationResult)
                 .def("containsGroup", &Calibration::containsGroup)
                 .def("containsParameter", &Calibration::containsParameter)
                 .def("getNumOfComplete", &Calibration::getNumOfComplete)
@@ -31,9 +29,7 @@ void wrapCalibration()
                 .def("getCalibrationAlgSettings", &Calibration::getCalibrationAlgSettings)
                 .def("getModelSimulatorSettings", &Calibration::getModelSimulatorSettings)
                 .def("getIterationResults", &Calibration::getIterationResults)
-                .def("getDomain", &Calibration::getDomain,
-                     return_internal_reference<1,
-                        with_custodian_and_ward<1, 2> >())
+                .def("getDomain", &Calibration::getDomain, return_internal_reference<1>())
                 .def("clear", &Calibration::clear)
                 .def("clearIterationResults", &Calibration::clearIterationResults)
                 .def("getAllObjectiveFunctionParameters", &Calibration::getAllObjectiveFunctionParameters)

@@ -260,7 +260,7 @@ void CalibrationEnv::runCalibration()
     else
         calibration->clearIterationResults();
 
-    numthread = thread::hardware_concurrency();
+    numthread = QThread::idealThreadCount ();
     int realthreads = 0;
     if(tmpalg->containsParameter("parallel"))
     {

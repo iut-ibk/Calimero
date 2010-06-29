@@ -7,8 +7,10 @@
 #include <iostream>
 #include <PyEnv.h>
 #include <IResultHandler.h>
+#include <boost/shared_ptr.hpp>
 
 using namespace boost::python;
+using namespace boost;
 using namespace std;
 
 
@@ -21,7 +23,7 @@ struct ResultHandlerWrapper : public IResultHandler, wrapper<IResultHandler> {
     {
     }
 
-    bool run(std::vector<IterationResult*> iterationresults)
+    bool run(std::vector<shared_ptr<IterationResult> > iterationresults)
     {
         ScopedGILRelease scoped;
         try {

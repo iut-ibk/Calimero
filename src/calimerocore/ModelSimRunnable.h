@@ -5,6 +5,7 @@
 #include <vector>
 #include <CalimeroGlob.h>
 #include <string>
+#include <boost/shared_ptr.hpp>
 
 class CalibrationVariable;
 class Variable;
@@ -17,6 +18,7 @@ class IterationResult;
 class Calibration;
 
 using namespace std;
+using namespace boost;
 
 class CALIMERO_PUBLIC ModelSimRunnable : public QRunnable
 {
@@ -27,7 +29,7 @@ private:
     vector<string> observedparameters;
     Domain *dom;
     ExternalParameterRegistry *externalfilehandler;
-    IterationResult *result;
+    shared_ptr<IterationResult>  result;
     Calibration *calibration;
     IModelSimulator *sim;
 

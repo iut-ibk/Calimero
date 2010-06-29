@@ -17,7 +17,6 @@
 #include <list>
 #include <PyEnv.h>
 #include <iostream>
-#include <boost/python.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #include <Log.h>
 #include <LogSink.h>
@@ -60,11 +59,14 @@ BOOST_PYTHON_MODULE(pycalimero)
         class_<std::vector<Variable*> >("variablevector")
                 .def(vector_indexing_suite<std::vector<Variable*> >());
         
-        class_<std::vector<IterationResult*> >("iterationresultvector")
-                .def(vector_indexing_suite<std::vector<IterationResult*> >());
+        class_<std::vector<shared_ptr<IterationResult> > >("iterationresultvector")
+                .def(vector_indexing_suite<std::vector<shared_ptr<IterationResult> >, true >());
 
         class_<std::vector<CalibrationVariable*> >("calibrationvariablevector")
                 .def(vector_indexing_suite<std::vector<CalibrationVariable*> >());
+
+        class_<std::map<string,vector<double> > >("stringvectormap")
+                .def(map_indexing_suite<std::map<string, vector<double> > >());
 
         class_<std::map<string,string> >("stringmap")
                 .def(map_indexing_suite<std::map<string,string> >());
@@ -109,7 +111,6 @@ BOOST_PYTHON_MODULE(pycalimero)
         register_ptr_to_python< Variable* >();
         register_ptr_to_python< ObjectiveFunctionVariable* >();
         register_ptr_to_python< CalibrationVariable* >();
-        register_ptr_to_python< IterationResult* >();
         register_ptr_to_python< CalibrationEnv* >();
         register_ptr_to_python< Calibration* >();
         register_ptr_to_python< Domain* >();

@@ -5,6 +5,8 @@
 #include <map>
 #include <string>
 #include <CalimeroGlob.h>
+#include <Logger.h>
+#include <boost/shared_ptr.hpp>
 
 class ObjectiveFunctionVariable;
 class Variable;
@@ -12,6 +14,7 @@ class CalibrationVariable;
 class Domain;
 
 using namespace std;
+using namespace boost;
 
 class CALIMERO_PUBLIC IterationResult
 {

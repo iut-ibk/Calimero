@@ -6,8 +6,11 @@
 #include <QSvgGenerator>
 #include <Calibration.h>
 #include <IterationResult.h>
+#include <boost/shared_ptr.hpp>
 
 #include <iostream>
+
+using namespace boost;
 
 DiagramGui::~DiagramGui()
 {
@@ -77,10 +80,10 @@ void DiagramGui::menuAction(QAction *a)
 
 void DiagramGui::showResults(Calibration *calibration)
 {
-    vector<IterationResult*> resultvec = calibration->getIterationResults();
-    map<int,IterationResult*> results;
+    vector<shared_ptr<IterationResult> > resultvec = calibration->getIterationResults();
+    map<int,shared_ptr<IterationResult> > results;
 
-    BOOST_FOREACH(IterationResult* res, resultvec)
+    BOOST_FOREACH(shared_ptr<IterationResult> res, resultvec)
             results[res->getIterationNumber()]=res;
 
     QMap<QString,QVector<QPointF> > evalpar;
