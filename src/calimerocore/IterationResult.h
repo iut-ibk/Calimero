@@ -40,6 +40,10 @@ public:
     vector<double> getObservedParameterResults(string name);
     vector<double> getCalibrationParameterResults(string name);
     vector<double> getObjectiveFunctionParameterResults(string name);
+    vector<string> getNamesOfObjectiveFunctionParameters();
+    vector<string> getNamesOfObservedParameters();
+    vector<string> getNamesOfCalibrationParameters();
+    vector<string> getNamesOfIterationParameters();
 };
 
 #endif // ITERATIONRESULT_H

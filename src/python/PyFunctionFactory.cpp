@@ -43,10 +43,10 @@ template <typename T> T* PyFunctionFactory<T>::createFunction() const {
         ScopedGILRelease scoped;
         try {
             object function = priv->klass();
-            auto_ptr<T> apf = extract<auto_ptr<T> >(function);
+            shared_ptr<T> apf = extract<shared_ptr<T> >(function);
             IFunction* f = apf.get();
             FunctionWrapper *fw = static_cast<FunctionWrapper*>(f);
-            apf.release();
+            //apf.release();
             fw->self = function;
             return static_cast<T*>(f);
         } catch(error_already_set const &) {

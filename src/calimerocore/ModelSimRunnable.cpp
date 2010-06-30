@@ -96,5 +96,4 @@ void ModelSimRunnable::run()
     //clean thread
     delete dom;
     delete externalfilehandler;
-    sleep(1);
 }

@@ -6,7 +6,6 @@
 #include <Logger.h>
 #include <map>
 #include <IterationResult.h>
-#include <auto_ptr.h>
 
 #define CALIMERO_DECLARE_RESULTFUNCTION(function)  \
 class CALIMERO_PUBLIC function : public IResultHandler { \
@@ -29,7 +28,7 @@ class CALIMERO_PUBLIC IResultHandler : public IFunction
 
         IResultHandler(){};
         virtual bool run(std::vector<shared_ptr<IterationResult> > iterationresults) = 0;
+        bool test(){Logger(Error) << "test"; return false;};
 };
-
 
 #endif // IRESULTHANDLER_H

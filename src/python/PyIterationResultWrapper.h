@@ -25,6 +25,10 @@ void wrapIterationResult()
             .def("getCalibrationParameterResults" , &IterationResult::getCalibrationParameterResults)
             .def("getObjectiveFunctionParameterResults" , &IterationResult::getObjectiveFunctionParameterResults)
             .def("getIterationNumber", &IterationResult::getIterationNumber)
+            .def("getNamesOfObjectiveFunctionParameters", &IterationResult::getNamesOfObjectiveFunctionParameters)
+            .def("getNamesOfObservedParameters", &IterationResult::getNamesOfObservedParameters)
+            .def("getNamesOfCalibrationParameters", &IterationResult::getNamesOfCalibrationParameters)
+            .def("getNamesOfIterationParameters", &IterationResult::getNamesOfIterationParameters)
             ;
 
     class_<IterationResultWrapper, shared_ptr<IterationResultWrapper>, boost::noncopyable>("IterationResult", init<int>())
@@ -40,6 +44,10 @@ void wrapIterationResult()
             .def("getCalibrationParameterResults" , &IterationResult::getCalibrationParameterResults)
             .def("getObjectiveFunctionParameterResults" , &IterationResult::getObjectiveFunctionParameterResults)
             .def("getIterationNumber", &IterationResult::getIterationNumber)
+            .def("getNamesOfObjectiveFunctionParameters", &IterationResult::getNamesOfObjectiveFunctionParameters)
+            .def("getNamesOfObservedParameters", &IterationResult::getNamesOfObservedParameters)
+            .def("getNamesOfCalibrationParameters", &IterationResult::getNamesOfCalibrationParameters)
+            .def("getNamesOfIterationParameters", &IterationResult::getNamesOfIterationParameters)
             ;
 }
 

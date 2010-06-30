@@ -15,12 +15,12 @@ using namespace std;
 
 
 struct ResultHandlerWrapper : public IResultHandler, wrapper<IResultHandler> {
-    ResultHandlerWrapper()
-    {
+    ResultHandlerWrapper() {
+
     }
 
-    virtual ~ResultHandlerWrapper()
-    {
+    virtual ~ResultHandlerWrapper() {
+
     }
 
     bool run(std::vector<shared_ptr<IterationResult> > iterationresults)
@@ -49,6 +49,7 @@ void wrapResultHandlerWrapper()
     python::implicitly_convertible<auto_ptr<ResultHandlerWrapper>, auto_ptr<IResultHandler> >();
     class_<ResultHandlerWrapper, bases<IFunction>, auto_ptr<ResultHandlerWrapper>, boost::noncopyable>("IResultHandler")
             .def("run", pure_virtual(&ResultHandlerWrapper::run))
+            .def("test", &IResultHandler::test)
             ;
 }
 #endif // PYRESULTHANDLERWRAPPER_H
