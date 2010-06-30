@@ -121,3 +121,47 @@ int IterationResult::getIterationNumber()
 {
     return iterationnumber;
 }
+
+vector<string> IterationResult::getNamesOfObjectiveFunctionParameters()
+{
+    vector<string> result;
+
+    std::pair<string, vector<double> >p;
+    BOOST_FOREACH(p, objectivefucntionparameters)
+            result.push_back(p.first);
+
+    return result;
+}
+
+vector<string> IterationResult::getNamesOfObservedParameters()
+{
+    vector<string> result;
+
+    std::pair<string, vector<double> >p;
+    BOOST_FOREACH(p, observedparameters)
+            result.push_back(p.first);
+
+    return result;
+}
+
+vector<string> IterationResult::getNamesOfCalibrationParameters()
+{
+    vector<string> result;
+
+    std::pair<string, vector<double> >p;
+    BOOST_FOREACH(p, calibrationparameters)
+            result.push_back(p.first);
+
+    return result;
+}
+
+vector<string> IterationResult::getNamesOfIterationParameters()
+{
+    vector<string> result;
+
+    std::pair<string, vector<double> >p;
+    BOOST_FOREACH(p, iterationparameters)
+            result.push_back(p.first);
+
+    return result;
+}

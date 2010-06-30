@@ -29,7 +29,7 @@ class CALIMERO_PUBLIC IResultHandler : public IFunction
 
         IResultHandler(){};
         virtual bool run(std::vector<shared_ptr<IterationResult> > iterationresults) = 0;
+        bool test(){Logger(Error) << "test"; return false;};
 };
-
 
 #endif // IRESULTHANDLER_H
