@@ -23,6 +23,7 @@ class DiagramScene : public QGraphicsScene
         double minvaluey;
         double minvaluex;
         double prec;
+        double yscale;
         uint update;
 
     public:

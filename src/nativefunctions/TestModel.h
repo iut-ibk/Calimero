@@ -10,4 +10,10 @@ public:
     bool exec(Domain *dom);
 };
 
+CALIMERO_DECLARE_MODELSIMULATOR(VectorModel)
+public:
+    VectorModel();
+    bool exec(Domain *dom);
+};
+
 #endif // TESTMODEL_H

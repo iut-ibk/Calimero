@@ -205,6 +205,7 @@ void CalibrationEnv::runResultHandler(string name)
     catch(PythonException &exception)
     {
         Logger(Error) << exception.exceptionmsg;
+        Logger(Error) << exception.traceback;
         Logger(Error) << exception.type;
         Logger(Error) << exception.value;
     }

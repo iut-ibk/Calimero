@@ -164,11 +164,6 @@ void MainWindow::setupStateMachine() {
                     calvar_clean->assignProperty(ui->calvar_widget, "enabled", false);
                     calvar_clean->assignProperty(ui->varname,"text", "");
 
-                    calvar_clean->assignProperty(ui->calvarinit,"value",0);
-                    calvar_clean->assignProperty(ui->calvarinit,"minimum",0);
-                    calvar_clean->assignProperty(ui->calvarinit,"maximum",0);
-                    calvar_clean->assignProperty(ui->calvarinit,"singleStep",1);
-
                     calvar_clean->assignProperty(ui->calvarmin,"value",0);
                     calvar_clean->assignProperty(ui->calvarmin,"singleStep",1);
 
@@ -176,9 +171,7 @@ void MainWindow::setupStateMachine() {
                     calvar_clean->assignProperty(ui->calvarmax,"singleStep",1);
 
                     calvar_clean->assignProperty(ui->calvarstep,"value",1);
-                    calvar_clean->assignProperty(ui->calvarstep,"minimum",-1000000000);
-                    calvar_clean->assignProperty(ui->calvarstep,"maximum",1000000000);
-                    calvar_clean->assignProperty(ui->calvarstep,"singleStep",0.0000001);
+                    calvar_clean->assignProperty(ui->calvarstep,"singleStep",0.0001);
                     calvar_clean->assignProperty(ui->del_group,"enabled",false);
 
                     QState *calvar_enabled = new QState(calvar_prop);
@@ -450,7 +443,6 @@ void MainWindow::on_vars_itemClicked ( QListWidgetItem * item )
             ui->calvarmin->setValue(calvar->getMin());
             ui->calvarmax->setValue(calvar->getMax());
             ui->calvarmin->setValue(calvar->getMin());
-            ui->calvarinit->setValue(calvar->getInitValues()[0]);
 
             ui->groups->clear();
             vector<string> groups = calibration->getAllGroups();
@@ -586,8 +578,8 @@ void MainWindow::on_delvar_clicked()
 }
 
 void MainWindow::on_calvarmax_valueChanged(double v) {
-    ui->calvarinit->setMaximum(v);
-    ui->calvarmin->setMaximum(v);
+    if(ui->calvarmin->value() > v)
+        ui->calvarmin->setValue(v);
 
     if(!ui->vars->selectedItems().size())
         return;
@@ -599,7 +591,6 @@ void MainWindow::on_calvarmax_valueChanged(double v) {
 
 void MainWindow::on_calvarstep_valueChanged(double v)
 {
-    ui->calvarinit->setSingleStep(v);
     ui->calvarmax->setSingleStep(v);
     ui->calvarmin->setSingleStep(v);
 
@@ -613,8 +604,8 @@ void MainWindow::on_calvarstep_valueChanged(double v)
 
 void MainWindow::on_calvarmin_valueChanged(double v )
 {
-    ui->calvarinit->setMinimum(v);
-    ui->calvarmax->setMinimum(v);
+    if(ui->calvarmax->value() < v)
+        ui->calvarmax->setValue(v);
 
     if(!ui->vars->selectedItems().size())
         return;
@@ -624,23 +615,22 @@ void MainWindow::on_calvarmin_valueChanged(double v )
     calvar->setMin(v);
 }
 
-void MainWindow::on_calvarinit_valueChanged(double v)
-{
-    if(!ui->vars->selectedItems().size())
-        return;
-
-    QListWidgetItem *item = ui->vars->currentItem();
-    CalibrationVariable* calvar = static_cast<CalibrationVariable*>(CalibrationEnv::getInstance()->getCalibration()->getDomain()->getPar(item->text().toStdString()));
-    vector<double> newvalue(1);
-    newvalue[0]=v;
-    calvar->setInitValues(newvalue);
-}
-
 void MainWindow::on_vardelvalue_clicked()
 {
     QList<QTableWidgetItem *> items = ui->varvalues->selectedItems();
     for(int index=0; index < items.size(); index++)
         ui->varvalues->removeRow(items[index]->row());
+
+    vector<double> newvector(ui->varvalues->rowCount());
+    for(int index=0; index < ui->varvalues->rowCount(); index++)
+        newvector[index]=ui->varvalues->item(index,0)->text().toDouble();
+
+    if(!ui->vars->selectedItems().size())
+        return;
+
+    QListWidgetItem *selecteditem = ui->vars->currentItem();
+    Variable* var = CalibrationEnv::getInstance()->getCalibration()->getDomain()->getPar(selecteditem->text().toStdString());
+    var->setValues(newvector);
 }
 
 void MainWindow::on_varaddvalue_clicked()
@@ -709,6 +699,7 @@ void MainWindow::on_ovarofun_currentIndexChanged(QString name)
         if(fun)
             delete fun;
         Logger(Error) << exception.exceptionmsg;
+        Logger(Error) << exception.traceback;
         Logger(Error) << exception.type;
         Logger(Error) << exception.value;
         QMessageBox::warning(this,tr("Error"),tr("Error in objective function with name: ") + name);
@@ -1018,6 +1009,7 @@ void MainWindow::on_calfun_currentIndexChanged(QString name)
         if(fun)
             delete fun;
         Logger(Error) << exception.exceptionmsg;
+        Logger(Error) << exception.traceback;
         Logger(Error) << exception.type;
         Logger(Error) << exception.value;
         QMessageBox::warning(this,tr("Error"),tr("Error in objective function with name: ") + name);
@@ -1209,6 +1201,7 @@ void MainWindow::on_calsimulation_currentIndexChanged(QString name)
         if(fun)
             delete fun;
         Logger(Error) << exception.exceptionmsg;
+        Logger(Error) << exception.traceback;
         Logger(Error) << exception.type;
         Logger(Error) << exception.value;
         QMessageBox::warning(this,tr("Error"),tr("Error in objective function with name: ") + name);
@@ -1319,11 +1312,51 @@ void MainWindow::updatetimer_timeout()
 
 void MainWindow::updateAll()
 {
-    Calibration *calibration = CalibrationEnv::getInstance()->getCalibration();
+    //update IFunctions
+    //ofunction
+    CalibrationEnv *calibrationenv = CalibrationEnv::getInstance();
+    vector<string> ofunvec = calibrationenv->getObjectiveFunctionReg()->getAvailableFunctions();
+
+    QStringList ofunlist;
+    //no function
+    ofunlist.append(QString::fromStdString(""));
+    BOOST_FOREACH(string name, ofunvec)
+            ofunlist.append(QString::fromStdString(name));
+
+    ui->ovarofun->clear();
+    ui->ovarofun->addItems(ofunlist);
+
+    //calibrationalgorithm
+    vector<string> calfunvec = calibrationenv->getCalibrationAlgReg()->getAvailableFunctions();
+
+    QStringList calfunlist;
+    //no function
+    calfunlist.append(QString::fromStdString(""));
+    BOOST_FOREACH(string name, calfunvec)
+            calfunlist.append(QString::fromStdString(name));
+
+    ui->calfun->clear();
+    ui->calfun->addItems(calfunlist);
+
+    //simulationhandler
+    vector<string> simfunvec = calibrationenv->getModelSimulatorReg()->getAvailableFunctions();
+
+    QStringList simfunlist;
+    //no function
+    simfunlist.append(QString::fromStdString(""));
+    BOOST_FOREACH(string name, simfunvec)
+            simfunlist.append(QString::fromStdString(name));
+
+    ui->calsimulation->clear();
+    ui->calsimulation->addItems(simfunlist);
+
+    //update model
+    Calibration *calibration = calibrationenv->getCalibration();
+
     //update all variables
     on_comboBox_currentIndexChanged ( ui->comboBox->currentIndex() );
 
-    //update calibratinalg
+    //update calibrationalg
     QString functionname = QString::fromStdString(calibration->getCalibrationAlg());
     int index=0;
     while(ui->calfun->itemText(index)!=functionname)
@@ -1384,10 +1417,13 @@ void MainWindow::on_actionopen_activated()
 
 void MainWindow::on_actionsaveas_activated()
 {
-    QString filename = QFileDialog::getSaveFileName(this, tr("Save as"), QDir::homePath());
+    QString filename = QFileDialog::getSaveFileName(this, tr("Save as"), QDir::homePath()+"/untitled.cmp",tr("Calimero project (*.cmp)"));
 
     if(filename.isEmpty())
         return;
+
+    if(!filename.contains(".cmp"))
+        filename += ".cmp";
 
     savefilepath=filename;
     on_actionsave_activated();
@@ -1438,7 +1474,8 @@ void MainWindow::on_actionSchlie_en_activated()
 void MainWindow::on_actionLoad_Python_script_activated()
 {
     try{
-        QString fileName = QFileDialog::getOpenFileName(this,tr("Python script file"), QDir::homePath(), tr("*.py"));
+        QSettings settings;
+        QString fileName = QFileDialog::getOpenFileName(this,tr("Python script file"), settings.value("calimerohome",QDir::homePath()).toString(), tr("*.py"));
         QFileInfo fi(fileName);
 
         if(fileName.isEmpty())
@@ -1449,10 +1486,13 @@ void MainWindow::on_actionLoad_Python_script_activated()
         PyEnv::getInstance()->registerFunctions(CalibrationEnv::getInstance()->getObjectiveFunctionReg(),fi.fileName().replace(".py","").toStdString());
         PyEnv::getInstance()->registerFunctions(CalibrationEnv::getInstance()->getModelSimulatorReg(),fi.fileName().replace(".py","").toStdString());
         PyEnv::getInstance()->registerFunctions(CalibrationEnv::getInstance()->getResultHandlerReg(),fi.fileName().replace(".py","").toStdString());
+        Logger(Standard) << fi.fileName().replace(".py","").toStdString() << " loaded";
+        updateAll();
     }
     catch(PythonException &exception)
     {
         Logger(Error) << exception.exceptionmsg;
+        Logger(Error) << exception.traceback;
         Logger(Error) << exception.type;
         Logger(Error) << exception.value;
         QMessageBox::warning(this,tr("Error"),tr("Not able to load python script file"));

@@ -34,5 +34,6 @@ extern "C"
     {
         registry->registerFunction(new NativeFunctionFactory<ExternalModel>());
         registry->registerFunction(new NativeFunctionFactory<TestModel>());
+        registry->registerFunction(new NativeFunctionFactory<VectorModel>());
     }
 }

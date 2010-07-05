@@ -77,12 +77,49 @@ bool IterationResult::isComplete()
     return complete;
 }
 
+vector<double> IterationResult::getResults(string name)
+{
+    assert(complete);
+
+    vector<double> result;
+
+    if(iterationparameters.find(name)!=iterationparameters.end())
+    {
+        result = getIterationParameterResults(name);
+        return result;
+    }
+
+    if(observedparameters.find(name)!=observedparameters.end())
+    {
+        result = getObservedParameterResults(name);
+        return result;
+    }
+
+    if(calibrationparameters.find(name)!=calibrationparameters.end())
+    {
+        result = getCalibrationParameterResults(name);
+        return result;
+    }
+
+    if(objectivefucntionparameters.find(name)!=objectivefucntionparameters.end())
+    {
+        result = getObjectiveFunctionParameterResults(name);
+        return result;
+    }
+
+    Logger(Error) << "Result container does not contain parameter [" << name << "]";
+    return vector<double>();
+}
+
 vector<double> IterationResult::getIterationParameterResults(string name)
 {
     assert(complete);
 
     if(iterationparameters.find(name)==iterationparameters.end())
+    {
         Logger(Error) << "Result container does not contain parameter [" << name << "]";
+        return vector<double>();
+    }
 
     return iterationparameters[name];
 }
@@ -92,7 +129,10 @@ vector<double> IterationResult::getObservedParameterResults(string name)
     assert(complete);
 
     if(observedparameters.find(name)==observedparameters.end())
+    {
         Logger(Error) << "Result container does not contain parameter [" << name << "]";
+        return vector<double>();
+    }
 
     return observedparameters[name];
 }
@@ -102,7 +142,10 @@ vector<double> IterationResult::getCalibrationParameterResults(string name)
     assert(complete);
 
     if(calibrationparameters.find(name)==calibrationparameters.end())
+    {
         Logger(Error) << "Result container does not contain parameter [" << name << "]";
+        return vector<double>();
+    }
 
     return calibrationparameters[name];
 }
@@ -112,7 +155,10 @@ vector<double> IterationResult::getObjectiveFunctionParameterResults(string name
     assert(complete);
 
     if(objectivefucntionparameters.find(name)==objectivefucntionparameters.end())
+    {
         Logger(Error) << "Result container does not contain parameter [" << name << "]";
+        return vector<double>();
+    }
 
     return objectivefucntionparameters[name];
 }

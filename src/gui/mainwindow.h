@@ -46,7 +46,6 @@ public:
         void on_calvarmax_valueChanged(double );
         void on_calvarmin_valueChanged(double );
         void on_calvarstep_valueChanged(double );
-        void on_calvarinit_valueChanged(double );
         void on_varaddvalue_clicked();
         void on_vardelvalue_clicked();
         void on_varvalues_itemChanged ( QTableWidgetItem * item );

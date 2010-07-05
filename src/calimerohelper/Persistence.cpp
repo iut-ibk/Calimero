@@ -181,8 +181,9 @@ bool Persistence::loadResultHandler()
         if(handler.attribute("enabled").toDouble())
             enabled=true;
 
-        if(!calibration->addResultHandler(handler.attribute("name").toStdString(),functionname.toStdString(),functionparameters,enabled))
-            return false;
+        if(functionname!="")
+            if(!calibration->addResultHandler(handler.attribute("name").toStdString(),functionname.toStdString(),functionparameters,enabled))
+                return false;
     }
     return true;
 }
@@ -217,8 +218,9 @@ bool Persistence::loadModelSimulator()
         if(!loadFunction(functionname,functionparameters,&alg))
             return false;
 
-        if(!calibration->setModelSimulator(functionname.toStdString(),functionparameters))
-            return false;
+        if(functionname!="")
+            if(!calibration->setModelSimulator(functionname.toStdString(),functionparameters))
+                return false;
     }
     return true;
 }
@@ -236,8 +238,9 @@ bool Persistence::loadCalibrationAlgorithm()
         if(!loadFunction(functionname,functionparameters,&alg))
             return false;
 
-        if(!calibration->setCalibrationAlg(functionname.toStdString(),functionparameters))
-            return false;
+        if(functionname!="")
+            if(!calibration->setCalibrationAlg(functionname.toStdString(),functionparameters))
+                return false;
     }
     return true;
 }
@@ -710,8 +713,9 @@ bool Persistence::loadObjectiveFunctionParameters()
         if(!loadFunction(functionname,functionparameters,&parameter))
             return false;
 
-        if(!regparameter->setObjectiveFunction(functionname.toStdString(),functionparameters))
-            return false;
+        if(functionname!="")
+            if(!regparameter->setObjectiveFunction(functionname.toStdString(),functionparameters))
+                return false;
     }
     return true;
 }

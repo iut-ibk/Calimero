@@ -78,7 +78,6 @@ template <typename T> bool Registry<T>::registerFunction(IFunctionFactory* facto
     }
     else
     {
-        Logger(Standard) << factory->getFunctionName() << " reloaded registered function";
         delete registered_factories[factory->getFunctionName()];
         registered_factories[factory->getFunctionName()]=factory;
         return true;

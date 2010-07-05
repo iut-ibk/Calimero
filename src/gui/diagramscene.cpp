@@ -6,8 +6,9 @@
 
 DiagramScene::DiagramScene(QGraphicsView *view)  : QGraphicsScene(view)
 {
-    prec=100;
+    prec=1000;
     update=1;
+    yscale=1;
 }
 
 double DiagramScene::getMinValueX()
@@ -42,63 +43,77 @@ void DiagramScene::setUpdate(uint value)
 
 void DiagramScene::setValues(QMap<QString, QVector<QPointF> > values)
 {
-    clear();
-    mouseline=0;
-
-    for(int index=0; index < value.size(); index++)
-        delete value[value.keys().at(index)];
-
-    value.clear();
-    minvaluex=0;
-    maxvaluex=0;
-    minvaluey=0;
-    maxvaluey=0;
-
-    data=values;
-
-    if(!values.size())
-        return;
-
-    for(int index=0; index < values.size(); index++)
+    bool dirty = true;
+    while(dirty)
     {
-        QPen pen(QColor(((index+1)*948)%200+50,((index+1)*123)%200+50,((index+1)*11)%200+50));
-        QPainterPath tmppath;
-        QVector<QPointF> result = values[values.keys().at(index)];
-        value[data.keys().at(index)] = new QMap<double,double>();
+        clear();
+        mouseline=0;
 
-        for(int pointindex=0; pointindex < result.size(); pointindex++)
+        for(int index=0; index < value.size(); index++)
+            delete value[value.keys().at(index)];
+
+        value.clear();
+        minvaluex=0;
+        maxvaluex=0;
+        minvaluey=0;
+        maxvaluey=0;
+
+        data=values;
+
+        if(!values.size())
+            return;
+
+        for(int index=0; index < values.size(); index++)
         {
-            double x = result[pointindex].x();
-            double y = result[pointindex].y();
-            (*value[data.keys().at(index)])[x]=y;
+            QPen pen(QColor(((index+1)*948)%200+50,((index+1)*123)%200+50,((index+1)*11)%200+50));
+            QPainterPath tmppath;
+            QVector<QPointF> result = values[values.keys().at(index)];
+            value[data.keys().at(index)] = new QMap<double,double>();
 
-            if(!pointindex && !index)
+            for(int pointindex=0; pointindex < result.size(); pointindex++)
             {
-                minvaluex=x;
-                maxvaluex=x;
-                minvaluey=y;
-                maxvaluey=y;
+                double x = result[pointindex].x();
+                double y = result[pointindex].y();
+                (*value[data.keys().at(index)])[x]=y;
+
+                if(!pointindex && !index)
+                {
+                    minvaluex=x;
+                    maxvaluex=x;
+                    minvaluey=y/yscale;
+                    maxvaluey=y/yscale;
+                }
+
+
+                if(!pointindex)
+                    tmppath.moveTo(x*prec,(-y/yscale)*prec);
+                else
+                    tmppath.lineTo(x*prec,(-y/yscale)*prec);
+
+                if(x > maxvaluex)
+                    maxvaluex=x;
+                if(x < minvaluex)
+                    minvaluex=x;
+                if(y/yscale > maxvaluey)
+                    maxvaluey=y/yscale;
+                if(y/yscale < minvaluey)
+                    minvaluey=y/yscale;
             }
 
-
-            if(!pointindex)
-                tmppath.moveTo(x*prec,-y*prec);
-            else
-                tmppath.lineTo(x*prec,-y*prec);
-
-            if(x > maxvaluex)
-                maxvaluex=x;
-            if(x < minvaluex)
-                minvaluex=x;
-            if(y > maxvaluey)
-                maxvaluey=y;
-            if(y < minvaluey)
-                minvaluey=y;
+            addPath(tmppath,pen);
         }
 
-        addPath(tmppath,pen);
-    }
+        dirty = false;
+        double maxyvalue = maxvaluey-minvaluey;
+        double LOWY = 20;
+        double UPPERY = 80;
 
+        if(maxyvalue < LOWY || maxyvalue > UPPERY)
+        {
+            yscale *=maxyvalue/((UPPERY-LOWY)/2+LOWY);
+            dirty = true;
+        }
+    }
     showGrid();
 
     double w , h;
@@ -139,7 +154,7 @@ bool DiagramScene::showGrid()
     //y-axe
     for(double value=minvaluey + stepsize; value <= maxvaluey; value=value+stepsize)
     {
-        QGraphicsSimpleTextItem *text = new QGraphicsSimpleTextItem ( QString::number(value), grid);
+        QGraphicsSimpleTextItem *text = new QGraphicsSimpleTextItem ( QString::number(value*yscale), grid);
         text->setPos((minvaluex*prec+(maxvaluey-minvaluey)/100)*prec,-value*prec);
         text->setFont(font);
     }

@@ -36,6 +36,7 @@ public:
     void setResults(Domain *dom);
     bool isComplete();
     int getIterationNumber();
+    vector<double> getResults(string name);
     vector<double> getIterationParameterResults(string name);
     vector<double> getObservedParameterResults(string name);
     vector<double> getCalibrationParameterResults(string name);
