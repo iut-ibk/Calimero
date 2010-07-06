@@ -19,6 +19,16 @@
 
 namespace po = boost::program_options;
 
+
+class Xsleep : public QThread
+{
+public:
+    static void msleep(int ms)
+    {
+        QThread::msleep(ms);
+    }
+};
+
 int main(int argc, char **argv)
 {
     po::options_description desc("Calimero command line options");
@@ -119,7 +129,7 @@ int main(int argc, char **argv)
             while(CalibrationEnv::getInstance()->isCalibrationRunning())
             {
                 Logger(Standard) << "Complete Iterations: " << CalibrationEnv::getInstance()->getCalibration()->getIterationResults().size();
-                //usleep(1000000);
+                Xsleep::msleep(1000);
             }
 
             persistence.saveCalibration(projectpath);
