@@ -11,4 +11,4 @@ else()
 endif()
 
 INSTALL(TARGETS calimeronativefunctions
-    LIBRARY DESTINATION calimero/functions)
+        LIBRARY DESTINATION calimero)
