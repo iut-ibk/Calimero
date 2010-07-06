@@ -501,7 +501,7 @@
                       <set>QAbstractItemView::AllEditTriggers</set>
                      </property>
                      <attribute name="horizontalHeaderVisible">
-                      <bool>false</bool>
+                      <bool>true</bool>
                      </attribute>
                      <attribute name="horizontalHeaderCascadingSectionResizes">
                       <bool>false</bool>
@@ -513,7 +513,7 @@
                       <number>185</number>
                      </attribute>
                      <attribute name="verticalHeaderVisible">
-                      <bool>false</bool>
+                      <bool>true</bool>
                      </attribute>
                      <attribute name="verticalHeaderDefaultSectionSize">
                       <number>20</number>
@@ -522,7 +522,7 @@
                       <number>20</number>
                      </attribute>
                      <attribute name="verticalHeaderVisible">
-                      <bool>false</bool>
+                      <bool>true</bool>
                      </attribute>
                      <attribute name="verticalHeaderDefaultSectionSize">
                       <number>20</number>
@@ -531,7 +531,7 @@
                       <bool>false</bool>
                      </attribute>
                      <attribute name="horizontalHeaderVisible">
-                      <bool>false</bool>
+                      <bool>true</bool>
                      </attribute>
                      <attribute name="horizontalHeaderMinimumSectionSize">
                       <number>185</number>
@@ -1287,12 +1287,6 @@
            </property>
            <property name="mouseTracking">
             <bool>true</bool>
-           </property>
-           <property name="cacheMode">
-            <set>QGraphicsView::CacheNone</set>
-           </property>
-           <property name="viewportUpdateMode">
-            <enum>QGraphicsView::SmartViewportUpdate</enum>
            </property>
           </widget>
          </item>

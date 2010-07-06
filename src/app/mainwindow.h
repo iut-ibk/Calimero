@@ -7,8 +7,8 @@
 #include <QTimer>
 #include <Persistence.h>
 #include <QCloseEvent>
+#include <Logger.h>
 
-#define DEFAULTLOGLEVEL Standard
 #define UPDATETIME 1000
 
 namespace Ui {
@@ -23,8 +23,8 @@ class ResultAnalysisDialog;
 
 class MainWindow : public QMainWindow {
 Q_OBJECT
-public:
-	MainWindow(QWidget *parent = 0);
+    public:
+        MainWindow(QWidget *parent = 0, QString load_file = "", LogLevel maxlevel = Standard);
 	virtual ~MainWindow();
         void setupStateMachine();
 	Ui::MainWindow *ui;
@@ -34,6 +34,8 @@ public:
         QTimer updatetimer;
         Persistence *persistence;
         QString savefilepath;
+        int sp;
+        int ls;
 
     public Q_SLOTS:
         void on_comboBox_currentIndexChanged ( int index );

@@ -10,7 +10,5 @@ else()
     target_link_libraries(calimeronativefunctions calimerocore ${Boost_THREAD_LIBRARY})
 endif()
 
-
 INSTALL(TARGETS calimeronativefunctions
-    RUNTIME DESTINATION bin
-    LIBRARY DESTINATION lib)
+    LIBRARY DESTINATION calimero/functions)

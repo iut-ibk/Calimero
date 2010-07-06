@@ -20,19 +20,31 @@
 #include <settingsdialog.h>
 
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow){
+MainWindow::MainWindow(QWidget *parent, QString load_file ,LogLevel maxlevel) : QMainWindow(parent), ui(new Ui::MainWindow){
         ui->setupUi(this);
         setupStateMachine();
         log_updater = new GuiLogSink();
-        Log::init(log_updater,DEFAULTLOGLEVEL);
+        Log::init(log_updater,maxlevel);
         ui->log_widget->connect(log_updater, SIGNAL(newLogLine(QString)), SLOT(appendPlainText(QString)), Qt::QueuedConnection);
         this->connect(&updatetimer, SIGNAL(timeout()), SLOT(updatetimer_timeout()));
         ui->diagram_widget->connect(this, SIGNAL(updateDiagram(Calibration *)), SLOT(showResults(Calibration *)), Qt::QueuedConnection);
         persistence = new Persistence(CalibrationEnv::getInstance()->getCalibration());
         savefilepath = "";
+        init();
+
+        if(load_file!="")
+        {
+            if(persistence->loadCalibration(load_file))
+                savefilepath=load_file;
+            else
+                QMessageBox::warning(this,tr("Error"),tr("Could not load file"));
+
+            updateAll();
+        }
 }
 
 MainWindow::~MainWindow() {
+        Log::shutDown();
 	delete ui;
         delete persistence;
         delete resultanalysis;
@@ -187,9 +199,8 @@ void MainWindow::setupStateMachine() {
                 ovar_prop->addTransition(this, SIGNAL(show_calvar()), calvar_prop);
                 calvar_prop->addTransition(this, SIGNAL(show_ovar()), ovar_prop);
                 calvar_prop->addTransition(this, SIGNAL(show_var()), var_prop);
-                init->addTransition(this, SIGNAL(start_gui()),tab_states);
+                init->addTransition(tab_states);
 
-                QObject::connect(init,SIGNAL(entered()),this,SLOT(init()));
                 QObject::connect(var_clean,SIGNAL(entered()),ui->varvalues, SLOT(clearContents()));
                 QObject::connect(ovar_clean,SIGNAL(entered()),ui->ovarmembers, SLOT(clear()));
                 QObject::connect(calvar_clean,SIGNAL(entered()),ui->groups, SLOT(clear()));
@@ -271,6 +282,12 @@ void MainWindow::setupStateMachine() {
 
 void MainWindow::init()
 {
+    QSettings settings;
+    PyFunctionLoader::loadScripts("./");
+    PyFunctionLoader::loadScripts(settings.value("calimerohome","./").toString().toStdString());
+    FunctionLoader::loadNative("./");
+    FunctionLoader::loadNative(settings.value("calimerohome","./").toString().toStdString());
+
     Logger(Debug) << "init called";
 
     CalibrationEnv *calibrationenv = CalibrationEnv::getInstance();
@@ -1297,7 +1314,6 @@ void MainWindow::updatetimer_timeout()
     {
         updatetimer.stop();
         Q_EMIT notrunning();
-
         Q_EMIT updateDiagram(CalibrationEnv::getInstance()->getCalibration());
     }
     else

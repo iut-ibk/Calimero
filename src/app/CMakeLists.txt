@@ -11,12 +11,17 @@ SET(MOC_HEADERS mainwindow.h
                 resultanalysisdialog.h
                 settingsdialog.h)
 QT4_WRAP_CPP(GUI_CPP ${MOC_HEADERS})
-#QT4_ADD_RESOURCES(GUI_CPP ../../data/resources/calimero-gui.qrc)
 
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
-ADD_EXECUTABLE(calimero-gui WIN32 ${GUI_CPP}) # ../app/saxloader.cpp)
-TARGET_LINK_LIBRARIES(calimero-gui calimerocore pycalimero calimerohelper ${QT_QTGUI_LIBRARY} ${QT_QTMAIN_LIBRARY})
+ADD_EXECUTABLE(calimero WIN32 ${GUI_CPP})
 
-INSTALL(TARGETS calimero-gui RUNTIME DESTINATION bin)
+
+IF (${CMAKE_CXX_COMPILER_ID} STREQUAL GNU)
+        TARGET_LINK_LIBRARIES(calimero calimerocore pycalimero calimerohelper ${QT_QTGUI_LIBRARY} ${Boost_PROGRAM_OPTIONS_LIBRARY} ${QT_QTMAIN_LIBRARY})
+ELSE()
+        TARGET_LINK_LIBRARIES(calimero calimerocore pycalimero calimerohelper ${QT_QTGUI_LIBRARY}  ${QT_QTMAIN_LIBRARY})
+ENDIF()
+
+INSTALL(TARGETS calimero RUNTIME DESTINATION bin)

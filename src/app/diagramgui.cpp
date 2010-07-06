@@ -7,6 +7,7 @@
 #include <Calibration.h>
 #include <IterationResult.h>
 #include <boost/shared_ptr.hpp>
+//#include <QtOpenGL/QGLWidget>
 
 #include <iostream>
 
@@ -27,6 +28,8 @@ void DiagramGui::resizeEvent ( QResizeEvent * event)
 DiagramGui::DiagramGui(QWidget *parent) : QGraphicsView(parent)
 {
     //creating cotextmenue
+    //setViewport(new QGLWidget);
+    //setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing | QPainter::HighQualityAntialiasing | QPainter::NonCosmeticDefaultPen);
     menu = new QMenu(this);
     actionminvar = new QAction(tr("Compare parameters"),menu);
     actioncalvar = new QAction(tr("Calibration parameters"),menu);
