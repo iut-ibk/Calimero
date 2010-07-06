@@ -119,7 +119,7 @@ int main(int argc, char **argv)
             while(CalibrationEnv::getInstance()->isCalibrationRunning())
             {
                 Logger(Standard) << "Complete Iterations: " << CalibrationEnv::getInstance()->getCalibration()->getIterationResults().size();
-                usleep(1000000);
+                //usleep(1000000);
             }
 
             persistence.saveCalibration(projectpath);
