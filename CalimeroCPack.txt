@@ -1,5 +1,5 @@
 SET(CPACK_GENERATOR "STGZ;DEB")
-SET(CPACK_NSIS_DISPLAY_NAME "CityDrain3")
+SET(CPACK_NSIS_DISPLAY_NAME "Calimero")
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "CALIMERO - A model independent and generalised tool for autocalibration")
 SET(CPACK_PACKAGE_NAME "calimero")
 SET(CPACK_PACKAGE_VENDOR "University of Innsbruck")
