@@ -11,17 +11,18 @@ IF (${CMAKE_CXX_COMPILER_ID} STREQUAL GNU)
         SET(CMAKE_CXX_FLAGS "-g -Wall")
 ENDIF()
 
-
 INCLUDE_DIRECTORIES(src/calimerocore
                     src/python
                     src/nativefunctions
                     src/calimerohelper
                     )
 
+
 FIND_PACKAGE(Qt4 REQUIRED)
 
 FIND_PACKAGE(Boost 1.41.0 COMPONENTS system signals python program_options thread date_time filesystem REQUIRED)
-SET(Boost_USE_STATIC_LIBS ON)
+
+#SET(Boost_USE_STATIC_LIBS ON)
 ADD_DEFINITIONS(${Boost_LIB_DIAGNOSTIC_DEFINITIONS})
 SET(Boost_USE_MULTITHREADED ON)
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})

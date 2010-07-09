@@ -21,7 +21,7 @@ ADD_EXECUTABLE(calimero WIN32 ${GUI_CPP})
 IF (${CMAKE_CXX_COMPILER_ID} STREQUAL GNU)
         TARGET_LINK_LIBRARIES(calimero calimerocore pycalimero calimerohelper ${QT_QTGUI_LIBRARY} ${Boost_PROGRAM_OPTIONS_LIBRARY} ${QT_QTMAIN_LIBRARY})
 ELSE()
-        TARGET_LINK_LIBRARIES(calimero calimerocore pycalimero calimerohelper ${QT_QTGUI_LIBRARY}  ${QT_QTMAIN_LIBRARY})
+        TARGET_LINK_LIBRARIES(calimero calimerocore pycalimero calimerohelper ${QT_QTMAIN_LIBRARY})
 ENDIF()
 
 INSTALL(TARGETS calimero RUNTIME DESTINATION bin)

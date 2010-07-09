@@ -18,6 +18,7 @@
 #define DEFAULTLOGLEVEL Standard
 
 namespace po = boost::program_options;
+using namespace std;
 
 
 class Xsleep : public QThread
@@ -40,7 +41,6 @@ int main(int argc, char **argv)
             ("maxlog,v", po::value<int>(), "max loglevel\n0 all debug\n1 all standard\n2 all warnings\n3 only errors")
             ("project,p", po::value<std::string>(), "project which specifies a calibration");
     ;
-
 
     boost::program_options::positional_options_description p;
     p.add("project", 1);
