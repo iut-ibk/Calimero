@@ -37,7 +37,6 @@ else ()
         MESSAGE(STATUS Release)
 endif()
 
-
 MESSAGE(STATUS ${CMAKE_CXX_COMPILER_ID})
 SET(QT_USE_QTXML true)
 SET(QT_USE_QTSVG true)
