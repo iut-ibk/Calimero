@@ -20,7 +20,7 @@ void PyFunctionLoader::loadScripts(const string &path)
 
         QString file = fileInfo.fileName();
 
-        if(!file.contains(".py") || file.contains(".pyc"))
+        if(!file.contains(".py") || file.contains(".pyc") || file.contains(".pyd"))
             continue;
 
         try
