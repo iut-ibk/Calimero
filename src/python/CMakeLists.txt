@@ -17,5 +17,9 @@ else()
 )
 endif()
 
-INSTALL(TARGETS pycalimero LIBRARY DESTINATION lib)
-INSTALL(TARGETS pycalimero LIBRARY DESTINATION calimero)
+INSTALL(TARGETS pycalimero
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib)
+INSTALL(TARGETS pycalimero
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION calimero)
