@@ -11,4 +11,5 @@ else()
 endif()
 
 INSTALL(TARGETS calimeronativefunctions
-            LIBRARY DESTINATION calimero)
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION calimero)
