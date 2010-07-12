@@ -14,7 +14,6 @@ from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4agg import NavigationToolbar2QTAgg as NavigationToolbar
 from mpl_toolkits.axes_grid.axislines import SubplotZero
 from matplotlib.figure import Figure
-from ubuntuone.syncdaemon.sync import loglevel
 import numpy as np
 import math
 from calimeropublic import findBestIterationNumber

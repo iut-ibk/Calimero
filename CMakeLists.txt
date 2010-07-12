@@ -17,7 +17,6 @@ INCLUDE_DIRECTORIES(src/calimerocore
                     src/calimerohelper
                     )
 
-
 FIND_PACKAGE(Qt4 REQUIRED)
 
 FIND_PACKAGE(Boost 1.41.0 COMPONENTS system signals python program_options thread date_time filesystem REQUIRED)
