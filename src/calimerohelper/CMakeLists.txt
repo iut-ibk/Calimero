@@ -13,5 +13,5 @@ endif()
 
 
 INSTALL(TARGETS calimerohelper 
-    RUNTIME DESTINATION bin
-    LIBRARY DESTINATION lib)
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib)
