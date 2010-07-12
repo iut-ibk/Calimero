@@ -147,7 +147,7 @@ template <typename T> bool Registry<T>::addNativePlugin(const std::string &plugi
         if (regFunction) {
                 regFunction(this);
         } else {
-                Logger(Warning) << plugin_path << " has no function register hook";
+                Logger(Debug) << plugin_path << " has no function register hook";
                 return false;
         }
         return true;

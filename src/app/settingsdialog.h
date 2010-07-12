@@ -19,7 +19,9 @@ public:
     virtual ~SettingsDialog();
 
 public Q_SLOTS:
-    void on_b_path_clicked();
+    void on_add_path_clicked();
+    void on_del_path_clicked();
+    void on_paths_itemSelectionChanged ();
     void on_b_save_rejected();
     void on_b_save_accepted();
 };

@@ -3,14 +3,19 @@
 #include <QtCore>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QStringList>
 
 
 SettingsDialog::SettingsDialog(QWidget *parent) : QDialog(parent)
 {
     ui = new Ui::SettingsDialog();
     ui->setupUi(this);
+    ui->del_path->setEnabled(false);
     QSettings settings;
-    ui->path->setText(settings.value("calimerohome").toString());
+    QStringList pathlist = settings.value("calimerohome",QStringList()).toStringList();
+
+    for (int index = 0; index < pathlist.size(); index++)
+        ui->paths->addItem(pathlist.at(index));
 }
 
 SettingsDialog::~SettingsDialog()
@@ -22,10 +27,13 @@ void SettingsDialog::on_b_save_accepted()
 {
     QSettings settings;
 
-    //save calimero home
-    QFileInfo info(ui->path->text());
-    if(info.dir().exists())
-        settings.setValue("calimerohome",ui->path->text());
+    //save calimero paths
+    QStringList pathstringlist;
+    for(int index=0; index < ui->paths->count(); index++ )
+        pathstringlist.append(ui->paths->item(index)->text());
+
+
+    settings.setValue("calimerohome",pathstringlist);
     QMessageBox::information(this, tr("Calimero options..."), tr("Please restart calimero."));
     this->close();
 }
@@ -35,15 +43,31 @@ void SettingsDialog::on_b_save_rejected()
     this->close();
 }
 
-void SettingsDialog::on_b_path_clicked()
+void SettingsDialog::on_add_path_clicked()
 {
-    QFileInfo info(ui->path->text());
     QString path = QDir::current().path();
-    if (info.dir().exists())
-            path = info.dir().path();
 
     QString name = QFileDialog::getExistingDirectory(this,tr("Choose Directory"),path);
 
     if (!name.isEmpty())
-        ui->path->setText(name);
+    {
+        QFileInfo info(name);
+        if(info.dir().exists())
+            ui->paths->addItem(name);
+    }
+}
+
+void SettingsDialog::on_del_path_clicked()
+{
+    QList<QListWidgetItem *> list = ui->paths->selectedItems ();
+    for(int index=0; index < list.size(); index++ )
+        delete list.at(index);
+}
+
+void SettingsDialog::on_paths_itemSelectionChanged ()
+{
+    if(!ui->paths->selectedItems().size())
+        ui->del_path->setEnabled(false);
+    else
+        ui->del_path->setEnabled(true);
 }

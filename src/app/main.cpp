@@ -14,6 +14,7 @@
 #include <QTime>
 #include <boost/foreach.hpp>
 #include <boost/program_options.hpp>
+#include <PyEnv.h>
 
 #define DEFAULTLOGLEVEL Standard
 
@@ -111,10 +112,16 @@ int main(int argc, char **argv)
 
             //load scripts
             QSettings settings;
-            PyFunctionLoader::loadScripts("./");
-            PyFunctionLoader::loadScripts(settings.value("calimerohome","./").toString().toStdString());
-            FunctionLoader::loadNative("./");
-            FunctionLoader::loadNative(settings.value("calimerohome","./").toString().toStdString());
+            QStringList pathlist = settings.value("calimerohome",QStringList()).toStringList();
+
+            for (int index = 0; index < pathlist.size(); index++)
+                PyEnv::getInstance()->addPythonPath(pathlist.at(index).toStdString());
+
+            for (int index = 0; index < pathlist.size(); index++)
+            {
+                PyFunctionLoader::loadScripts(pathlist.at(index).toStdString());
+                FunctionLoader::loadNative(pathlist.at(index).toStdString());
+            }
 
             Logger(Standard) << "Loading file project:" << vm["project"].as<std::string>();
             Persistence persistence(CalibrationEnv::getInstance()->getCalibration());

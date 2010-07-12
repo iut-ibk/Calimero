@@ -52,6 +52,7 @@ ADD_SUBDIRECTORY(src/python)
 ADD_SUBDIRECTORY(src/nativefunctions)
 ADD_SUBDIRECTORY(src/app)
 ADD_SUBDIRECTORY(src/calimerohelper)
+ADD_SUBDIRECTORY(src/registryapp)
 ADD_SUBDIRECTORY(scripts)
 
 INCLUDE(CalimeroCPack.txt)
