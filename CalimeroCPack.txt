@@ -38,7 +38,7 @@ IF(WIN32 AND NOT UNIX)
         ${CMAKE_BINARY_DIR}/pycalimero.pyd)
 
 
-    MESSAGE(STATUS ${PYDFILES})
+    MESSAGE(STATUS "PYD FILES: "${PYDFILES})
 
     FILE(GLOB MANIFEST
         "*.manifest")
