@@ -35,14 +35,14 @@ IF(WIN32 AND NOT UNIX)
     SET(CPACK_NSIS_DISPLAY_NAME "Calimero")
     SET(CPACK_NSIS_CONTACT "michael.mair@uibk.ac.at")
     FILE(GLOB PYDFILES
-        ${CMAKE_BINARY_DIR}/*.pyd)
+        *.pyd)
     FILE(GLOB MANIFEST
-        ${CMAKE_BINARY_DIR}/*.manifest)
+        *.manifest)
     FILE(GLOB DLLS
-        ${QT_BINARY_DIR}/QtCore4.dll
-        ${QT_BINARY_DIR}/QtGui4.dll
-        ${QT_BINARY_DIR}/QtXml4.dll
-        ${QT_BINARY_DIR}/QtSvg4.dll
+        ${QT_BINARY_DIR}/Q*4.dll
+        ${QT_BINARY_DIR}/Q*4.dll
+        ${QT_BINARY_DIR}/Q*4.dll
+        ${QT_BINARY_DIR}/Q*4.dll
         ${QT_PLUINGS_DIR}/imageformats/qsvg4.dll
         ${Boost_LIBRARY_DIRS}/boost_signals-*-mt-1_*.dll
         ${Boost_LIBRARY_DIRS}/boost_thread-*-mt-1_*.dll
