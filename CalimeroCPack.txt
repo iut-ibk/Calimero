@@ -34,11 +34,9 @@ IF(WIN32 AND NOT UNIX)
     SET(CPACK_GENERATOR "NSIS")
     SET(CPACK_NSIS_DISPLAY_NAME "Calimero")
     SET(CPACK_NSIS_CONTACT "michael.mair@uibk.ac.at")
-    FILE(GLOB PYDFILES
-        ${CMAKE_BINARY_DIR}/pycalimero.pyd)
+    INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/pycalimero.py DESTINATION calimero)
 
-
-    MESSAGE(STATUS "PYD FILES: "${PYDFILES})
+    MESSAGE(STATUS "PYD FILES: " ${CMAKE_CURRENT_BINARY_DIR}/pycalimero.py)
 
     FILE(GLOB MANIFEST
         "*.manifest")
