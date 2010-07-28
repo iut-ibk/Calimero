@@ -35,14 +35,18 @@ IF(WIN32 AND NOT UNIX)
     SET(CPACK_NSIS_DISPLAY_NAME "Calimero")
     SET(CPACK_NSIS_CONTACT "michael.mair@uibk.ac.at")
     FILE(GLOB PYDFILES
-        *.pyd)
+        ${CMAKE_BINARY_DIR}/pycalimero.pyd)
+
+
+    MESSAGE(STATUS ${PYDFILES})
+
     FILE(GLOB MANIFEST
-        *.manifest)
+        "*.manifest")
     FILE(GLOB DLLS
-        ${QT_BINARY_DIR}/Q*4.dll
-        ${QT_BINARY_DIR}/Q*4.dll
-        ${QT_BINARY_DIR}/Q*4.dll
-        ${QT_BINARY_DIR}/Q*4.dll
+        ${QT_BINARY_DIR}/QtCore4.dll
+        ${QT_BINARY_DIR}/QtGui4.dll
+        ${QT_BINARY_DIR}/QtXml4.dll
+        ${QT_BINARY_DIR}/QtSvg4.dll
         ${QT_PLUINGS_DIR}/imageformats/qsvg4.dll
         ${Boost_LIBRARY_DIRS}/boost_signals-*-mt-1_*.dll
         ${Boost_LIBRARY_DIRS}/boost_thread-*-mt-1_*.dll
@@ -56,8 +60,9 @@ IF(WIN32 AND NOT UNIX)
     INSTALL(FILES ${PYDFILES} DESTINATION calimero)
     INSTALL(FILES ${MANIFEST} DESTINATION bin)
 
-    SET(CPACK_PACKAGE_EXECUTABLES "calimero;Calimero")
+
 ENDIF()
 
+SET(CPACK_PACKAGE_EXECUTABLES "calimero;Calimero")
 INCLUDE(CPack)
 
