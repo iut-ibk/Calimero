@@ -32,9 +32,9 @@ endif()
 IF(WIN32 AND NOT UNIX)
   SET(CPACK_GENERATOR "NSIS")
   SET(CPACK_NSIS_CONTACT "michael.mair@uibk.ac.at")
+  file(GLOB PYDFILES C:/Users/c815/.hudson/jobs/CalimeroPython/workspace/build/*.pyd)
   file(GLOB MANIFEST
-	${CMAKE_CURRENT_BINARY_DIR}/*.manifest)
-  install(FILES ${MANIFEST} DESTINATION bin)
+	${CMAKE_CURRENT_BINARY_DIR}/*.manifest) 
   file(GLOB DLLS
 	${QT_BINARY_DIR}/QtCore4.dll
 	${QT_BINARY_DIR}/QtGui4.dll
@@ -49,6 +49,8 @@ IF(WIN32 AND NOT UNIX)
 	${Boost_LIBRARY_DIRS}/boost_system-*-mt-1_*.dll
 	${Boost_LIBRARY_DIRS}/boost_filesystem-*-mt-1_*.dll)
   install(FILES ${DLLS} DESTINATION bin)
+  install(FILES ${PYDFILES} DESTINATION calimero)
+  install(FILES ${MANIFEST} DESTINATION bin)
   SET(CPACK_PACKAGE_EXECUTABLES "calimero;Calimero")
 ENDIF()
 INCLUDE(CPack)
