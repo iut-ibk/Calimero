@@ -34,12 +34,15 @@ IF(WIN32 AND NOT UNIX)
     SET(CPACK_GENERATOR "NSIS")
     SET(CPACK_NSIS_DISPLAY_NAME "Calimero")
     SET(CPACK_NSIS_CONTACT "michael.mair@uibk.ac.at")
-    INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/pycalimero.py DESTINATION calimero)
+    INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/pycalimero.pyd DESTINATION calimero)
 
-    MESSAGE(STATUS "PYD FILES: " ${CMAKE_CURRENT_BINARY_DIR}/pycalimero.py)
+    INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/pycalimero.dll.manifest DESTINATION bin)
+    INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/calimero.exe.manifest DESTINATION bin)
+    INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/calimerocore.dll..manifest DESTINATION bin)
+    INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/calimeronativefunctions.dll.manifest DESTINATION bin)
+    INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/regapp.exe.manifest DESTINATION bin)
+    INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/calimerohelper.dll.manifest DESTINATION bin)
 
-    FILE(GLOB MANIFEST
-        "*.manifest")
     FILE(GLOB DLLS
         ${QT_BINARY_DIR}/QtCore4.dll
         ${QT_BINARY_DIR}/QtGui4.dll
