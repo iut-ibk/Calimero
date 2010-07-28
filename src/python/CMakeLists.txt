@@ -16,7 +16,3 @@ else()
         PREFIX ""
 )
 endif()
-
-INSTALL(TARGETS pycalimero
-        RUNTIME DESTINATION bin
-        LIBRARY DESTINATION calimero)
