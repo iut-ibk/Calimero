@@ -7,6 +7,7 @@
 #include <CalibrationEnv.h>
 #include <IterationResult.h>
 #include <QRegExp>
+#include <Exception.h>
 
 ModelSimRunnable::ModelSimRunnable(vector<CalibrationVariable*> newcalpars,
                                    Calibration *calibration)
@@ -71,10 +72,24 @@ void ModelSimRunnable::run()
     if(!sim)
         return;
 
-    if(!sim->exec(dom))
+    try
     {
-        Logger(Error) << "Could not execute \"Model\"";
-        CalibrationEnv::getInstance()->stopCalibration();
+        if(!sim->exec(dom))
+        {
+            Logger(Error) << "Could not execute \"Model\"";
+            CalibrationEnv::getInstance()->stopCalibration();
+        }
+    }
+    catch(const PythonException &exception)
+    {
+        Logger(Error) << exception.exceptionmsg;
+        Logger(Error) << exception.type;
+        Logger(Error) << exception.traceback;
+        Logger(Error) << exception.value;
+    }
+    catch (CalimeroException e)
+    {
+        Logger(Error) << e.exceptionmsg;
     }
 
     //clean sim

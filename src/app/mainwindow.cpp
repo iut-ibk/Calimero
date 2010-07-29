@@ -393,7 +393,7 @@ void MainWindow::on_newvar_clicked()
 void MainWindow::on_comboBox_templates_currentIndexChanged(int index)
 {
     ui->templates->clear();
-    VARTYPE type;
+    VARTYPE type = CALIBRATIONVARIABLE;
 
     switch(index)
     {
@@ -535,8 +535,10 @@ void MainWindow::on_vars_itemClicked ( QListWidgetItem * item )
             }
             catch (PythonException e)
             {
+                Logger(Error) << e.exceptionmsg;
                 Logger(Error) << e.type;
                 Logger(Error) << e.value;
+                Logger(Error) << e.traceback;
             }
 
             for(i=0; i < vec.size(); i++)
@@ -1033,31 +1035,45 @@ void MainWindow::on_calfun_currentIndexChanged(QString name)
         Logger(Error) << exception.traceback;
         Logger(Error) << exception.type;
         Logger(Error) << exception.value;
-        QMessageBox::warning(this,tr("Error"),tr("Error in objective function with name: ") + name);
+        QMessageBox::warning(this,tr("Error"),tr("Error in calibration algorithm function with name: ") + name);
     }
     catch(CalimeroException &exception)
     {
         if(fun)
             delete fun;
         Logger(Error) << exception.exceptionmsg;
-        QMessageBox::warning(this,tr("Error"),tr("Error in objective function with name: ") + name);
+        QMessageBox::warning(this,tr("Error"),tr("Error in calibration algorithm function with name: ") + name);
     }
 }
 
 void MainWindow::on_button_calfun_advanced_clicked()
 {
-    Calibration* calibration = CalibrationEnv::getInstance()->getCalibration();
-    ICalibrationAlg *function = CalibrationEnv::getInstance()->getCalibrationAlgReg()->getFunction(calibration->getCalibrationAlg());
-    function->setValues(calibration->getCalibrationAlgSettings());
-    FunctionParametersDialog np(function);
-
-    if(np.exec())
+    try
     {
-        np.updateFunctionParameters();
-        calibration->setCalibrationAlg(calibration->getCalibrationAlg(),function->getParameterValues());
-    }
+        Calibration* calibration = CalibrationEnv::getInstance()->getCalibration();
+        ICalibrationAlg *function = CalibrationEnv::getInstance()->getCalibrationAlgReg()->getFunction(calibration->getCalibrationAlg());
+        function->setValues(calibration->getCalibrationAlgSettings());
+        FunctionParametersDialog np(function);
 
-    delete function;
+        if(np.exec())
+        {
+            np.updateFunctionParameters();
+            calibration->setCalibrationAlg(calibration->getCalibrationAlg(),function->getParameterValues());
+        }
+
+        delete function;
+    }
+    catch(PythonException &exception)
+    {
+        Logger(Error) << exception.exceptionmsg;
+        Logger(Error) << exception.traceback;
+        Logger(Error) << exception.type;
+        Logger(Error) << exception.value;
+    }
+    catch(CalimeroException &exception)
+    {
+        Logger(Error) << exception.exceptionmsg;
+    }
 }
 
 void MainWindow::on_cal_ofunction_itemSelectionChanged()
@@ -1225,31 +1241,45 @@ void MainWindow::on_calsimulation_currentIndexChanged(QString name)
         Logger(Error) << exception.traceback;
         Logger(Error) << exception.type;
         Logger(Error) << exception.value;
-        QMessageBox::warning(this,tr("Error"),tr("Error in objective function with name: ") + name);
+        QMessageBox::warning(this,tr("Error"),tr("Error in model simulator function with name: ") + name);
     }
     catch(CalimeroException &exception)
     {
         if(fun)
             delete fun;
         Logger(Error) << exception.exceptionmsg;
-        QMessageBox::warning(this,tr("Error"),tr("Error in objective function with name: ") + name);
+        QMessageBox::warning(this,tr("Error"),tr("Error in model simulator function with name: ") + name);
     }
 }
 
 void MainWindow::on_button_calsimulation_advanced_clicked()
 {
-    Calibration* calibration = CalibrationEnv::getInstance()->getCalibration();
-    IModelSimulator *function = CalibrationEnv::getInstance()->getModelSimulatorReg()->getFunction(calibration->getModelSimulator());
-    function->setValues(calibration->getModelSimulatorSettings());
-    FunctionParametersDialog np(function);
-
-    if(np.exec())
+    try
     {
-        np.updateFunctionParameters();
-        calibration->setModelSimulator(calibration->getModelSimulator(),function->getParameterValues());
-    }
+        Calibration* calibration = CalibrationEnv::getInstance()->getCalibration();
+        IModelSimulator *function = CalibrationEnv::getInstance()->getModelSimulatorReg()->getFunction(calibration->getModelSimulator());
+        function->setValues(calibration->getModelSimulatorSettings());
+        FunctionParametersDialog np(function);
 
-    delete function;
+        if(np.exec())
+        {
+            np.updateFunctionParameters();
+            calibration->setModelSimulator(calibration->getModelSimulator(),function->getParameterValues());
+        }
+
+        delete function;
+    }
+    catch(const PythonException &exception)
+    {
+        Logger(Error) << exception.exceptionmsg;
+        Logger(Error) << exception.type;
+        Logger(Error) << exception.traceback;
+        Logger(Error) << exception.value;
+    }
+    catch (CalimeroException e)
+    {
+        Logger(Error) << e.exceptionmsg;
+    }
 }
 
 void MainWindow::groups_visible_entered()
@@ -1283,20 +1313,34 @@ void MainWindow::show_cal_ofun()
 
 void MainWindow::on_ovaradvanced_clicked()
 {
-    Calibration* calibration = CalibrationEnv::getInstance()->getCalibration();
-    ObjectiveFunctionVariable *var = static_cast<ObjectiveFunctionVariable*>(calibration->getDomain()->getPar(ui->vars->currentItem()->text().toStdString()));
-    
-    IObjectiveFunction *function = CalibrationEnv::getInstance()->getObjectiveFunctionReg()->getFunction(var->getObjectiveFunction());
-    function->setValues(var->getObjectiveFunctionSettings());
-    FunctionParametersDialog np(function);
-
-    if(np.exec())
+    try
     {
-        np.updateFunctionParameters();
-        var->setObjectiveFunction(var->getObjectiveFunction(),function->getParameterValues());
-    }
+        Calibration* calibration = CalibrationEnv::getInstance()->getCalibration();
+        ObjectiveFunctionVariable *var = static_cast<ObjectiveFunctionVariable*>(calibration->getDomain()->getPar(ui->vars->currentItem()->text().toStdString()));
 
-    delete function;
+        IObjectiveFunction *function = CalibrationEnv::getInstance()->getObjectiveFunctionReg()->getFunction(var->getObjectiveFunction());
+        function->setValues(var->getObjectiveFunctionSettings());
+        FunctionParametersDialog np(function);
+
+        if(np.exec())
+        {
+            np.updateFunctionParameters();
+            var->setObjectiveFunction(var->getObjectiveFunction(),function->getParameterValues());
+        }
+
+        delete function;
+    }
+    catch(const PythonException &exception)
+    {
+        Logger(Error) << exception.exceptionmsg;
+        Logger(Error) << exception.type;
+        Logger(Error) << exception.traceback;
+        Logger(Error) << exception.value;
+    }
+    catch (CalimeroException e)
+    {
+        Logger(Error) << e.exceptionmsg;
+    }
 }
 
 void MainWindow::on_calstop_clicked()

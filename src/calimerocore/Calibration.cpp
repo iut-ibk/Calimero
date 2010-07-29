@@ -10,6 +10,7 @@
 #include <Domain.h>
 #include <assert.h>
 #include <boost/shared_ptr.hpp>
+#include <Exception.h>
 
 using namespace boost;
 
@@ -74,19 +75,34 @@ bool Calibration::setCalibrationAlg(string ca, map<string,string>  settings)
         return false;
     }
 
-    ICalibrationAlg *testalg = CalibrationEnv::getInstance()->getCalibrationAlgReg()->getFunction(ca);
+    try
+    {
+        ICalibrationAlg *testalg = CalibrationEnv::getInstance()->getCalibrationAlgReg()->getFunction(ca);
 
-    std::pair<string,string> p;
-    BOOST_FOREACH(p,settings)
-            if(!testalg->containsParameter(p.first))
-            {
-                delete testalg;
-                Logger(Error) <<  "Wrong values for \"" << ca << "\"";
-                return false;
-            }
-    alg=ca;
-    algsettings=settings;
-    return true;
+        std::pair<string,string> p;
+        BOOST_FOREACH(p,settings)
+                if(!testalg->containsParameter(p.first))
+                {
+                    delete testalg;
+                    Logger(Error) <<  "Wrong values for \"" << ca << "\"";
+                    return false;
+                }
+        alg=ca;
+        algsettings=settings;
+        return true;
+    }
+    catch(PythonException &exception)
+    {
+        Logger(Error) << exception.exceptionmsg;
+        Logger(Error) << exception.traceback;
+        Logger(Error) << exception.type;
+        Logger(Error) << exception.value;
+    }
+    catch(CalimeroException &exception)
+    {
+        Logger(Error) << exception.exceptionmsg;
+    }
+    return false;
 }
 
 bool Calibration::setModelSimulator(string ms, map<string,string> settings)
@@ -98,19 +114,34 @@ bool Calibration::setModelSimulator(string ms, map<string,string> settings)
         return false;
     }
 
-    IModelSimulator *testsim = CalibrationEnv::getInstance()->getModelSimulatorReg()->getFunction(ms);
+    try{
 
-    std::pair<string,string> p;
-    BOOST_FOREACH(p,settings)
-            if(!testsim->containsParameter(p.first))
-            {
-                delete testsim;
-                Logger(Error) <<  "Wrong values for \"" << ms << "\"";
-                return false;
-            }
-    simulator=ms;
-    modelsimulatorsettings=settings;
-    return true;
+        IModelSimulator *testsim = CalibrationEnv::getInstance()->getModelSimulatorReg()->getFunction(ms);
+
+        std::pair<string,string> p;
+        BOOST_FOREACH(p,settings)
+                if(!testsim->containsParameter(p.first))
+                {
+                    delete testsim;
+                    Logger(Error) <<  "Wrong values for \"" << ms << "\"";
+                    return false;
+                }
+        simulator=ms;
+        modelsimulatorsettings=settings;
+        return true;
+    }
+    catch(const PythonException &exception)
+    {
+        Logger(Error) << exception.exceptionmsg;
+        Logger(Error) << exception.type;
+        Logger(Error) << exception.traceback;
+        Logger(Error) << exception.value;
+    }
+    catch (CalimeroException e)
+    {
+        Logger(Error) << e.exceptionmsg;
+    }
+    return false;
 }
 
 string Calibration::getCalibrationAlg()

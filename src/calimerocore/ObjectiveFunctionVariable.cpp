@@ -169,6 +169,13 @@ bool ObjectiveFunctionVariable::calc()
         values=tmpfunction->eval(iterationvector,observedvector,objectivevector);
         delete tmpfunction;
     }
+    catch(const PythonException &exception)
+    {
+        Logger(Error) << exception.exceptionmsg;
+        Logger(Error) << exception.type;
+        Logger(Error) << exception.traceback;
+        Logger(Error) << exception.value;
+    }
     catch (CalimeroException e)
     {
         Logger(Error) << e.exceptionmsg;
@@ -200,19 +207,34 @@ bool ObjectiveFunctionVariable::setObjectiveFunction(std::string ofunction, map<
         return false;
     }
 
-    IObjectiveFunction *tmpfunction = CalibrationEnv::getInstance()->getObjectiveFunctionReg()->getFunction(ofunction);
-
-    if(!tmpfunction->setValues(settings))
+    try
     {
-        delete tmpfunction;
-        return false;
-    }
+        IObjectiveFunction *tmpfunction = CalibrationEnv::getInstance()->getObjectiveFunctionReg()->getFunction(ofunction);
 
-    functionname=ofunction;
-    functionsettings=settings;
-    delete tmpfunction;
-    fireUpdate();
-    return true;
+        if(!tmpfunction->setValues(settings))
+        {
+            delete tmpfunction;
+            return false;
+        }
+
+        functionname=ofunction;
+        functionsettings=settings;
+        delete tmpfunction;
+        fireUpdate();
+        return true;
+    }
+    catch(const PythonException &exception)
+    {
+        Logger(Error) << exception.exceptionmsg;
+        Logger(Error) << exception.type;
+        Logger(Error) << exception.traceback;
+        Logger(Error) << exception.value;
+    }
+    catch (CalimeroException e)
+    {
+        Logger(Error) << e.exceptionmsg;
+    }
+    return false;
 }
 
 map<string,string> ObjectiveFunctionVariable::getObjectiveFunctionSettings()

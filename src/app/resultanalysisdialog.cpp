@@ -7,6 +7,7 @@
 #include <IFunction.h>
 #include <functionparametersdialog.h>
 #include <QMessageBox>
+#include <Exception.h>
 
 using namespace std;
 
@@ -82,23 +83,37 @@ void ResultAnalysisDialog::on_newhandler_clicked()
 
 void ResultAnalysisDialog::on_handleradvanced_clicked()
 {
-    Calibration* calibration = CalibrationEnv::getInstance()->getCalibration();
-    string functionname = calibration->getResultHandlers()[ui->handlers->currentItem()->text().toStdString()];
-
-    IResultHandler *function = CalibrationEnv::getInstance()->getResultHandlerReg()->getFunction(functionname);
-    function->setValues(calibration->getResultHandlerSettings(ui->handlers->currentItem()->text().toStdString()));
-    FunctionParametersDialog np(function);
-
-    if(np.exec())
+    try
     {
-        np.updateFunctionParameters();
-        calibration->addResultHandler(ui->handlers->currentItem()->text().toStdString(),
-                                      functionname,
-                                      function->getParameterValues(),
-                                      calibration->isResultHandlerEnabled(ui->handlers->currentItem()->text().toStdString()));
-    }
+        Calibration* calibration = CalibrationEnv::getInstance()->getCalibration();
+        string functionname = calibration->getResultHandlers()[ui->handlers->currentItem()->text().toStdString()];
 
-    delete function;
+        IResultHandler *function = CalibrationEnv::getInstance()->getResultHandlerReg()->getFunction(functionname);
+        function->setValues(calibration->getResultHandlerSettings(ui->handlers->currentItem()->text().toStdString()));
+        FunctionParametersDialog np(function);
+
+        if(np.exec())
+        {
+            np.updateFunctionParameters();
+            calibration->addResultHandler(ui->handlers->currentItem()->text().toStdString(),
+                                          functionname,
+                                          function->getParameterValues(),
+                                          calibration->isResultHandlerEnabled(ui->handlers->currentItem()->text().toStdString()));
+        }
+
+        delete function;
+    }
+    catch(const PythonException &exception)
+    {
+        Logger(Error) << exception.exceptionmsg;
+        Logger(Error) << exception.type;
+        Logger(Error) << exception.traceback;
+        Logger(Error) << exception.value;
+    }
+    catch (CalimeroException e)
+    {
+        Logger(Error) << e.exceptionmsg;
+    }
 }
 
 void ResultAnalysisDialog::on_run_clicked()

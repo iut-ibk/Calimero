@@ -32,7 +32,7 @@ struct IModelSimulatorWrapper : IModelSimulator, wrapper<IModelSimulator> {
             }
             catch(python::error_already_set const &)
             {
-                    handle_python_exception("Error in exec methode of a model simulator");
+                    handle_python_exception("Error in exec method of a model simulator");
             }
 
         return false;
@@ -48,7 +48,7 @@ struct IModelSimulatorWrapper : IModelSimulator, wrapper<IModelSimulator> {
             }
             catch(python::error_already_set const &)
             {
-                    handle_python_exception("Error in start methode of a calibration algorithm");
+                    handle_python_exception("Error in stop method of a model simulator");
             }
     }
 

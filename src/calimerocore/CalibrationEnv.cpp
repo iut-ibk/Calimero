@@ -166,6 +166,7 @@ void CalibrationEnv::run()
                 Logger(Error) << exception.exceptionmsg;
                 Logger(Error) << exception.type;
                 Logger(Error) << exception.value;
+                Logger(Error) << exception.traceback;
                 setCalibrationState(CALIBRATIONNOTRUNNING);
                 Logger(Standard) << "Calibration stopped";
             }
@@ -232,7 +233,7 @@ void CalibrationEnv::runCalibration()
         return;
     }
 
-    ICalibrationAlg *tmpalg;
+    ICalibrationAlg *tmpalg = 0;
 
     try
     {
@@ -240,9 +241,10 @@ void CalibrationEnv::runCalibration()
     }
     catch(const PythonException &exception)
     {
+        Logger(Error) << exception.exceptionmsg;
         Logger(Error) << exception.type;
-        Logger(Error) << exception.traceback;
         Logger(Error) << exception.value;
+        Logger(Error) << exception.traceback;
     }
     catch(const CalimeroException &exception)
     {

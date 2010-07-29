@@ -37,6 +37,7 @@ void PyFunctionLoader::loadScripts(const string &path)
             Logger(Error) << e.exceptionmsg;
             Logger(Error) << e.type;
             Logger(Error) << e.value;
+            Logger(Error) << e.traceback;
         }
         catch (CalimeroException e)
         {
