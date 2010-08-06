@@ -8,6 +8,7 @@
 
 //Objective function includes
 #include <TestFunction.h>
+#include <NativeErrorSquare.h>
 
 //Calibration algorithm includes
 #include <TestCalibrationAlg.h>
@@ -22,6 +23,7 @@ extern "C"
     void CALIMERO_PUBLIC registerObjectiveFunctions(Registry<IObjectiveFunction> *registry)
     {
         registry->registerFunction(new NativeFunctionFactory<TestOFunction>());
+        registry->registerFunction(new NativeFunctionFactory<NativeErrorSquare>());
     }
 
     void CALIMERO_PUBLIC registerCalibrationAlgs(Registry<ICalibrationAlg> *registry)
