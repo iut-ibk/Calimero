@@ -42,6 +42,22 @@ void logwithlevel(std::string msg, LogLevel logl) {
         Logger(logl) << msg;
 }
 
+bool execIteration(vector<CalibrationVariable*> calibrationparameters)
+{
+    bool result;
+    Py_BEGIN_ALLOW_THREADS
+    result = CalibrationEnv::getInstance()->execIteration(calibrationparameters);
+    Py_END_ALLOW_THREADS
+    return result;
+}
+
+void barrier()
+{
+    Py_BEGIN_ALLOW_THREADS
+    CalibrationEnv::getInstance()->barrier();
+    Py_END_ALLOW_THREADS
+};
+
 BOOST_PYTHON_MODULE(pycalimero)
 {
         docstring_options doc_options;
@@ -112,6 +128,8 @@ BOOST_PYTHON_MODULE(pycalimero)
         wrapRegistry();
         wrapPyEnv();
 
+        def("barrier", barrier);
+        def("execIteration", execIteration);
         register_ptr_to_python< Variable* >();
         register_ptr_to_python< ObjectiveFunctionVariable* >();
         register_ptr_to_python< CalibrationVariable* >();
@@ -137,19 +155,19 @@ struct PyEnvPriv {
 PyEnv *PyEnv::instance = 0;
 
 PyEnv::PyEnv() {
+        pythonmainthread=false;
         priv = new PyEnvPriv();
 
         if(!Py_IsInitialized())
             Py_Initialize();
 
         PyEval_InitThreads();
-        
-        PyThreadState *pts = PyGILState_GetThisThreadState();
-        PyEval_ReleaseThread(pts);
 
-        ScopedGILRelease scoped;
         priv->main_module = import("__main__");
         priv->main_namespace = priv->main_module.attr("__dict__");
+
+        PyThreadState *pts = PyGILState_GetThisThreadState();
+        PyEval_ReleaseThread(pts);
 }
 
 PyEnv::~PyEnv() {

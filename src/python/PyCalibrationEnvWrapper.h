@@ -19,8 +19,6 @@ void wrapCalibrationEnv()
             .def("getObjectiveFunctionreg", &CalibrationEnv::getObjectiveFunctionReg, return_value_policy<reference_existing_object>())
             .def("getModelSimulatorReg", &CalibrationEnv::getModelSimulatorReg, return_value_policy<reference_existing_object>())
             .def("getCalibrationAlgReg", &CalibrationEnv::getCalibrationAlgReg, return_value_policy<reference_existing_object>())
-            .def("execIteration", &CalibrationEnv::execIteration)
-            .def("barrier", &CalibrationEnv::barrier)
             ;
 }
 

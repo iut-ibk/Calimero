@@ -333,7 +333,9 @@ bool CalibrationEnv::execIteration(vector<CalibrationVariable*> calibrationparam
 
 void CalibrationEnv::barrier()
 {
+    Logger(Debug) << "barrier called";
     threadpool->waitForDone();
+    Logger(Debug) << "barrier returns";
 }
 
 vector<string> CalibrationEnv::getAvailableObjectiveFunctions()

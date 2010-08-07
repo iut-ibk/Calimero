@@ -25,10 +25,16 @@ struct IModelSimulatorWrapper : IModelSimulator, wrapper<IModelSimulator> {
     bool exec(Domain *dom)
     {
         try {
-                if (python::override f = this->get_override("exec"))
-                        return f(ptr(dom));
+                ScopedGILRelease scope;
+                Logger(Debug) << "exec IModelSimulator";
+                if (python::override f = this->get_override("execModel"))
+                {
+                    bool result = f(ptr(dom));
+                    Logger(Debug) << "exec IModelSimulator DONE";
+                    return result;
+                }
                 else
-                        throw CalimeroException("No methode with name \"exec\" found");
+                        throw CalimeroException("No methode with name \"execModel\" found");
             }
             catch(python::error_already_set const &)
             {
@@ -59,6 +65,6 @@ void wrapIModelSimulator()
 {
         python::implicitly_convertible<auto_ptr<IModelSimulatorWrapper>, auto_ptr<IModelSimulator> >();
         class_<IModelSimulatorWrapper, bases<IFunction>, auto_ptr<IModelSimulatorWrapper>, boost::noncopyable>("IModelSimulator")
-                .def("exec", pure_virtual(&IModelSimulatorWrapper::exec))
+                .def("execModel", pure_virtual(&IModelSimulatorWrapper::exec))
                 ;
 }

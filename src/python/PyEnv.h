@@ -10,6 +10,7 @@
 #include <CalimeroGlob.h>
 #include <boost/python.hpp>
 #include <set>
+#include <QThread>
 
 using namespace std;
 using namespace boost::python;
@@ -23,12 +24,12 @@ class CALIMERO_PUBLIC ScopedGILRelease
 public:
     ScopedGILRelease()
     {
-             m_gstate = PyGILState_Ensure();
+        m_gstate = PyGILState_Ensure();
     }
 
     ~ScopedGILRelease()
     {
-            PyGILState_Release(m_gstate);
+        PyGILState_Release(m_gstate);
     }
 
 private:
@@ -37,6 +38,9 @@ private:
 
 class CALIMERO_PUBLIC PyEnv {
 public:
+        bool pythonmainthread;
+        PyGILState_STATE m_gstate;
+
         virtual ~PyEnv();
         static PyEnv *getInstance();
         static void destroy();

@@ -55,6 +55,7 @@ ModelSimRunnable::ModelSimRunnable(vector<CalibrationVariable*> newcalpars,
 
 ModelSimRunnable::~ModelSimRunnable()
 {
+    Logger(Debug) << "ModelSimRunnable destroyed";
 }
 
 void ModelSimRunnable::run()
@@ -105,6 +106,7 @@ void ModelSimRunnable::run()
         return;
     }
 
+    Logger(Debug) << "Extract results in ModelSimRunnable";
     //save values in result container
     result->setResults(dom);
 

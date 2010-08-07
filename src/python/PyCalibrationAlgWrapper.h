@@ -15,7 +15,6 @@
 using namespace boost::python;
 using namespace std;
 
-
 struct CalibrationAlgWrapper : public ICalibrationAlg, wrapper<ICalibrationAlg> {
     CalibrationAlgWrapper()
     {
@@ -46,11 +45,12 @@ struct CalibrationAlgWrapper : public ICalibrationAlg, wrapper<ICalibrationAlg> 
     object self;
 };
 
-void wrapCalAlgFunction()
+void  wrapCalAlgFunction()
 {
     python::implicitly_convertible<auto_ptr<CalibrationAlgWrapper>, auto_ptr<ICalibrationAlg> >();
     class_<CalibrationAlgWrapper, bases<IFunction>, auto_ptr<CalibrationAlgWrapper>, boost::noncopyable>("ICalibrationAlg")
             .def("start", pure_virtual(&CalibrationAlgWrapper::start))
             ;
 }
+
 #endif // PYCALIBRATIONALGWRAPPER_H
