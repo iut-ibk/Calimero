@@ -132,6 +132,7 @@ void DiagramGui::showResults(Calibration *calibration)
         evalpar[QString::fromStdString(*iterator)]=result;
     }
 
+
     calibrationscene->setValues(algpar);
     comparescene->setValues(evalpar);
 }

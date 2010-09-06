@@ -282,6 +282,7 @@ void MainWindow::setupStateMachine() {
 
 void MainWindow::init()
 {
+    loading = false;
     QSettings settings;
     QStringList pathlist = settings.value("calimerohome",QStringList()).toStringList();
 
@@ -450,6 +451,7 @@ void MainWindow::on_comboBox_currentIndexChanged ( int index )
 
 void MainWindow::on_vars_itemClicked ( QListWidgetItem * item )
 {
+    loading = true;
     Calibration* calibration = CalibrationEnv::getInstance()->getCalibration();
     Variable* current = calibration->getDomain()->getPar(item->text().toStdString());
 
@@ -470,32 +472,6 @@ void MainWindow::on_vars_itemClicked ( QListWidgetItem * item )
             BOOST_FOREACH(string groupname, groups)
                     if(calibration->containsGroupMember(calvar->getName(),groupname))
                         ui->groups->addItem(QString::fromStdString(groupname));
-            break;
-        }
-    case OBSERVEDVARIABLE:
-        {
-            ui->varvalues->clearContents();
-            ui->varvalues->setRowCount(0);
-            ui->vardelvalue->setEnabled(false);
-            BOOST_FOREACH(double value, current->getValues())
-            {
-                ui->varvalues->setRowCount(ui->varvalues->rowCount()+1);
-                QTableWidgetItem *newItem = new QTableWidgetItem(QString::number(value));
-                ui->varvalues->setItem(ui->varvalues->rowCount()-1, 0, newItem);
-            }
-            break;
-        }
-    case ITERATIONVARIABLE:
-        {
-            ui->varvalues->clearContents();
-            ui->varvalues->setRowCount(0);
-            ui->vardelvalue->setEnabled(false);
-            BOOST_FOREACH(double value, current->getValues())
-            {
-                ui->varvalues->setRowCount(ui->varvalues->rowCount()+1);
-                QTableWidgetItem *newItem = new QTableWidgetItem(QString::number(value));
-                ui->varvalues->setItem(ui->varvalues->rowCount()-1, 0, newItem);
-            }
             break;
         }
     case OBJECTIVEFUNCTIONVARIABLE:
@@ -554,7 +530,24 @@ void MainWindow::on_vars_itemClicked ( QListWidgetItem * item )
             ui->ovarvalues->setText(values);
             break;
         }
+    default:
+        {
+            vector<double> values = current->getValues();
+            ui->varvalues->clearContents();
+            ui->varvalues->setRowCount(values.size());
+            ui->varvalues->setColumnCount(1);
+            ui->vardelvalue->setEnabled(false);
+
+            for(int index=0; index < values.size(); index++)
+            {
+                QTableWidgetItem *newItem = new QTableWidgetItem(QString::number(values.at(index)));
+                ui->varvalues->setItem(index, 0, newItem);
+            }
+            break;
+        }
     }
+
+    loading = false;
 }
 
 void MainWindow::on_vars_itemSelectionChanged ()
@@ -664,8 +657,13 @@ void MainWindow::on_varaddvalue_clicked()
 }
 
 void MainWindow::on_varvalues_itemChanged ( QTableWidgetItem * item )
+
 {
+    if(loading)
+        return;
+
     bool ok;
+
     item->text().toDouble(&ok);
     if(!ok)
     {
@@ -1438,6 +1436,7 @@ void MainWindow::updateAll()
     ui->calsimulation->setCurrentIndex(index);
     on_calsimulation_currentIndexChanged(functionname);
 
+
     //update enabled objective functions
     ui->cal_ofunction->clear();
     set<string> enabledparameters = calibration->evalObjectiveFunctionParameters();
@@ -1445,6 +1444,7 @@ void MainWindow::updateAll()
     {
         ui->cal_ofunction->addItem(QString::fromStdString(*it));
     }
+
 
     //update groups
     groups_visible_entered();

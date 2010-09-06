@@ -3,6 +3,7 @@
 #include <QSvgGenerator>
 #include <QPainter>
 #include <Logger.h>
+#include <CalibrationEnv.h>
 
 DiagramScene::DiagramScene(QGraphicsView *view)  : QGraphicsScene(view)
 {
@@ -43,6 +44,12 @@ void DiagramScene::setUpdate(uint value)
 
 void DiagramScene::setValues(QMap<QString, QVector<QPointF> > values)
 {
+    if(!values.size() || !CalibrationEnv::getInstance()->getCalibration()->getNumOfComplete())
+    {
+        clear();
+        return;
+    }
+
     bool dirty = true;
     while(dirty)
     {

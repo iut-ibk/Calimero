@@ -34,6 +34,7 @@ Q_OBJECT
         QTimer updatetimer;
         Persistence *persistence;
         QString savefilepath;
+        bool loading;
         int sp;
         int ls;
 
