@@ -5,6 +5,8 @@ class TemplateAlgorithm(pycalimero.ICalibrationAlg):
         pycalimero.ICalibrationAlg.__init__(self)
         self.setDataType("max iterations", pycalimero.DATATYPE.UINT, "30")
         self.setDataType("parallel", pycalimero.DATATYPE.UINT, "1")
+        self.setDataType("clean results", pycalimero.DATATYPE.BOOL, "1")
+        
         
     def start(self,calibrationvars, objectivevars, env, calibration):
         pycalimero.log("Start TemplateAlgorithm",pycalimero.LogLevel.standard)
