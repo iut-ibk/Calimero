@@ -7,11 +7,13 @@ import matplotlib
 from matplotlib import verbose
 from matplotlib.cbook import is_string_like, onetrue
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
-     FigureManagerBase, FigureCanvasBase, NavigationToolbar2, IdleEvent, cursors
+     FigureManagerBase, FigureCanvasBase, NavigationToolbar2, IdleEvent, \
+     cursors
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.figure import Figure
 from matplotlib.mathtext import MathTextParser
 from matplotlib.widgets import SubplotTool
+import figureoptions
 
 try:
     from PyQt4 import QtCore, QtGui, Qt
@@ -81,11 +83,11 @@ def new_figure_manager( num, *args, **kwargs ):
     manager = FigureManagerQT( canvas, num )
     return manager
 
-
 class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
     keyvald = { QtCore.Qt.Key_Control : 'control',
                 QtCore.Qt.Key_Shift : 'shift',
                 QtCore.Qt.Key_Alt : 'alt',
+                QtCore.Qt.Key_Return : 'enter'
                }
     # left 1, middle 2, right 3
     buttond = {1:1, 2:3, 4:2}
@@ -186,6 +188,22 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
 
         return key
 
+    def new_timer(self, *args, **kwargs):
+        """
+        Creates a new backend-specific subclass of :class:`backend_bases.Timer`.
+        This is useful for getting periodic events through the backend's native
+        event loop. Implemented only for backends with GUIs.
+
+        optional arguments:
+
+        *interval*
+          Timer interval in milliseconds
+        *callbacks*
+          Sequence of (func, args, kwargs) where func(*args, **kwargs) will
+          be executed by the timer every *interval*.
+        """
+        return TimerQT(*args, **kwargs)
+
     def flush_events(self):
         Qt.qApp.processEvents()
 
@@ -206,6 +224,22 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
             self._idle = True
         if d: QtCore.QTimer.singleShot(0, idle_draw)
 
+
+# XXX Hackish fix: There's a bug in PyQt.  See this thread for details:
+# http://old.nabble.com/Qt4-backend:-critical-bug-with-PyQt4-v4.6%2B-td26205716.html
+# Once a release of Qt/PyQt is available without the bug, the version check
+# below can be tightened further to only be applied in the necessary versions.
+if Qt.PYQT_VERSION_STR.startswith('4.6'):
+    class FigureWindow(QtGui.QMainWindow):
+       def __init__(self):
+           super(FigureWindow, self).__init__()
+       def closeEvent(self, event):
+           super(FigureWindow, self).closeEvent(event)
+           self.emit(Qt.SIGNAL('destroyed()'))
+else:
+    FigureWindow = QtGui.QMainWindow
+# /end pyqt hackish bugfix
+
 class FigureManagerQT( FigureManagerBase ):
     """
     Public attributes
@@ -220,7 +254,7 @@ class FigureManagerQT( FigureManagerBase ):
         if DEBUG: print 'FigureManagerQT.%s' % fn_name()
         FigureManagerBase.__init__( self, canvas, num )
         self.canvas = canvas
-        self.window = QtGui.QMainWindow()
+        self.window = FigureWindow()
         self.window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
         self.window.setWindowTitle("Figure %d" % num)
@@ -236,9 +270,19 @@ class FigureManagerQT( FigureManagerBase ):
         self.window._destroying = False
 
         self.toolbar = self._get_toolbar(self.canvas, self.window)
-        self.window.addToolBar(self.toolbar)
-        QtCore.QObject.connect(self.toolbar, QtCore.SIGNAL("message"),
-                self.window.statusBar().showMessage)
+        if self.toolbar is not None:
+            self.window.addToolBar(self.toolbar)
+            QtCore.QObject.connect(self.toolbar, QtCore.SIGNAL("message"),
+                                   self.window.statusBar().showMessage)
+            tbs_height = self.toolbar.sizeHint().height()
+        else:
+            tbs_height = 0
+
+        # resize the main window so it will display the canvas with the
+        # requested size:
+        cs = canvas.sizeHint()
+        sbs = self.window.statusBar().sizeHint()
+        self.window.resize(cs.width(), cs.height()+tbs_height+sbs.height())
 
         self.window.setCentralWidget(self.canvas)
 
@@ -250,13 +294,21 @@ class FigureManagerQT( FigureManagerBase ):
 
         def notify_axes_change( fig ):
            # This will be called whenever the current axes is changed
-           if self.toolbar != None: self.toolbar.update()
+           if self.toolbar is not None:
+               self.toolbar.update()
         self.canvas.figure.add_axobserver( notify_axes_change )
 
     def _widgetclosed( self ):
         if self.window._destroying: return
         self.window._destroying = True
-        Gcf.destroy(self.num)
+        try:
+            Gcf.destroy(self.num)
+        except AttributeError:
+            pass
+            # It seems that when the python session is killed,
+            # Gcf can get destroyed before the Gcf.destroy
+            # line is run, leading to a useless AttributeError.
+
 
     def _get_toolbar(self, canvas, parent):
         # must be inited after the window, drawingArea and figure
@@ -314,9 +366,15 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QToolBar ):
         a = self.addAction(self._icon('subplots.png'), 'Subplots',
                 self.configure_subplots)
         a.setToolTip('Configure subplots')
+
+        a = self.addAction(self._icon("qt4_editor_options.svg"),
+                           'Customize', self.edit_parameters)
+        a.setToolTip('Edit curves line and axes parameters')
+
         a = self.addAction(self._icon('filesave.svg'), 'Save',
                 self.save_figure)
         a.setToolTip('Save the figure')
+
 
         self.buttons = {}
 
@@ -335,6 +393,36 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QToolBar ):
 
         # reference holder for subplots_adjust window
         self.adj_window = None
+
+    def edit_parameters(self):
+        allaxes = self.canvas.figure.get_axes()
+        if len(allaxes) == 1:
+            axes = allaxes[0]
+        else:
+            titles = []
+            for axes in allaxes:
+                title = axes.get_title()
+                ylabel = axes.get_ylabel()
+                if title:
+                    text = title
+                    if ylabel:
+                        text += ": "+ylabel
+                    text += " (%s)"
+                elif ylabel:
+                    text = "%s (%s)" % ylabel
+                else:
+                    text = "%s"
+                titles.append(text % repr(axes))
+            item, ok = QtGui.QInputDialog.getItem(self, 'Customize',
+                                                  'Select axes:', titles,
+                                                  0, False)
+            if ok:
+                axes = allaxes[titles.index(unicode(item))]
+            else:
+                return
+
+        figureoptions.figure_edit(axes, self)
+
 
     def dynamic_update( self ):
         self.canvas.draw()
@@ -378,7 +466,7 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QToolBar ):
     def _get_canvas(self, fig):
         return FigureCanvasQT(fig)
 
-    def save_figure( self ):
+    def save_figure(self, *args):
         filetypes = self.canvas.get_supported_filetypes_grouped()
         sorted_filetypes = filetypes.items()
         sorted_filetypes.sort()
