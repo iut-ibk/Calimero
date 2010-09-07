@@ -10,8 +10,8 @@ import matplotlib.mlab as mlab
 import matplotlib.pyplot as plt
 
 import matplotlib
-from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.backends.backend_qt4agg import NavigationToolbar2QTAgg as NavigationToolbar
+from backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
+from backend_qt4agg import NavigationToolbar2QTAgg as NavigationToolbar
 from mpl_toolkits.axes_grid.axislines import SubplotZero
 from matplotlib.figure import Figure
 import numpy as np
