@@ -95,6 +95,8 @@ void DiagramGui::showResults(Calibration *calibration)
     set<string> objectivefunctionparameters = calibration->evalObjectiveFunctionParameters();
 
     set<string>::iterator iterator;
+
+    //calibrationparameters
     for(iterator=calibrationparameters.begin(); iterator!=calibrationparameters.end(); iterator++)
     {
         QVector<QPointF> result;
@@ -113,7 +115,7 @@ void DiagramGui::showResults(Calibration *calibration)
         algpar[QString::fromStdString(*iterator)]=result;
     }
 
-
+    //objectivefunctionparameters
     for(iterator=objectivefunctionparameters.begin(); iterator!=objectivefunctionparameters.end(); iterator++)
     {
         QVector<QPointF> result;

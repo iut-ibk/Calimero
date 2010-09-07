@@ -17,25 +17,25 @@ class DiagramScene : public QGraphicsScene
         QVector<QGraphicsSimpleTextItem*> legend;
         QGraphicsLineItem *mouseline;
         QMap<QString, QVector<QPointF> > data;
-        QMap<QString, QMap<double,double>* > value;
-        double maxvaluey;
-        double maxvaluex;
-        double minvaluey;
-        double minvaluex;
-        double prec;
-        double yscale;
+        QMap<QString, QMap<qreal,qreal>* > value;
+        qreal maxvaluey;
+        qreal maxvaluex;
+        qreal minvaluey;
+        qreal minvaluex;
+        qreal prec;
+        qreal yscale;
         uint update;
 
     public:
         DiagramScene(QGraphicsView *view);
         bool setMousePosition(qreal x, qreal y);
         void setValues(QMap<QString, QVector<QPointF> > values);
-        void setPrec(double value);
+        void setPrec(qreal value);
         void setUpdate(uint value);
-        double getMinValueX();
-        double getMaxValueX();
-        double getMinValueY();
-        double getMaxValueY();
+        qreal getMinValueX();
+        qreal getMaxValueX();
+        qreal getMinValueY();
+        qreal getMaxValueY();
 
     private:
         bool showGrid();

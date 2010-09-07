@@ -12,10 +12,13 @@ class TemplateAlgorithm(pycalimero.ICalibrationAlg):
         pycalimero.log("Start TemplateAlgorithm",pycalimero.LogLevel.standard)
         
         for i in range(0,int(self.getValueOfParameter("max iterations"))):
-            pycalimero.log("Run iteration",pycalimero.LogLevel.standard)
-            env.execIteration(calibrationvars)
-            env.barrier()
-            pycalimero.log("Finish iteration",pycalimero.LogLevel.standard)
+            #pycalimero.log("Run iteration",pycalimero.LogLevel.standard)
+            if (pycalimero.execIteration(calibrationvars) == False):
+           	pycalimero.log("TemplateAlgorithm stoped by user",pycalimero.LogLevel.standard)
+           	return True
+           	
+            pycalimero.barrier()
+            #pycalimero.log("Finish iteration",pycalimero.LogLevel.standard)
             
         pycalimero.log("TemplateAlgorithm DONE",pycalimero.LogLevel.standard)
         return True

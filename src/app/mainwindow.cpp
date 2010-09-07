@@ -538,7 +538,7 @@ void MainWindow::on_vars_itemClicked ( QListWidgetItem * item )
             ui->varvalues->setColumnCount(1);
             ui->vardelvalue->setEnabled(false);
 
-            for(int index=0; index < values.size(); index++)
+            for(uint index=0; index < values.size(); index++)
             {
                 QTableWidgetItem *newItem = new QTableWidgetItem(QString::number(values.at(index)));
                 ui->varvalues->setItem(index, 0, newItem);

@@ -324,7 +324,7 @@ bool CalibrationEnv::execIteration(vector<CalibrationVariable*> calibrationparam
 {
     if(getCalibrationState()==CALIBRATIONSHUTDOWN)
     {
-        Logger(Error) << "Shut down running calibration";
+        Logger(Standard) << "Shut down running calibration";
         return false;
     }
 
