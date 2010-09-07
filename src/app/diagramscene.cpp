@@ -177,6 +177,7 @@ bool DiagramScene::showGrid()
     addItem(mouseline);
 
     QGraphicsLineItem *yline = new QGraphicsLineItem(minvaluex*prec,-maxvaluey*prec,minvaluex*prec,-minvaluey*prec,grid);
+    Q_UNUSED(yline);
     qreal stepsize = (maxvaluey-minvaluey)/split;
 
     //y-axe
@@ -190,6 +191,8 @@ bool DiagramScene::showGrid()
     xaxes = new QGraphicsLineItem(grid);
     //x-axe
     QGraphicsLineItem *xline = new QGraphicsLineItem(minvaluex*prec,-minvaluey*prec,maxvaluex*prec,-minvaluey*prec,xaxes);
+    Q_UNUSED(xline);
+
     for(qreal value=minvaluex; value < maxvaluex; value=value+xsteps)
     {
         QGraphicsSimpleTextItem *text = new QGraphicsSimpleTextItem ( QString::number(value), xaxes);
