@@ -1,5 +1,8 @@
 import pycalimero
 
+def frange(start,end,step):
+    return map(lambda x: x*step, range(int(start*1./step),int(end*1./step)))
+
 def findBestIterationNumber(r,name):
     results = r
     bestresult = 0

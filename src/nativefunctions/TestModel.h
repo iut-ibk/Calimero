@@ -16,4 +16,6 @@ public:
     bool exec(Domain *dom);
 };
 
+double fac(int value);
+
 #endif // TESTMODEL_H

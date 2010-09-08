@@ -3,6 +3,7 @@
 #include <Domain.h>
 #include <CalibrationVariable.h>
 #include <IterationResult.h>
+#include <QString>
 
 CALIMERO_DECLARE_MODELSIMULATOR_NAME(TestModel)
 
@@ -20,7 +21,10 @@ bool TestModel::exec(Domain *dom)
 
 CALIMERO_DECLARE_MODELSIMULATOR_NAME(VectorModel)
 
-VectorModel::VectorModel(){}
+VectorModel::VectorModel()
+{
+    setDataType("wait-time",UINT,"0");
+}
 
 bool VectorModel::exec(Domain *dom)
 {
@@ -58,5 +62,29 @@ bool VectorModel::exec(Domain *dom)
         result.push_back((index+1)*(index+1)*value);
 
     iterationresult->setValues(result);
+
+    int waittime = QString::fromStdString(getValueOfParameter("wait-time")).toInt();
+
+    if(!waittime)
+        return true;
+
+    double resultv = 0.0;
+
+    for(int index=0; index<waittime; index++)
+        resultv = fac(index);
+
     return true;
+}
+
+double fac(int value)
+{
+    if(value==0)
+        return 0;
+
+    double result = 1;
+
+    for(int index=1; index <= value; index++)
+        result*=index;
+
+    return result;
 }

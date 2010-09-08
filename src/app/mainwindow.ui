@@ -1416,13 +1416,13 @@
            <enum>QPlainTextEdit::NoWrap</enum>
           </property>
           <property name="readOnly">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="plainText">
            <string>=== Calimero output console ===</string>
           </property>
           <property name="textInteractionFlags">
-           <set>Qt::TextEditorInteraction</set>
+           <set>Qt::TextSelectableByMouse</set>
           </property>
           <property name="backgroundVisible">
            <bool>false</bool>
@@ -1581,6 +1581,58 @@
    <header location="global">diagramgui.h</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>tab_calibrationedit_2</tabstop>
+  <tabstop>comboBox</tabstop>
+  <tabstop>vars</tabstop>
+  <tabstop>button_groupmanage</tabstop>
+  <tabstop>delvar</tabstop>
+  <tabstop>newvar</tabstop>
+  <tabstop>scrollArea</tabstop>
+  <tabstop>calvarmin</tabstop>
+  <tabstop>calvarmax</tabstop>
+  <tabstop>calvarstep</tabstop>
+  <tabstop>groups</tabstop>
+  <tabstop>del_group</tabstop>
+  <tabstop>add_group</tabstop>
+  <tabstop>varvalues</tabstop>
+  <tabstop>vardelvalue</tabstop>
+  <tabstop>varaddvalue</tabstop>
+  <tabstop>ovarvalues</tabstop>
+  <tabstop>ovarmembers</tabstop>
+  <tabstop>ovardelmember</tabstop>
+  <tabstop>ovaraddmember</tabstop>
+  <tabstop>ovarofun</tabstop>
+  <tabstop>ovaradvanced</tabstop>
+  <tabstop>comboBox_templates</tabstop>
+  <tabstop>templates</tabstop>
+  <tabstop>button_settemplatepath</tabstop>
+  <tabstop>deltemplate</tabstop>
+  <tabstop>newtemplate</tabstop>
+  <tabstop>templateeditor</tabstop>
+  <tabstop>pushButton</tabstop>
+  <tabstop>button_load_values</tabstop>
+  <tabstop>scrollArea_2</tabstop>
+  <tabstop>calfun</tabstop>
+  <tabstop>button_calfun_advanced</tabstop>
+  <tabstop>calsimulation</tabstop>
+  <tabstop>button_calsimulation_advanced</tabstop>
+  <tabstop>cal_ofunction</tabstop>
+  <tabstop>button_del_cal_ofun</tabstop>
+  <tabstop>button_add_cal_ofun</tabstop>
+  <tabstop>monitored_groups</tabstop>
+  <tabstop>del_monitored_groups</tabstop>
+  <tabstop>add_monitored_groups</tabstop>
+  <tabstop>ignored_groups</tabstop>
+  <tabstop>del_ignored_groups</tabstop>
+  <tabstop>add_ignored_groups</tabstop>
+  <tabstop>diagram_widget</tabstop>
+  <tabstop>resulthandler</tabstop>
+  <tabstop>enableddiagram</tabstop>
+  <tabstop>calstart</tabstop>
+  <tabstop>calstop</tabstop>
+  <tabstop>log_widget</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
