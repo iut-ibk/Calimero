@@ -21,6 +21,10 @@ StringParameterEdit::StringParameterEdit(QWidget *parent, PARAMETEREDITTYPE enab
                 ui->dirButton->setVisible(true);
                 break;
             }
+        case NOTYPEDIALOG:
+            {
+                break;
+            }
         }
 }
 

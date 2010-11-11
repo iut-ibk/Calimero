@@ -594,8 +594,8 @@ void MainWindow::on_delvar_clicked()
 }
 
 void MainWindow::on_calvarmax_valueChanged(double v) {
-    if(ui->calvarmin->value() > v)
-        ui->calvarmin->setValue(v);
+    //if(ui->calvarmin->value() > v)
+    //    ui->calvarmin->setValue(v);
 
     if(!ui->vars->selectedItems().size())
         return;
@@ -620,8 +620,8 @@ void MainWindow::on_calvarstep_valueChanged(double v)
 
 void MainWindow::on_calvarmin_valueChanged(double v )
 {
-    if(ui->calvarmax->value() < v)
-        ui->calvarmax->setValue(v);
+    //if(ui->calvarmax->value() < v)
+    //    ui->calvarmax->setValue(v);
 
     if(!ui->vars->selectedItems().size())
         return;
