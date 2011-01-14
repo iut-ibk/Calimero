@@ -17,6 +17,7 @@ ENDIF()
 INCLUDE_DIRECTORIES(src/calimerocore
                     src/python
                     src/nativefunctions
+                    src/optimizationalgs
                     src/calimerohelper
                     )
 
@@ -51,6 +52,7 @@ SET(EXECUTABLE_OUTPUT_PATH ${calimero_BINARY_DIR})
 ADD_SUBDIRECTORY(src/calimerocore)
 ADD_SUBDIRECTORY(src/python)
 ADD_SUBDIRECTORY(src/nativefunctions)
+ADD_SUBDIRECTORY(src/optimizationalgs)
 ADD_SUBDIRECTORY(src/app)
 ADD_SUBDIRECTORY(src/calimerohelper)
 ADD_SUBDIRECTORY(src/registryapp)

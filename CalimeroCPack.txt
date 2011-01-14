@@ -40,6 +40,7 @@ IF(WIN32 AND NOT UNIX)
     INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/calimero.exe.manifest DESTINATION bin)
     INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/calimerocore.dll.manifest DESTINATION bin)
     INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/calimeronativefunctions.dll.manifest DESTINATION bin)
+    INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/calimerooptimizationalgs.dll.manifest DESTINATION bin)
     INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/regapp.exe.manifest DESTINATION bin)
     INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/calimerohelper.dll.manifest DESTINATION bin)
 
