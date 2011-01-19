@@ -13,26 +13,45 @@
 #include <IFunctionFactory.h>
 #include <Registry.h>
 #include <Exception.h>
-#include <PyEnv.h>
+#include <IterationResult.h>
+#include <Calibration.h>
+#include <CalibrationEnv.h>
 #include <string>
+#include <vector>
+#include <map>
+#include <iostream>
+
 using namespace std;
 %}
+
+
 
 %include std_vector.i
 %include std_string.i
 %include std_map.i
+%include pointer.i
+#include typemaps.i
+
 
 namespace std {
-    %template(StringVector) vector<std::string>;
-    %template(DoubleVector) vector<double>;
-    %template(IntegerVector) vector<int>;
-    %template(VariableVector) vector<Variable*>;
+    %template(stringvector) vector<string>;
+    %template(doublevector) vector<double>;
+    %template(doublevectorvector) vector<vector<double> >;
+    %template(integervector) vector<int>;
+    %template(variablevector) vector<Variable*>;
+    %template(objectivefunctionvariablevector) vector<ObjectiveFunctionVariable*>;
+    %template(iterationresultvector) vector<shared_ptr<IterationResult> >;
+    %template(calibrationvariablevector) vector<CalibrationVariable*>;
+    %template(stringvectormap) map<string,vector<double> >;
+    %template(stringmap) map<string,string>;
+    %template(datatypemap) map<int,DATATYPE>;
+    %template(datatypmap) map<string, DATATYPE>;
 }
 
 %feature("director:except") {
 	if ($error != NULL) {
-		PyErr_Print();
-		//throw PythonException("", "");
+                PyErr_Print();
+                throw CalimeroException("======================================");
 	}
 }
 
@@ -84,6 +103,135 @@ public:
     }
 }
 
+
+
+/*%extend {
+
+void barrier()
+{
+    PyEnv::getInstance()->barrier();
+}
+
+bool execIteration(vector<CalibrationVariable*> cp)
+{
+    return PyEnv::getInstance()->execIteration(cp);
+}
+}*/
+
+class Domain
+{
+public:
+    Domain();
+    Domain(const Domain &olddomain);
+    ~Domain();
+    Variable* getPar(const std::string &name);
+    bool contains(string var);
+    void setPar(Variable* var);
+    bool removePar(const string &name);
+    vector<Variable*> getAllPars(const VARTYPE &type);
+};
+
+class Calibration
+{
+public:
+    //create
+    Calibration();
+    ~Calibration();
+
+    //setup
+    bool setCalibrationAlg(std::string ca, map<std::string,std::string> settings);
+    bool setModelSimulator(std::string ms, map<std::string,std::string> settings);
+    bool addParameter(Variable *parameter);
+    bool removeParameter(std::string parameter);
+    bool addGroup(std::string name);
+    bool removeGroup(std::string name);
+    bool addParameterToGroup(std::string var, std::string groupname);
+    bool removeParameterFromGroup(std::string var, std::string groupname);
+    bool addEnabledGroup(std::string groupname);
+    bool removeEnabledGroup(std::string groupname);
+    bool addDisabledGroup(std::string groupname);
+    bool removeDisabledGroup(std::string groupname);
+    bool addEnabledOParameter(std::string parameter);
+    bool removeEnabledOParameter(std::string parameter);
+    bool setIterationResults(map<int,shared_ptr<IterationResult>  > iterationresults);
+    bool addResultHandler(std::string name, std::string functionname, map<std::string,std::string> settings, bool enabled);
+    bool removeResultHandler(std::string name);
+    shared_ptr<IterationResult>   newIterationResult();
+
+    //contains
+    bool containsGroup(std::string groupname);
+    bool containsParameter(std::string var);
+    bool containsGroupMember(std::string varname, std::string groupname);
+
+    //getter
+    int getNumOfComplete();
+    std::string getCalibrationAlg();
+    map<std::string, std::string> getResultHandlers();
+    map<std::string, std::string> getResultHandlerSettings(std::string name);
+    bool isResultHandlerEnabled(std::string name);
+    std::string getModelSimulator();
+    map<std::string,std::string> getCalibrationAlgSettings();
+    map<std::string,std::string> getModelSimulatorSettings();
+    vector<shared_ptr<IterationResult>  > getIterationResults();
+    vector<std::string> getAllCalibrationParameters();
+    vector<std::string> getAllObservedParameters();
+    vector<std::string> getAllIterationParameters();
+    vector<std::string> getAllObjectiveFunctionParameters();
+    Domain* getDomain();
+    set<std::string> evalCalibrationParameters();
+    set<std::string> evalObjectiveFunctionParameters();
+    ExternalParameterRegistry* getExternalParameterRegistry();
+    vector<std::string> getAllGroups();
+    map<std::string,bool> getDisabledGroups();
+    map<std::string,bool> getEnabledGroups();
+    set<std::string> getGroupMembers(const std::string &name);
+    bool isEnabledGroup(const std::string &name);
+    bool isDisabledGroup(const std::string &name);
+
+    //destroy
+    void clear();
+    void clearIterationResults();
+};
+
+class IterationResult
+{
+public:
+    IterationResult(int iterationnum);
+    IterationResult(int iterationnum,
+                    map<std::string, vector<double> > calibrationparameters,
+                    map<std::string, vector<double> > iterationparameters,
+                    map<std::string, vector<double> > objectivefunctionparameters,
+                    map<std::string, vector<double> > observedparameters);
+    void setResults(Domain *dom);
+    bool isComplete();
+    int getIterationNumber();
+    vector<double> getResults(std::string name);
+    vector<double> getIterationParameterResults(std::string name);
+    vector<double> getObservedParameterResults(std::string name);
+    vector<double> getCalibrationParameterResults(std::string name);
+    vector<double> getObjectiveFunctionParameterResults(std::string name);
+    vector<std::string> getNamesOfObjectiveFunctionParameters();
+    vector<std::string> getNamesOfObservedParameters();
+    vector<std::string> getNamesOfCalibrationParameters();
+    vector<std::string> getNamesOfIterationParameters();
+};
+
+class CalibrationEnv
+{
+    bool startCalibration();
+    void stopCalibration();
+};
+
+
+
+%newobject CalibrationEnv::getInstance;
+
+%extend IObjectiveFunction {
+    static IFUNCTIONTYPE getType() {
+            return OBJECTIVEFUNCTION;
+    }
+}
+
 class IObjectiveFunction : public IFunction
 {
 public:
@@ -91,9 +239,9 @@ public:
     IObjectiveFunction();
     virtual ~IObjectiveFunction();
 
-    virtual std::vector<double> eval(std::vector<Variable*> iterationparameters,
-                                     std::vector<Variable*> observedparameters,
-                                     std::vector<ObjectiveFunctionVariable*> objectivefunctionparameters) = 0;
+    virtual vector<double> eval(vector<Variable*> iterationparameters,
+                                     vector<Variable*> observedparameters,
+                                     vector<ObjectiveFunctionVariable*> objectivefunctionparameters) = 0;
 };
 
 %extend IObjectiveFunction {
@@ -155,9 +303,6 @@ class CalibrationVariable : public Variable
         void setStep(double step);
 };
 
-void barrier();
-bool execIteration(vector<CalibrationVariable*> cp);
-
 enum LogLevel {
 	Debug = 0,
 	Standard = 1,
@@ -201,21 +346,6 @@ class IResultHandler : public IFunction
         };
 }
 
-
-class Domain
-{
-public:
-    Domain();
-    Domain(const Domain &olddomain);
-    ~Domain();
-    Variable* getPar(const std::string &name);
-    bool contains(std::string var);
-    void setPar(Variable* var);
-    bool removePar(const std::string &name);
-    vector<Variable*> getAllPars(const VARTYPE &type);
-};
-
-
 %rename(execModel) IModelSimulator::exec(Domain*);
 class IModelSimulator : public IFunction
 {
@@ -238,7 +368,6 @@ class IRegistry {
     public:
         virtual ~IRegistry(){}
         IFUNCTIONTYPE getType();
-
         virtual bool registerFunction(IFunctionFactory* factory) = 0;
         virtual bool addNativePlugin(const std::string &plugin_path) = 0;
         virtual IFunction* getFunction(std::string name) = 0;

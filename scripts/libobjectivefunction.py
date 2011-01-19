@@ -8,17 +8,23 @@ class Sum(pycalimero.IObjectiveFunction):
     def eval(self,iterationparameters, observedparameters, objectivefunctionparameters):
         result = pycalimero.doublevector()
         resultvalue = 0.0
-        for var in iterationparameters:
-            for value in var.getValues():
-                resultvalue += value
 
-        for var in observedparameters:
-            for value in var.getValues():
-                resultvalue += value
+	print type(iterationparameters)
+	print type(result)
+	for i in range(0,iterationparameters.size()):
+		currentvec=iterationparameters[i].getValues()
+		for vi in range(0,currentvec.size()):
+			resultvalue += currentvec[vi]
 
-        for var in objectivefunctionparameters:
-            for value in var.getValues():
-                resultvalue += value
+	for i in range(0,observedparameters.size()):
+		currentvec=observedparameters[i].getValues()
+		for vi in range(0,currentvec.size()):
+			resultvalue += currentvec[vi]
+
+	for i in range(0,objectivefunctionparameters.size()):
+		currentvec=objectivefunctionparameters[i].getValues()
+		for vi in range(0,currentvec.size()):
+			resultvalue += currentvec[vi]
 
         result.append(resultvalue)
         return result

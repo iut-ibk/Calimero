@@ -1,5 +1,4 @@
 #include <ObjectiveFunctionVariable.h>
-#include <boost/python.hpp>
 #include <boost/foreach.hpp>
 #include <vector>
 #include <Logger.h>

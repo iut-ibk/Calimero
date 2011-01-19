@@ -23,7 +23,7 @@ INCLUDE_DIRECTORIES(src/calimerocore
 
 FIND_PACKAGE(Qt4 REQUIRED)
 
-FIND_PACKAGE(Boost 1.38.0 COMPONENTS system signals program_options thread date_time filesystem REQUIRED)
+FIND_PACKAGE(Boost COMPONENTS system signals program_options thread date_time filesystem REQUIRED)
 #SET(Boost_USE_STATIC_LIBS ON)
 ADD_DEFINITIONS(${Boost_LIB_DIAGNOSTIC_DEFINITIONS})
 SET(Boost_USE_MULTITHREADED ON)

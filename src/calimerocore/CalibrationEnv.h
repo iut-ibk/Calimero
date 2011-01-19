@@ -35,12 +35,12 @@ private:
     Registry<IResultHandler>* rreg;
     CALIBRATIONSTATE calstate;
 
-    CalibrationEnv();
     void runCalibration();
     CALIBRATIONSTATE getCalibrationState();
     void setCalibrationState(CALIBRATIONSTATE state);
 
 public:
+    CalibrationEnv();
     ~CalibrationEnv();
     void run();
     static CalibrationEnv* getInstance();

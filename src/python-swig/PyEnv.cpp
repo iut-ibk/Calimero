@@ -1,5 +1,4 @@
 #include <boost/format.hpp>
-#include <boost/python.hpp>
 #include <string>
 #include <Registry.h>
 /*#include <PyObjectiveFunctionWrapper.h>
@@ -20,8 +19,6 @@
 #include <list>
 #include <PyEnv.h>
 #include <iostream>
-#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
-#include <boost/python/suite/indexing/map_indexing_suite.hpp>
 #include <Log.h>
 #include <LogSink.h>
 #include <Logger.h>
@@ -49,9 +46,9 @@ void logwithlevel(std::string msg, LogLevel logl) {
 bool execIteration(vector<CalibrationVariable*> calibrationparameters)
 {
     bool result;
-    Py_BEGIN_ALLOW_THREADS
+    //Py_BEGIN_ALLOW_THREADS
     result = CalibrationEnv::getInstance()->execIteration(calibrationparameters);
-    Py_END_ALLOW_THREADS
+    //Py_END_ALLOW_THREADS
     return result;
 }
 
@@ -178,9 +175,38 @@ PyEnv::PyEnv() {
         priv->main_namespace = PyModule_GetDict(main);
         Py_DECREF(main);
 
-        if (PyErr_Occurred()) {
-            PyErr_Print();
-        }
+        //redirect stdout and stderr
+        boost::format fmt( "import sys\n"
+                                   "class Logger:\n"
+                                   "    def __init__(self, stdout,error):\n"
+                                   "        self.stdout = stdout\n"
+                                   "        self.error=error\n"
+                                   "        self.currentstring=\"\"\n"
+                                   "\n"
+                                   "    def write(self, text):\n"
+                                   "        self.stdout.write(text)\n"
+                                   "        self.currentstring = self.currentstring + \" \" + text\n"
+                                   "\n"
+                                   "        if text.rfind(\"\\n\") == -1:\n"
+                                   "                return\n"
+                                   "\n"
+                                   "        self.currentstring=self.currentstring.replace(\"\\n\",\"\")\n"
+                                   "        self.currentstring=self.currentstring.replace(\"\\r\",\"\")\n"
+                                   "        if self.error:\n"
+                                   "                pycalimero.log(self.currentstring,pycalimero.Error)\n"
+                                   "        else:\n"
+                                   "                pycalimero.log(self.currentstring,pycalimero.Standard)\n"
+                                   "        self.currentstring=\"\"\n"
+                                   "\n"
+                                   "    def close(self):\n"
+                                   "        self.stdout.close()\n"
+                                   "\n"
+                                   "if not isinstance(sys.stdout,Logger):\n"
+                                   "        sys.stdout=Logger(sys.stdout,False)\n"
+                                   "        sys.stderr=Logger(sys.stderr,True)\n");
+
+        PyRun_String(fmt.str().c_str(), Py_file_input, priv->main_namespace, 0);
+
 
         /*PyThreadState *pts = PyGILState_GetThisThreadState();
         PyEval_ReleaseThread(pts);*/
@@ -219,13 +245,11 @@ void PyEnv::registerFunctions(IRegistry *registry, const string &module)
 {
     PyObject *pycalimero_module = PyImport_ImportModule("pycalimero");
     if (PyErr_Occurred()) {
-        Logger(Error) << "error importing pycalimero module";
-        //throw PythonException();
+        Logger(Error) << "Could not import pycalimero module";
         PyErr_Print();
         return;
     }
-    cout << "loading module: " << module << endl;
-    //FILE *test_py = fopen(module.c_str(), "r");
+
     boost::format fmt("import %1%");
     fmt % module;
     PyRun_String(fmt.str().c_str(), Py_file_input, priv->main_namespace, 0);
@@ -244,34 +268,11 @@ void PyEnv::registerFunctions(IRegistry *registry, const string &module)
     Py_XDECREF(res);
     Py_XDECREF(py_this);
     Py_XDECREF(args);
-    if (PyErr_Occurred()) {
-        Logger(Error) << "error in python register function";
-        //throw PythonException();
+    if (PyErr_Occurred())
+    {
         PyErr_Print();
     }
-    Logger(Debug) << "successfully loaded python script" << module;
 
 
     //ScopedGILRelease scoped;
-}
-
-void handle_python_exception(const std::string &msg)
-{
-    PyObject* type, *value, *traceback;
-    string error = " | | ";
-    try
-    {
-        PyErr_Fetch(&type, &value, &traceback);
-        python::handle<> ty(type), v(value), tr(traceback);
-        python::str format("%s|%s|%s");
-        python::object ret = format % python::make_tuple(ty, v, tr);
-        error = python::extract<string>(ret);
-    }
-    catch(...) //is a little bit dirty but it catches all boost/python exceptions
-    {
-        throw PythonException(error, msg);
-        return;
-    }
-
-    throw PythonException(error, msg);
 }

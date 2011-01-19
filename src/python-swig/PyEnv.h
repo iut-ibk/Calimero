@@ -8,17 +8,15 @@
 #include <ICalibrationAlg.h>
 #include <IModelSimulator.h>
 #include <CalimeroGlob.h>
-#include <boost/python.hpp>
 #include <set>
 #include <QThread>
+#include <vector>
 
 using namespace std;
-using namespace boost::python;
-
-void handle_python_exception(const std::string &msg);
 
 struct PyEnvPriv;
 
+/*
 class CALIMERO_PUBLIC ScopedGILRelease
 {
 public:
@@ -35,11 +33,12 @@ public:
 private:
     PyGILState_STATE m_gstate;
 };
+*/
 
 class CALIMERO_PUBLIC PyEnv {
 public:
         bool pythonmainthread;
-        PyGILState_STATE m_gstate;
+        //PyGILState_STATE m_gstate;
 
         virtual ~PyEnv();
         static PyEnv *getInstance();
