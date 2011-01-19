@@ -4,8 +4,8 @@ from calimeropublic import frange
 class BruteForceSearch_P(pycalimero.ICalibrationAlg):
     def __init__(self):
         pycalimero.ICalibrationAlg.__init__(self)
-        self.setDataType("parallel", pycalimero.DATATYPE.UINT, "1")
-        self.setDataType("clean results", pycalimero.DATATYPE.BOOL, "1")
+        self.setDataType("parallel", pycalimero.UINT, "1")
+        self.setDataType("clean results", pycalimero.BOOL, "1")
         
     def bruteforcesearch(self,calibrationvars, currentvar, env):
         var = calibrationvars[currentvar]

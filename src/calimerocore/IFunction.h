@@ -33,6 +33,7 @@ protected:
     map<string,DATATYPE> parametertypes;
     map<string,string> parametervalues;
 public:
+    virtual ~IFunction() {}
 
     static IFUNCTIONTYPE getType()
     {

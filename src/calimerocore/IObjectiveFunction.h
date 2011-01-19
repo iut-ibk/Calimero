@@ -24,6 +24,7 @@ class CALIMERO_PUBLIC IObjectiveFunction : public IFunction
     public:
 
         IObjectiveFunction(){};
+        virtual ~IObjectiveFunction() {}
 
         static IFUNCTIONTYPE getType()
         {

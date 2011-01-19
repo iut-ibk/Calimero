@@ -15,7 +15,7 @@ IF (${CMAKE_CXX_COMPILER_ID} STREQUAL GNU)
 ENDIF()
 
 INCLUDE_DIRECTORIES(src/calimerocore
-                    src/python
+                    src/python-swig
                     src/nativefunctions
                     src/optimizationalgs
                     src/calimerohelper
@@ -23,12 +23,14 @@ INCLUDE_DIRECTORIES(src/calimerocore
 
 FIND_PACKAGE(Qt4 REQUIRED)
 
-FIND_PACKAGE(Boost 1.38.0 COMPONENTS system signals python program_options thread date_time filesystem REQUIRED)
+FIND_PACKAGE(Boost 1.38.0 COMPONENTS system signals program_options thread date_time filesystem REQUIRED)
 #SET(Boost_USE_STATIC_LIBS ON)
 ADD_DEFINITIONS(${Boost_LIB_DIAGNOSTIC_DEFINITIONS})
 SET(Boost_USE_MULTITHREADED ON)
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
+
+FIND_PACKAGE(SWIG REQUIRED)
 
 FIND_PACKAGE(PythonLibs REQUIRED)
 INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
@@ -50,12 +52,12 @@ SET(LIBRARY_OUTPUT_PATH ${calimero_BINARY_DIR})
 SET(EXECUTABLE_OUTPUT_PATH ${calimero_BINARY_DIR})
 
 ADD_SUBDIRECTORY(src/calimerocore)
-ADD_SUBDIRECTORY(src/python)
+ADD_SUBDIRECTORY(src/python-swig)
 ADD_SUBDIRECTORY(src/nativefunctions)
 ADD_SUBDIRECTORY(src/optimizationalgs)
 ADD_SUBDIRECTORY(src/app)
 ADD_SUBDIRECTORY(src/calimerohelper)
-ADD_SUBDIRECTORY(src/registryapp)
-ADD_SUBDIRECTORY(scripts)
+#ADD_SUBDIRECTORY(src/registryapp)
+#ADD_SUBDIRECTORY(scripts)
 
 INCLUDE(CalimeroCPack.txt)

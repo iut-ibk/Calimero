@@ -46,7 +46,7 @@ template <typename T> class Registry : public IRegistry
 
     public:
         Registry();
-        ~Registry();
+        virtual ~Registry();
         bool registerFunction(IFunctionFactory* factory);
         bool addNativePlugin(const std::string &plugin_path);
         T* getFunction(string name);
