@@ -11,12 +11,12 @@
 #include <set>
 #include <QThread>
 #include <vector>
+#include <boost/python/scope.hpp>
 
 using namespace std;
 
 struct PyEnvPriv;
 
-/*
 class CALIMERO_PUBLIC ScopedGILRelease
 {
 public:
@@ -33,12 +33,10 @@ public:
 private:
     PyGILState_STATE m_gstate;
 };
-*/
 
 class CALIMERO_PUBLIC PyEnv {
 public:
         bool pythonmainthread;
-        //PyGILState_STATE m_gstate;
 
         virtual ~PyEnv();
         static PyEnv *getInstance();

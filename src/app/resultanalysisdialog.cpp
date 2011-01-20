@@ -54,30 +54,37 @@ void ResultAnalysisDialog::on_newhandler_clicked()
 
     if (ok && !funname.isEmpty())
     {
-        map<string, string> handlers = env->getCalibration()->getResultHandlers();
-        if(handlers.find(funname.toStdString())!=handlers.end())
+        try
         {
-            QMessageBox::warning(this,tr("New analysis function"),tr("Name already exists: ") + funname);
-            return;
+            map<string, string> handlers = env->getCalibration()->getResultHandlers();
+            if(handlers.find(funname.toStdString())!=handlers.end())
+            {
+                QMessageBox::warning(this,tr("New analysis function"),tr("Name already exists: ") + funname);
+                return;
+            }
+
+            QStringList items;
+            vector<string> available = env->getAvailableResultHandlers();
+            BOOST_FOREACH(string name, available)
+                    items.push_back(QString::fromStdString(name));
+
+            QString text = QInputDialog::getItem ( this, "Analyse functions", "Available", items, 0, false, &ok);
+
+            if (!ok || text.isEmpty())
+                return;
+
+            ok = env->getCalibration()->addResultHandler(funname.toStdString(),
+                                                                                   text.toStdString(),
+                                                                                   env->getResultHandlerReg()->getFunction(text.toStdString())->getParameterValues(),
+                                                                                   false);
+
+            if(ok)
+                ui->handlers->addItem(funname);
         }
-
-        QStringList items;
-        vector<string> available = env->getAvailableResultHandlers();
-        BOOST_FOREACH(string name, available)
-                items.push_back(QString::fromStdString(name));
-
-        QString text = QInputDialog::getItem ( this, "Analyse functions", "Available", items, 0, false, &ok);
-
-        if (!ok || text.isEmpty())
-            return;
-
-        ok = env->getCalibration()->addResultHandler(funname.toStdString(),
-                                                                               text.toStdString(),
-                                                                               env->getResultHandlerReg()->getFunction(text.toStdString())->getParameterValues(),
-                                                                               false);
-
-        if(ok)
-            ui->handlers->addItem(funname);
+        catch (CalimeroException e)
+        {
+            Logger(Error) << e.exceptionmsg;
+        }
     }
 }
 

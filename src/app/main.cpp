@@ -115,7 +115,9 @@ int main(int argc, char **argv)
             QStringList pathlist = settings.value("calimerohome",QStringList()).toStringList();
 
             for (int index = 0; index < pathlist.size(); index++)
+            {
                 PyEnv::getInstance()->addPythonPath(pathlist.at(index).toStdString());
+            }
 
             for (int index = 0; index < pathlist.size(); index++)
             {

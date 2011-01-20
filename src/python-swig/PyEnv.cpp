@@ -46,113 +46,22 @@ void logwithlevel(std::string msg, LogLevel logl) {
 bool execIteration(vector<CalibrationVariable*> calibrationparameters)
 {
     bool result;
-    //Py_BEGIN_ALLOW_THREADS
+    Py_BEGIN_ALLOW_THREADS
     result = CalibrationEnv::getInstance()->execIteration(calibrationparameters);
-    //Py_END_ALLOW_THREADS
+    Py_END_ALLOW_THREADS
     return result;
 }
 
 void barrier()
 {
+    Logger(Standard) << "Hallo Thread";
     Py_BEGIN_ALLOW_THREADS
     CalibrationEnv::getInstance()->barrier();
     Py_END_ALLOW_THREADS
 };
 
-/*BOOST_PYTHON_MODULE(pycalimero)
-{
-        docstring_options doc_options;
-        doc_options.disable_cpp_signatures();
-        scope().attr("__doc__") = "calimero core lib for python.";
-
-        class_<std::vector<double> >("doublevector")
-                .def(vector_indexing_suite<std::vector<double> >());
-
-        class_<std::vector<vector<double> > >("doublevectorvector")
-                .def(vector_indexing_suite<std::vector<vector<double> > >());
-
-        class_<std::vector<string> >("stringvector")
-                .def(vector_indexing_suite<std::vector<string> >());
-
-        class_<std::vector<ObjectiveFunctionVariable*> >("objectivefunctionvariablevector")
-                .def(vector_indexing_suite<std::vector<ObjectiveFunctionVariable*> >());
-
-        class_<std::vector<Variable*> >("variablevector")
-                .def(vector_indexing_suite<std::vector<Variable*> >());
-
-        class_<std::vector<shared_ptr<IterationResult> > >("iterationresultvector")
-                .def(vector_indexing_suite<std::vector<shared_ptr<IterationResult> >, true >());
-
-        class_<std::vector<CalibrationVariable*> >("calibrationvariablevector")
-                .def(vector_indexing_suite<std::vector<CalibrationVariable*> >());
-
-        class_<std::map<string,vector<double> > >("stringvectormap")
-                .def(map_indexing_suite<std::map<string, vector<double> > >());
-
-        class_<std::map<string,string> >("stringmap")
-                .def(map_indexing_suite<std::map<string,string> >());
-
-        class_<std::map<int,DATATYPE> >("datatypemap")
-                .def(map_indexing_suite<std::map<int, DATATYPE> >());
-
-        class_<std::map<std::string, DATATYPE> >("datatypmap")
-                .def(map_indexing_suite<std::map<std::string, DATATYPE> >());
-
-        enum_<DATATYPE>("DATATYPE")
-                .value("STRING", STRING)
-                .value("DOUBLE", DOUBLE)
-                .value("BOOL", BOOL)
-                .value("INT", INT)
-                .value("UINT", UINT)
-                .value("FILESTRING", FILESTRING)
-                .value("DIRSTRING", DIRSTRING)
-                ;
-
-        class_<IFunction, boost::noncopyable>("IFunction")
-                .def("containsParameter", &IFunction::containsParameter)
-                .def("setValueOfParameter", &IFunction::setValueOfParameter)
-                .def("getDataTypes", &IFunction::getDataTypes)
-                .def("getValueOfParameter", &IFunction::getValueOfParameter)
-                .def("setDataType", &IFunction::setDataType)
-                .def("getParameterValues", &IFunction::getParameterValues)
-                ;
-
-        wrapDomain();
-        wrapCalibrationEnv();
-        wrapIterationResult();
-        wrapIModelSimulator();
-        wrapOFunction();
-        wrapVariable();
-        wrapCalAlgFunction();
-        wrapResultHandlerWrapper();
-        wrapCalibration();
-        wrapRegistry();
-        wrapPyEnv();
-
-        def("barrier", barrier);
-        def("execIteration", execIteration);
-        register_ptr_to_python< Variable* >();
-        register_ptr_to_python< ObjectiveFunctionVariable* >();
-        register_ptr_to_python< CalibrationVariable* >();
-        register_ptr_to_python< CalibrationEnv* >();
-        register_ptr_to_python< Calibration* >();
-        register_ptr_to_python< Domain* >();
-
-        def("init", ::init, "must be called first\n initializes the logger");
-        def("log", logdebug);
-        def("log", logwithlevel);
-        enum_<LogLevel>("LogLevel")
-                .value("debug", Debug)
-                .value("standard", Standard)
-                .value("error", Error)
-                .value("warning", Warning)
-                ;
-}*/
-
 struct PyEnvPriv {
-        //object main_module, main_namespace;
         PyObject *main_namespace;
-        //Py_O
 };
 
 PyEnv *PyEnv::instance = 0;
@@ -166,14 +75,16 @@ PyEnv::PyEnv() {
 
         if(!Py_IsInitialized()) {
             Py_Initialize();
+            PyEval_InitThreads();
             init_pycalimero();
         }
-
-        //PyEval_InitThreads();
 
         PyObject *main = PyImport_ImportModule("__main__");
         priv->main_namespace = PyModule_GetDict(main);
         Py_DECREF(main);
+
+        PyThreadState *pts = PyGILState_GetThisThreadState();
+        PyEval_ReleaseThread(pts);
 
         //redirect stdout and stderr
         boost::format fmt( "import sys\n"
@@ -205,11 +116,8 @@ PyEnv::PyEnv() {
                                    "        sys.stdout=Logger(sys.stdout,False)\n"
                                    "        sys.stderr=Logger(sys.stderr,True)\n");
 
+        ScopedGILRelease scoped;
         PyRun_String(fmt.str().c_str(), Py_file_input, priv->main_namespace, 0);
-
-
-        /*PyThreadState *pts = PyGILState_GetThisThreadState();
-        PyEval_ReleaseThread(pts);*/
 }
 
 PyEnv::~PyEnv() {
@@ -236,13 +144,13 @@ void PyEnv::addPythonPath(std::string path) {
         boost::format fmt("import sys\n"
                           "sys.path.append('%1%')\n");
         fmt % path;
+        ScopedGILRelease scoped;
         PyRun_String(fmt.str().c_str(), Py_file_input, priv->main_namespace, 0);
-        /*ScopedGILRelease scoped;
-        exec(fmt.str().c_str(),priv->main_namespace,priv->main_namespace);*/
 }
 
 void PyEnv::registerFunctions(IRegistry *registry, const string &module)
 {
+    ScopedGILRelease scoped;
     PyObject *pycalimero_module = PyImport_ImportModule("pycalimero");
     if (PyErr_Occurred()) {
         Logger(Error) << "Could not import pycalimero module";
@@ -250,7 +158,12 @@ void PyEnv::registerFunctions(IRegistry *registry, const string &module)
         return;
     }
 
-    boost::format fmt("import %1%");
+    boost::format fmt;
+    if(loadedmodules.find(module)==loadedmodules.end())
+        fmt = boost::format("import %1%");
+    else
+        fmt = boost::format("reload(%1%)");
+
     fmt % module;
     PyRun_String(fmt.str().c_str(), Py_file_input, priv->main_namespace, 0);
 
@@ -271,8 +184,8 @@ void PyEnv::registerFunctions(IRegistry *registry, const string &module)
     if (PyErr_Occurred())
     {
         PyErr_Print();
+        return;
     }
 
-
-    //ScopedGILRelease scoped;
+    loadedmodules.insert(module);
 }

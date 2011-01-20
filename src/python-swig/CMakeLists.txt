@@ -6,7 +6,7 @@ execute_process(COMMAND ${SWIG_EXECUTABLE} -python -external-runtime swigruntime
 
 ADD_CUSTOM_COMMAND(
 	OUTPUT ${CMAKE_BINARY_DIR}/pycalimeroWRAP.cpp
-	COMMAND ${SWIG_EXECUTABLE} -python -c++ -o ${CMAKE_BINARY_DIR}/pycalimeroWRAP.cpp ${CMAKE_CURRENT_SOURCE_DIR}/pycalimero.i
+        COMMAND ${SWIG_EXECUTABLE} -python -threads -c++ -o ${CMAKE_BINARY_DIR}/pycalimeroWRAP.cpp ${CMAKE_CURRENT_SOURCE_DIR}/pycalimero.i
 	DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/pycalimero.i
 	)
 

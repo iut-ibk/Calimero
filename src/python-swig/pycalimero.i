@@ -21,6 +21,7 @@
 #include <vector>
 #include <map>
 #include <iostream>
+
 using namespace std;
 %}
 
@@ -29,9 +30,9 @@ using namespace std;
 %include std_vector.i
 %include std_string.i
 %include std_map.i
-%include pointer.i
 #include typemaps.i
-
+%include "boost_shared_ptr.i"
+SWIG_SHARED_PTR(IterationResult, IterationResult)
 
 namespace std {
     %template(stringvector) vector<string>;
@@ -40,7 +41,7 @@ namespace std {
     %template(integervector) vector<int>;
     %template(variablevector) vector<Variable*>;
     %template(objectivefunctionvariablevector) vector<ObjectiveFunctionVariable*>;
-    %template(iterationresultvector) vector<shared_ptr<IterationResult> >;
+    %template(iterationresultvector) vector<boost::shared_ptr<IterationResult> >;
     %template(calibrationvariablevector) vector<CalibrationVariable*>;
     %template(stringvectormap) map<string,vector<double> >;
     %template(stringmap) map<string,string>;
@@ -141,10 +142,10 @@ public:
     bool removeDisabledGroup(std::string groupname);
     bool addEnabledOParameter(std::string parameter);
     bool removeEnabledOParameter(std::string parameter);
-    bool setIterationResults(std::map<int,shared_ptr<IterationResult>  > iterationresults);
+    bool setIterationResults(std::map<int,boost::shared_ptr<IterationResult>  > iterationresults);
     bool addResultHandler(std::string name, std::string functionname, std::map<std::string,std::string> settings, bool enabled);
     bool removeResultHandler(std::string name);
-    shared_ptr<IterationResult>   newIterationResult();
+    boost::shared_ptr<IterationResult>   newIterationResult();
 
     //contains
     bool containsGroup(std::string groupname);
@@ -160,7 +161,7 @@ public:
     std::string getModelSimulator();
     std::map<std::string,std::string> getCalibrationAlgSettings();
     std::map<std::string,std::string> getModelSimulatorSettings();
-    std::vector<shared_ptr<IterationResult>  > getIterationResults();
+    std::vector<boost::shared_ptr<IterationResult>  > getIterationResults();
     std::vector<std::string> getAllCalibrationParameters();
     std::vector<std::string> getAllObservedParameters();
     std::vector<std::string> getAllIterationParameters();
@@ -204,6 +205,8 @@ public:
     std::vector<std::string> getNamesOfIterationParameters();
 };
 
+
+
 class CalibrationEnv
 {
     bool startCalibration();
@@ -213,12 +216,6 @@ class CalibrationEnv
 
 
 %newobject CalibrationEnv::getInstance;
-
-%extend IObjectiveFunction {
-    static IFUNCTIONTYPE getType() {
-            return OBJECTIVEFUNCTION;
-    }
-}
 
 class Variable
 {
@@ -340,7 +337,7 @@ class IResultHandler : public IFunction
     public:
 
         IResultHandler(){};
-        virtual bool run(std::vector<shared_ptr<IterationResult> > iterationresults) = 0;
+        virtual bool run(std::vector<boost::shared_ptr<IterationResult> > iterationresults) = 0;
         bool test(){Logger(Error) << "test"; return false;};
 };
 
@@ -350,6 +347,8 @@ class IResultHandler : public IFunction
             return RESULTFUNCTION;
         };
 }
+
+
 
 %rename(execModel) IModelSimulator::exec(Domain*);
 class IModelSimulator : public IFunction
