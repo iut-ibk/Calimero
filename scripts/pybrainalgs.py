@@ -95,10 +95,10 @@ class SimpleEvo(Evolvable):
 class Pybrain_HillClimber(pycalimero.ICalibrationAlg):
 	def __init__(self):
 		pycalimero.ICalibrationAlg.__init__(self)
-		self.setDataType("max Iteration", pycalimero.DATATYPE.UINT, "100")
-		self.setDataType("max Error", pycalimero.DATATYPE.DOUBLE, "1")
-		self.setDataType("minimize objetive funtion", pycalimero.DATATYPE.BOOL, "1")
-		self.setDataType("verbose", pycalimero.DATATYPE.BOOL, "0")
+		self.setDataType("max Iteration", pycalimero.UINT, "100")
+		self.setDataType("max Error", pycalimero.DOUBLE, "1")
+		self.setDataType("minimize objetive funtion", pycalimero.BOOL, "1")
+		self.setDataType("verbose", pycalimero.BOOL, "0")
               
 	def start(self,calibrationvars, objectivevars, env, calibration):
 		self.calibrationvars=calibrationvars
@@ -116,7 +116,7 @@ class Pybrain_HillClimber(pycalimero.ICalibrationAlg):
 		if self.getValueOfParameter("verbose")=="1":
 			verbose=True
 		
-		pycalimero.log("Pybrain_HillClimber START",pycalimero.LogLevel.standard)
+		pycalimero.log("Pybrain_HillClimber START",pycalimero.Standard)
 		
 		boundaries = SimpleEvo(extractData(self.calibrationvars),calibrationvars,objectivevars,env,calibration)
 
@@ -127,17 +127,17 @@ class Pybrain_HillClimber(pycalimero.ICalibrationAlg):
 		alg.verbose = verbose
 		alg.learn()
 
-		pycalimero.log("Pybrain_HillClimber DONE",pycalimero.LogLevel.standard)
+		pycalimero.log("Pybrain_HillClimber DONE",pycalimero.Standard)
         
 		return True;
 
 class PyBrain_StochasticHillClimber(pycalimero.ICalibrationAlg):
 	def __init__(self):
 		pycalimero.ICalibrationAlg.__init__(self)
-		self.setDataType("max Iteration", pycalimero.DATATYPE.UINT, "100")
-		self.setDataType("max Error", pycalimero.DATATYPE.DOUBLE, "1")
-		self.setDataType("minimize objetive funtion", pycalimero.DATATYPE.BOOL, "1")
-		self.setDataType("verbose", pycalimero.DATATYPE.BOOL, "0")
+		self.setDataType("max Iteration", pycalimero.UINT, "100")
+		self.setDataType("max Error", pycalimero.DOUBLE, "1")
+		self.setDataType("minimize objetive funtion", pycalimero.BOOL, "1")
+		self.setDataType("verbose", pycalimero.BOOL, "0")
               
 	def start(self,calibrationvars, objectivevars, env, calibration):
 		self.calibrationvars=calibrationvars
@@ -155,7 +155,7 @@ class PyBrain_StochasticHillClimber(pycalimero.ICalibrationAlg):
 		if self.getValueOfParameter("verbose")=="1":
 			verbose=True
 		
-		pycalimero.log("Pybrain_StochasticHillClimbe START",pycalimero.LogLevel.standard)
+		pycalimero.log("Pybrain_StochasticHillClimbe START",pycalimero.Standard)
 		
 		boundaries = SimpleEvo(extractData(self.calibrationvars),calibrationvars,objectivevars,env,calibration)
 
@@ -166,17 +166,17 @@ class PyBrain_StochasticHillClimber(pycalimero.ICalibrationAlg):
 		alg.verbose = verbose
 		alg.learn()
 
-		pycalimero.log("Pybrain_StochasticHillClimbe DONE",pycalimero.LogLevel.standard)
+		pycalimero.log("Pybrain_StochasticHillClimbe DONE",pycalimero.Standard)
         
 		return True;
 	
 class PyBrain_RandomSearch(pycalimero.ICalibrationAlg):
 	def __init__(self):
 		pycalimero.ICalibrationAlg.__init__(self)
-		self.setDataType("max Iteration", pycalimero.DATATYPE.UINT, "100")
-		self.setDataType("max Error", pycalimero.DATATYPE.DOUBLE, "1")
-		self.setDataType("minimize objetive funtion", pycalimero.DATATYPE.BOOL, "1")
-		self.setDataType("verbose", pycalimero.DATATYPE.BOOL, "0")
+		self.setDataType("max Iteration", pycalimero.UINT, "100")
+		self.setDataType("max Error", pycalimero.DOUBLE, "1")
+		self.setDataType("minimize objetive funtion", pycalimero.BOOL, "1")
+		self.setDataType("verbose", pycalimero.BOOL, "0")
               
 	def start(self,calibrationvars, objectivevars, env, calibration):
 		self.calibrationvars=calibrationvars
@@ -194,7 +194,7 @@ class PyBrain_RandomSearch(pycalimero.ICalibrationAlg):
 		if self.getValueOfParameter("verbose")=="1":
 			verbose=True
 		
-		pycalimero.log("Pybrain_RandomSearch START",pycalimero.LogLevel.standard)
+		pycalimero.log("Pybrain_RandomSearch START",pycalimero.Standard)
 		
 		boundaries = SimpleEvo(extractData(self.calibrationvars),calibrationvars,objectivevars,env,calibration)
 
@@ -205,17 +205,17 @@ class PyBrain_RandomSearch(pycalimero.ICalibrationAlg):
 		alg.verbose = verbose
 		alg.learn()
 
-		pycalimero.log("Pybrain_RandomSearch DONE",pycalimero.LogLevel.standard)
+		pycalimero.log("Pybrain_RandomSearch DONE",pycalimero.Standard)
         
 		return True;
 
 class PyBrain_CMAES(pycalimero.ICalibrationAlg):
 	def __init__(self):
 		pycalimero.ICalibrationAlg.__init__(self)
-		self.setDataType("max Iteration", pycalimero.DATATYPE.UINT, "100")
-		self.setDataType("max Error", pycalimero.DATATYPE.DOUBLE, "1")
-		self.setDataType("minimize objetive funtion", pycalimero.DATATYPE.BOOL, "1")
-		self.setDataType("verbose", pycalimero.DATATYPE.BOOL, "0")
+		self.setDataType("max Iteration", pycalimero.UINT, "100")
+		self.setDataType("max Error", pycalimero.DOUBLE, "1")
+		self.setDataType("minimize objetive funtion", pycalimero.BOOL, "1")
+		self.setDataType("verbose", pycalimero.BOOL, "0")
 	
 	def __del__(self):
 		print "delete CMAES" 
@@ -237,7 +237,7 @@ class PyBrain_CMAES(pycalimero.ICalibrationAlg):
 		if self.getValueOfParameter("verbose")=="1":
 			verbose=True
 		
-		pycalimero.log("Pybrain_CMAES START",pycalimero.LogLevel.standard)
+		pycalimero.log("Pybrain_CMAES START",pycalimero.Standard)
 		
 		baseevo = SimpleEvo(extractData(self.calibrationvars),calibrationvars,objectivevars,env,calibration)
 
@@ -248,17 +248,17 @@ class PyBrain_CMAES(pycalimero.ICalibrationAlg):
 		alg.verbose = verbose
 		alg.learn()
 
-		pycalimero.log("Pybrain_CMAES DONE",pycalimero.LogLevel.standard)
+		pycalimero.log("Pybrain_CMAES DONE",pycalimero.Standard)
         
 		return True;
 		
 class PyBrain_NelderMead(pycalimero.ICalibrationAlg):
 	def __init__(self):
 		pycalimero.ICalibrationAlg.__init__(self)
-		self.setDataType("max Iteration", pycalimero.DATATYPE.UINT, "100")
-		self.setDataType("max Error", pycalimero.DATATYPE.DOUBLE, "1")
-		self.setDataType("minimize objetive funtion", pycalimero.DATATYPE.BOOL, "1")
-		self.setDataType("verbose", pycalimero.DATATYPE.BOOL, "0")
+		self.setDataType("max Iteration", pycalimero.UINT, "100")
+		self.setDataType("max Error", pycalimero.DOUBLE, "1")
+		self.setDataType("minimize objetive funtion", pycalimero.BOOL, "1")
+		self.setDataType("verbose", pycalimero.BOOL, "0")
               
 	def start(self,calibrationvars, objectivevars, env, calibration):
 		self.calibrationvars=calibrationvars
@@ -277,7 +277,7 @@ class PyBrain_NelderMead(pycalimero.ICalibrationAlg):
 		if self.getValueOfParameter("verbose")=="1":
 			verbose=True
 		
-		pycalimero.log("Pybrain_NelderMead START",pycalimero.LogLevel.standard)
+		pycalimero.log("Pybrain_NelderMead START",pycalimero.Standard)
 		
 		baseevo = SimpleEvo(extractData(self.calibrationvars),calibrationvars,objectivevars,env,calibration)
 
@@ -288,17 +288,17 @@ class PyBrain_NelderMead(pycalimero.ICalibrationAlg):
 		alg.verbose = verbose
 		alg.learn()
 
-		pycalimero.log("Pybrain_NelderMead DONE",pycalimero.LogLevel.standard)
+		pycalimero.log("Pybrain_NelderMead DONE",pycalimero.Standard)
         
 		return True;
 		
 class PyBrain_OriginalNES(pycalimero.ICalibrationAlg):
 	def __init__(self):
 		pycalimero.ICalibrationAlg.__init__(self)
-		self.setDataType("max Iteration", pycalimero.DATATYPE.UINT, "100")
-		self.setDataType("max Error", pycalimero.DATATYPE.DOUBLE, "1")
-		self.setDataType("minimize objetive funtion", pycalimero.DATATYPE.BOOL, "1")
-		self.setDataType("verbose", pycalimero.DATATYPE.BOOL, "0")
+		self.setDataType("max Iteration", pycalimero.UINT, "100")
+		self.setDataType("max Error", pycalimero.DOUBLE, "1")
+		self.setDataType("minimize objetive funtion", pycalimero.BOOL, "1")
+		self.setDataType("verbose", pycalimero.BOOL, "0")
               
 	def start(self,calibrationvars, objectivevars, env, calibration):
 		self.calibrationvars=calibrationvars
@@ -317,7 +317,7 @@ class PyBrain_OriginalNES(pycalimero.ICalibrationAlg):
 		if self.getValueOfParameter("verbose")=="1":
 			verbose=True
 		
-		pycalimero.log("Pybrain_OriginalNES START",pycalimero.LogLevel.standard)
+		pycalimero.log("Pybrain_OriginalNES START",pycalimero.Standard)
 		
 		baseevo = SimpleEvo(extractData(self.calibrationvars),calibrationvars,objectivevars,env,calibration)
 
@@ -328,17 +328,17 @@ class PyBrain_OriginalNES(pycalimero.ICalibrationAlg):
 		alg.verbose = verbose
 		alg.learn()
 
-		pycalimero.log("Pybrain_OriginalNES DONE",pycalimero.LogLevel.standard)
+		pycalimero.log("Pybrain_OriginalNES DONE",pycalimero.Standard)
         
 		return True;
 		
 class PyBrain_ExactNES(pycalimero.ICalibrationAlg):
 	def __init__(self):
 		pycalimero.ICalibrationAlg.__init__(self)
-		self.setDataType("max Iteration", pycalimero.DATATYPE.UINT, "100")
-		self.setDataType("max Error", pycalimero.DATATYPE.DOUBLE, "1")
-		self.setDataType("minimize objetive funtion", pycalimero.DATATYPE.BOOL, "1")
-		self.setDataType("verbose", pycalimero.DATATYPE.BOOL, "0")
+		self.setDataType("max Iteration", pycalimero.UINT, "100")
+		self.setDataType("max Error", pycalimero.DOUBLE, "1")
+		self.setDataType("minimize objetive funtion", pycalimero.BOOL, "1")
+		self.setDataType("verbose", pycalimero.BOOL, "0")
               
 	def start(self,calibrationvars, objectivevars, env, calibration):
 		self.calibrationvars=calibrationvars
@@ -357,7 +357,7 @@ class PyBrain_ExactNES(pycalimero.ICalibrationAlg):
 		if self.getValueOfParameter("verbose")=="1":
 			verbose=True
 		
-		pycalimero.log("Pybrain_ExactNES START",pycalimero.LogLevel.standard)
+		pycalimero.log("Pybrain_ExactNES START",pycalimero.Standard)
 		
 		baseevo = SimpleEvo(extractData(self.calibrationvars),calibrationvars,objectivevars,env,calibration)
 
@@ -368,17 +368,17 @@ class PyBrain_ExactNES(pycalimero.ICalibrationAlg):
 		alg.verbose = verbose
 		alg.learn()
 
-		pycalimero.log("Pybrain_ExactNES DONE",pycalimero.LogLevel.standard)
+		pycalimero.log("Pybrain_ExactNES DONE",pycalimero.Standard)
         
 		return True;
 		
 class PyBrain_FEM(pycalimero.ICalibrationAlg):
 	def __init__(self):
 		pycalimero.ICalibrationAlg.__init__(self)
-		self.setDataType("max Iteration", pycalimero.DATATYPE.UINT, "100")
-		self.setDataType("max Error", pycalimero.DATATYPE.DOUBLE, "1")
-		self.setDataType("minimize objetive funtion", pycalimero.DATATYPE.BOOL, "1")
-		self.setDataType("verbose", pycalimero.DATATYPE.BOOL, "0")
+		self.setDataType("max Iteration", pycalimero.UINT, "100")
+		self.setDataType("max Error", pycalimero.DOUBLE, "1")
+		self.setDataType("minimize objetive funtion", pycalimero.BOOL, "1")
+		self.setDataType("verbose", pycalimero.BOOL, "0")
               
 	def start(self,calibrationvars, objectivevars, env, calibration):
 		self.calibrationvars=calibrationvars
@@ -397,7 +397,7 @@ class PyBrain_FEM(pycalimero.ICalibrationAlg):
 		if self.getValueOfParameter("verbose")=="1":
 			verbose=True
 		
-		pycalimero.log("Pybrain_FEM START",pycalimero.LogLevel.standard)
+		pycalimero.log("Pybrain_FEM START",pycalimero.Standard)
 		
 		baseevo = SimpleEvo(extractData(self.calibrationvars),calibrationvars,objectivevars,env,calibration)
 
@@ -408,17 +408,17 @@ class PyBrain_FEM(pycalimero.ICalibrationAlg):
 		alg.verbose = verbose
 		alg.learn()
 
-		pycalimero.log("Pybrain_FEM DONE",pycalimero.LogLevel.standard)
+		pycalimero.log("Pybrain_FEM DONE",pycalimero.Standard)
         
 		return True;
 		
 class PyBrain_FiniteDifferences(pycalimero.ICalibrationAlg):
 	def __init__(self):
 		pycalimero.ICalibrationAlg.__init__(self)
-		self.setDataType("max Iteration", pycalimero.DATATYPE.UINT, "100")
-		self.setDataType("max Error", pycalimero.DATATYPE.DOUBLE, "1")
-		self.setDataType("minimize objetive funtion", pycalimero.DATATYPE.BOOL, "1")
-		self.setDataType("verbose", pycalimero.DATATYPE.BOOL, "0")
+		self.setDataType("max Iteration", pycalimero.UINT, "100")
+		self.setDataType("max Error", pycalimero.DOUBLE, "1")
+		self.setDataType("minimize objetive funtion", pycalimero.BOOL, "1")
+		self.setDataType("verbose", pycalimero.BOOL, "0")
               
 	def start(self,calibrationvars, objectivevars, env, calibration):
 		self.calibrationvars=calibrationvars
@@ -437,7 +437,7 @@ class PyBrain_FiniteDifferences(pycalimero.ICalibrationAlg):
 		if self.getValueOfParameter("verbose")=="1":
 			verbose=True
 		
-		pycalimero.log("Pybrain_FiniteDifferences START",pycalimero.LogLevel.standard)
+		pycalimero.log("Pybrain_FiniteDifferences START",pycalimero.Standard)
 		
 		baseevo = SimpleEvo(extractData(self.calibrationvars),calibrationvars,objectivevars,env,calibration)
 
@@ -448,17 +448,17 @@ class PyBrain_FiniteDifferences(pycalimero.ICalibrationAlg):
 		alg.verbose = verbose
 		alg.learn()
 
-		pycalimero.log("Pybrain_FiniteDifferences DONE",pycalimero.LogLevel.standard)
+		pycalimero.log("Pybrain_FiniteDifferences DONE",pycalimero.Standard)
         
 		return True;
 		
 class PyBrain_PGPE(pycalimero.ICalibrationAlg):
 	def __init__(self):
 		pycalimero.ICalibrationAlg.__init__(self)
-		self.setDataType("max Iteration", pycalimero.DATATYPE.UINT, "100")
-		self.setDataType("max Error", pycalimero.DATATYPE.DOUBLE, "1")
-		self.setDataType("minimize objetive funtion", pycalimero.DATATYPE.BOOL, "1")
-		self.setDataType("verbose", pycalimero.DATATYPE.BOOL, "0")
+		self.setDataType("max Iteration", pycalimero.UINT, "100")
+		self.setDataType("max Error", pycalimero.DOUBLE, "1")
+		self.setDataType("minimize objetive funtion", pycalimero.BOOL, "1")
+		self.setDataType("verbose", pycalimero.BOOL, "0")
               
 	def start(self,calibrationvars, objectivevars, env, calibration):
 		self.calibrationvars=calibrationvars
@@ -477,7 +477,7 @@ class PyBrain_PGPE(pycalimero.ICalibrationAlg):
 		if self.getValueOfParameter("verbose")=="1":
 			verbose=True
 		
-		pycalimero.log("Pybrain_PGPE START",pycalimero.LogLevel.standard)
+		pycalimero.log("Pybrain_PGPE START",pycalimero.Standard)
 		
 		baseevo = SimpleEvo(extractData(self.calibrationvars),calibrationvars,objectivevars,env,calibration)
 
@@ -488,17 +488,17 @@ class PyBrain_PGPE(pycalimero.ICalibrationAlg):
 		alg.verbose = verbose
 		alg.learn()
 
-		pycalimero.log("Pybrain_PGPE DONE",pycalimero.LogLevel.standard)
+		pycalimero.log("Pybrain_PGPE DONE",pycalimero.Standard)
         
 		return True;
 		
 class PyBrain_SimpleSPSA(pycalimero.ICalibrationAlg):
 	def __init__(self):
 		pycalimero.ICalibrationAlg.__init__(self)
-		self.setDataType("max Iteration", pycalimero.DATATYPE.UINT, "100")
-		self.setDataType("max Error", pycalimero.DATATYPE.DOUBLE, "1")
-		self.setDataType("minimize objetive funtion", pycalimero.DATATYPE.BOOL, "1")
-		self.setDataType("verbose", pycalimero.DATATYPE.BOOL, "0")
+		self.setDataType("max Iteration", pycalimero.UINT, "100")
+		self.setDataType("max Error", pycalimero.DOUBLE, "1")
+		self.setDataType("minimize objetive funtion", pycalimero.BOOL, "1")
+		self.setDataType("verbose", pycalimero.BOOL, "0")
               
 	def start(self,calibrationvars, objectivevars, env, calibration):
 		self.calibrationvars=calibrationvars
@@ -517,7 +517,7 @@ class PyBrain_SimpleSPSA(pycalimero.ICalibrationAlg):
 		if self.getValueOfParameter("verbose")=="1":
 			verbose=True
 		
-		pycalimero.log("Pybrain_SimpleSPSA START",pycalimero.LogLevel.standard)
+		pycalimero.log("Pybrain_SimpleSPSA START",pycalimero.Standard)
 		
 		baseevo = SimpleEvo(extractData(self.calibrationvars),calibrationvars,objectivevars,env,calibration)
 
@@ -528,17 +528,17 @@ class PyBrain_SimpleSPSA(pycalimero.ICalibrationAlg):
 		alg.verbose = verbose
 		alg.learn()
 
-		pycalimero.log("Pybrain_SimpleSPSA DONE",pycalimero.LogLevel.standard)
+		pycalimero.log("Pybrain_SimpleSPSA DONE",pycalimero.Standard)
         
 		return True;
 		
 class PyBrain_ParticleSwarmOptimizer(pycalimero.ICalibrationAlg):
 	def __init__(self):
 		pycalimero.ICalibrationAlg.__init__(self)
-		self.setDataType("max Iteration", pycalimero.DATATYPE.UINT, "100")
-		self.setDataType("max Error", pycalimero.DATATYPE.DOUBLE, "1")
-		self.setDataType("minimize objetive funtion", pycalimero.DATATYPE.BOOL, "1")
-		self.setDataType("verbose", pycalimero.DATATYPE.BOOL, "0")
+		self.setDataType("max Iteration", pycalimero.UINT, "100")
+		self.setDataType("max Error", pycalimero.DOUBLE, "1")
+		self.setDataType("minimize objetive funtion", pycalimero.BOOL, "1")
+		self.setDataType("verbose", pycalimero.BOOL, "0")
               
 	def start(self,calibrationvars, objectivevars, env, calibration):
 		self.calibrationvars=calibrationvars
@@ -557,7 +557,7 @@ class PyBrain_ParticleSwarmOptimizer(pycalimero.ICalibrationAlg):
 		if self.getValueOfParameter("verbose")=="1":
 			verbose=True
 		
-		pycalimero.log("Pybrain_ParticleSwarmOptimizer START",pycalimero.LogLevel.standard)
+		pycalimero.log("Pybrain_ParticleSwarmOptimizer START",pycalimero.Standard)
 		
 		baseevo = SimpleEvo(extractData(self.calibrationvars),calibrationvars,objectivevars,env,calibration)
 
@@ -568,17 +568,17 @@ class PyBrain_ParticleSwarmOptimizer(pycalimero.ICalibrationAlg):
 		alg.verbose = verbose
 		alg.learn()
 
-		pycalimero.log("Pybrain_ParticleSwarmOptimizer DONE",pycalimero.LogLevel.standard)
+		pycalimero.log("Pybrain_ParticleSwarmOptimizer DONE",pycalimero.Standard)
         
 		return True;
 		
 class PyBrain_GA(pycalimero.ICalibrationAlg):
 	def __init__(self):
 		pycalimero.ICalibrationAlg.__init__(self)
-		self.setDataType("max Iteration", pycalimero.DATATYPE.UINT, "100")
-		self.setDataType("max Error", pycalimero.DATATYPE.DOUBLE, "1")
-		self.setDataType("minimize objetive funtion", pycalimero.DATATYPE.BOOL, "1")
-		self.setDataType("verbose", pycalimero.DATATYPE.BOOL, "0")
+		self.setDataType("max Iteration", pycalimero.UINT, "100")
+		self.setDataType("max Error", pycalimero.DOUBLE, "1")
+		self.setDataType("minimize objetive funtion", pycalimero.BOOL, "1")
+		self.setDataType("verbose", pycalimero.BOOL, "0")
               
 	def start(self,calibrationvars, objectivevars, env, calibration):
 		self.calibrationvars=calibrationvars
@@ -597,7 +597,7 @@ class PyBrain_GA(pycalimero.ICalibrationAlg):
 		if self.getValueOfParameter("verbose")=="1":
 			verbose=True
 		
-		pycalimero.log("Pybrain_GA START",pycalimero.LogLevel.standard)
+		pycalimero.log("Pybrain_GA START",pycalimero.Standard)
 		
 		baseevo = SimpleEvo(extractData(self.calibrationvars),calibrationvars,objectivevars,env,calibration)
 
@@ -608,7 +608,7 @@ class PyBrain_GA(pycalimero.ICalibrationAlg):
 		alg.verbose = verbose
 		alg.learn()
 
-		pycalimero.log("Pybrain_GA DONE",pycalimero.LogLevel.standard)
+		pycalimero.log("Pybrain_GA DONE",pycalimero.Standard)
         
 		return True;
         

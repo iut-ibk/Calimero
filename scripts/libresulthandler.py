@@ -73,10 +73,10 @@ class Dialog(QDialog):
 class SMDotPlot(pycalimero.IResultHandler):
     def __init__(self):
         pycalimero.IResultHandler.__init__(self)
-        self.setDataType("parameter 1", pycalimero.DATATYPE.STRING, "")
-        self.setDataType("parameter 2", pycalimero.DATATYPE.STRING, "")
-        self.setDataType("title", pycalimero.DATATYPE.STRING, "")
-        self.setDataType("iteration number", pycalimero.DATATYPE.UINT, "0")
+        self.setDataType("parameter 1", pycalimero.STRING, "")
+        self.setDataType("parameter 2", pycalimero.STRING, "")
+        self.setDataType("title", pycalimero.STRING, "")
+        self.setDataType("iteration number", pycalimero.UINT, "0")
         
     def run(self, results):
         par1 = self.getValueOfParameter("parameter 1")
@@ -128,7 +128,7 @@ class SMDotPlot(pycalimero.IResultHandler):
 class FindBestResult(pycalimero.IResultHandler):
     def __init__(self):
         pycalimero.IResultHandler.__init__(self)
-        self.setDataType("objective function parameter", pycalimero.DATATYPE.STRING, "")
+        self.setDataType("objective function parameter", pycalimero.STRING, "")
         
     def run(self, results):
         name = self.getValueOfParameter("objective function parameter")
@@ -170,9 +170,9 @@ class FindAllBestResults(pycalimero.IResultHandler):
 class HistogramPlot(pycalimero.IResultHandler):
     def __init__(self):
         pycalimero.IResultHandler.__init__(self)
-        self.setDataType("parameter", pycalimero.DATATYPE.STRING, "")
-        self.setDataType("title", pycalimero.DATATYPE.STRING, "")
-        self.setDataType("iteration number", pycalimero.DATATYPE.UINT, "0")
+        self.setDataType("parameter", pycalimero.STRING, "")
+        self.setDataType("title", pycalimero.STRING, "")
+        self.setDataType("iteration number", pycalimero.UINT, "0")
         
     def run(self, results):
         par = self.getValueOfParameter("parameter")
@@ -212,9 +212,9 @@ class HistogramPlot(pycalimero.IResultHandler):
 class BoxPlot(pycalimero.IResultHandler):
     def __init__(self):
         pycalimero.IResultHandler.__init__(self)
-        self.setDataType("parameter", pycalimero.DATATYPE.STRING, "")
-        self.setDataType("title", pycalimero.DATATYPE.STRING, "")
-        self.setDataType("iteration number", pycalimero.DATATYPE.UINT, "0")
+        self.setDataType("parameter", pycalimero.STRING, "")
+        self.setDataType("title", pycalimero.STRING, "")
+        self.setDataType("iteration number", pycalimero.UINT, "0")
         
     def run(self, results):
         par = self.getValueOfParameter("parameter")
@@ -252,10 +252,10 @@ class BoxPlot(pycalimero.IResultHandler):
 class TimeVariationCurvePlot(pycalimero.IResultHandler):
     def __init__(self):
         pycalimero.IResultHandler.__init__(self)
-        self.setDataType("parameter 1", pycalimero.DATATYPE.STRING, "")
-        self.setDataType("parameter 2", pycalimero.DATATYPE.STRING, "")
-        self.setDataType("title", pycalimero.DATATYPE.STRING, "")
-        self.setDataType("iteration number", pycalimero.DATATYPE.UINT, "0")
+        self.setDataType("parameter 1", pycalimero.STRING, "")
+        self.setDataType("parameter 2", pycalimero.STRING, "")
+        self.setDataType("title", pycalimero.STRING, "")
+        self.setDataType("iteration number", pycalimero.UINT, "0")
         
     def run(self, results):
         par1 = self.getValueOfParameter("parameter 1")
