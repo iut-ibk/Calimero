@@ -21,3 +21,17 @@ ADD_CUSTOM_TARGET(pycalimerogen DEPENDS ${CMAKE_BINARY_DIR}/pycalimeroWRAP.cpp)
 SET_SOURCE_FILES_PROPERTIES(pycalimero.i PROPERTIES CPLUSPLUS ON)
 SWIG_ADD_MODULE(pycalimero python pycalimero.i PyFunctionLoader.cpp PyEnv.cpp)
 SWIG_LINK_LIBRARIES(pycalimero calimerocore ${PYTHON_LIBRARIES})
+
+if(WIN32)
+    GET_TARGET_PROPERTY(LIB_NAME pycalimero LOCATION)
+    SET(NEW_LIB_NAME  ${CMAKE_BINARY_DIR}/_pycalimero.dll)
+    ADD_CUSTOM_COMMAND(
+       TARGET _pycalimero
+       POST_BUILD
+       COMMAND ${CMAKE_COMMAND} -E copy ${LIB_NAME} ${NEW_LIB_NAME})
+else()
+        SET_TARGET_PROPERTIES(_pycalimero
+        PROPERTIES
+        OUTPUT_NAME "pycalimero"
+        PREFIX "")
+endif(WIN32)
