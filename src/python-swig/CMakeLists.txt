@@ -23,7 +23,7 @@ SWIG_ADD_MODULE(pycalimero python pycalimero.i PyFunctionLoader.cpp PyEnv.cpp)
 SWIG_LINK_LIBRARIES(pycalimero calimerocore ${PYTHON_LIBRARIES})
 
 if(WIN32)
-    GET_TARGET_PROPERTY(LIB_NAME pycalimero LOCATION)
+    SET(LIB_NAME  ${CMAKE_BINARY_DIR}/_pycalimero.pyd)
     SET(NEW_LIB_NAME  ${CMAKE_BINARY_DIR}/_pycalimero.dll)
     ADD_CUSTOM_COMMAND(
        TARGET _pycalimero
