@@ -8,25 +8,15 @@ class Sum(pycalimero.IObjectiveFunction):
     def eval(self,iterationparameters, observedparameters, objectivefunctionparameters):
         result = pycalimero.doublevector()
         resultvalue = 0.0
+        allparameters = []
+        allparameters.extend(iterationparameters)
+        allparameters.extend(observedparameters)
+        allparameters.extend(objectivefunctionparameters)
+        
+        for i in allparameters:
+            resultvalue += sum(i.getValues())
 
-	print type(iterationparameters)
-	print type(result)
-	for i in range(0,iterationparameters.size()):
-		currentvec=iterationparameters[i].getValues()
-		for vi in range(0,currentvec.size()):
-			resultvalue += currentvec[vi]
-
-	for i in range(0,observedparameters.size()):
-		currentvec=observedparameters[i].getValues()
-		for vi in range(0,currentvec.size()):
-			resultvalue += currentvec[vi]
-
-	for i in range(0,objectivefunctionparameters.size()):
-		currentvec=objectivefunctionparameters[i].getValues()
-		for vi in range(0,currentvec.size()):
-			resultvalue += currentvec[vi]
-
-        result.append(resultvalue)
+        result.push_back(resultvalue)
         return result
     
 class ReverseVector(pycalimero.IObjectiveFunction):
@@ -41,7 +31,7 @@ class ReverseVector(pycalimero.IObjectiveFunction):
         numberofvectors = numberofvectors+objectivefunctionparameters.__len__()
         
         if(numberofvectors!=1):
-            pycalimero.log("Only one vector is allowed in ReverseVector", pycalimero.LogLevel.warning)
+            pycalimero.log("Only one vector is allowed in ReverseVector", pycalimero.Warning)
         
         #search for vectors and check their size
         vectors = pycalimero.doublevectorvector()
@@ -76,7 +66,7 @@ class VectorErrorSquare(pycalimero.IObjectiveFunction):
         numberofvectors = numberofvectors+objectivefunctionparameters.__len__()
         
         if(numberofvectors!=2):
-            pycalimero.log("Only two vectors are allowed in VectorErrorSquare", pycalimero.LogLevel.warning)
+            pycalimero.log("Only two vectors are allowed in VectorErrorSquare", pycalimero.Warning)
         
         #search for vectors and check their size
         vectors = pycalimero.doublevectorvector()
@@ -92,7 +82,7 @@ class VectorErrorSquare(pycalimero.IObjectiveFunction):
             vectors.append(var.getValues())
         
         if(vectors[0].__len__()!=vectors[1].__len__()):
-            pycalimero.log("Vectors do not have the same size in VectorErrorSquare. Fill missing elements with a high value", pycalimero.LogLevel.warning)
+            pycalimero.log("Vectors do not have the same size in VectorErrorSquare. Fill missing elements with a high value", pycalimero.Warning)
 
         #calculate
         result = pycalimero.doublevector()
@@ -121,7 +111,7 @@ class VectorError(pycalimero.IObjectiveFunction):
         numberofvectors = numberofvectors+objectivefunctionparameters.__len__()
         
         if(numberofvectors!=2):
-            pycalimero.log("Only two vectors are allowed in VectorError", pycalimero.LogLevel.warning)
+            pycalimero.log("Only two vectors are allowed in VectorError", pycalimero.Warning)
         
         #search for vectors and check their size
         vectors = pycalimero.doublevectorvector()
@@ -137,7 +127,7 @@ class VectorError(pycalimero.IObjectiveFunction):
             vectors.append(var.getValues())
         
         if(vectors[0].__len__()!=vectors[1].__len__()):
-            pycalimero.log("Vectors do not have the same size in VectorError", pycalimero.LogLevel.warning)
+            pycalimero.log("Vectors do not have the same size in VectorError", pycalimero.Warning)
 
         #calculate
         result = pycalimero.doublevector()

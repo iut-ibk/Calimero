@@ -7,7 +7,7 @@ class BruteForceSearch_P(pycalimero.ICalibrationAlg):
         self.setDataType("parallel", pycalimero.UINT, "1")
         self.setDataType("clean results", pycalimero.BOOL, "1")
         
-    def bruteforcesearch(self,calibrationvars, currentvar, env):
+    def bruteforcesearch(self, calibrationvars, currentvar, env):
         var = calibrationvars[currentvar]
         
         for currentvalue in frange(var.min,var.max,var.step) + [var.max]:
@@ -17,7 +17,7 @@ class BruteForceSearch_P(pycalimero.ICalibrationAlg):
         
             if (currentvar==(calibrationvars.__len__()-1)):
                 if (pycalimero.execIteration(calibrationvars) == False):
-                    pycalimero.log("BruteForceSearch_P stoped by user",pycalimero.LogLevel.standard)
+                    pycalimero.log("BruteForceSearch_P stoped by user",pycalimero.Standard)
                     return False
             else:
                 if(self.bruteforcesearch(calibrationvars,currentvar+1,env)==False):
@@ -26,8 +26,8 @@ class BruteForceSearch_P(pycalimero.ICalibrationAlg):
         return True
               
     def start(self,calibrationvars, objectivevars, env, calibration):
-        pycalimero.log("Start BruteForceSearch_P",pycalimero.LogLevel.standard)
+        pycalimero.log("Start BruteForceSearch_P",pycalimero.Standard)
         result =  self.bruteforcesearch(calibrationvars,0,env)
-        pycalimero.log("BruteForceSearch_P DONE",pycalimero.LogLevel.standard)
+        pycalimero.log("BruteForceSearch_P DONE",pycalimero.Standard)
         
         return result;
