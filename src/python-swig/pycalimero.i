@@ -31,8 +31,6 @@ using namespace std;
 %include std_string.i
 %include std_map.i
 #include typemaps.i
-%include "boost_shared_ptr.i"
-SWIG_SHARED_PTR(IterationResult, IterationResult)
 
 namespace std {
     %template(stringvector) vector<string>;
@@ -41,7 +39,7 @@ namespace std {
     %template(integervector) vector<int>;
     %template(variablevector) vector<Variable*>;
     %template(objectivefunctionvariablevector) vector<ObjectiveFunctionVariable*>;
-    %template(iterationresultvector) vector<boost::shared_ptr<IterationResult> >;
+    %template(iterationresultvector) vector<IterationResult * >;
     %template(calibrationvariablevector) vector<CalibrationVariable*>;
     %template(stringvectormap) map<string,vector<double> >;
     %template(stringmap) map<string,string>;
@@ -142,10 +140,10 @@ public:
     bool removeDisabledGroup(std::string groupname);
     bool addEnabledOParameter(std::string parameter);
     bool removeEnabledOParameter(std::string parameter);
-    bool setIterationResults(std::map<int,boost::shared_ptr<IterationResult>  > iterationresults);
+    bool setIterationResults(std::map<int,IterationResult *  > iterationresults);
     bool addResultHandler(std::string name, std::string functionname, std::map<std::string,std::string> settings, bool enabled);
     bool removeResultHandler(std::string name);
-    boost::shared_ptr<IterationResult>   newIterationResult();
+    IterationResult *   newIterationResult();
 
     //contains
     bool containsGroup(std::string groupname);
@@ -161,7 +159,7 @@ public:
     std::string getModelSimulator();
     std::map<std::string,std::string> getCalibrationAlgSettings();
     std::map<std::string,std::string> getModelSimulatorSettings();
-    std::vector<boost::shared_ptr<IterationResult>  > getIterationResults();
+    std::vector<IterationResult *  > getIterationResults();
     std::vector<std::string> getAllCalibrationParameters();
     std::vector<std::string> getAllObservedParameters();
     std::vector<std::string> getAllIterationParameters();
@@ -337,7 +335,7 @@ class IResultHandler : public IFunction
     public:
 
         IResultHandler(){};
-        virtual bool run(std::vector<boost::shared_ptr<IterationResult> > iterationresults) = 0;
+        virtual bool run(std::vector<IterationResult * > iterationresults) = 0;
         bool test(){Logger(Error) << "test"; return false;};
 };
 
@@ -392,6 +390,7 @@ class FunctionFactory(IFunctionFactory):
     def __init__(self, klass):
         IFunctionFactory.__init__(self)
         self.klass = klass
+        print "creating ff for %s" % self.getFunctionName()
 
     def createFunction(self):
         return self.klass().__disown__()
@@ -399,9 +398,16 @@ class FunctionFactory(IFunctionFactory):
     def getFunctionName(self):
         return self.klass.__name__
 
+    def __del__(self):
+        print "deleting FF for %s" % self.getFunctionName()
+
 def registerFunctions(registry):
     FUNCTION_CLASSES = [IObjectiveFunction, ICalibrationAlg, IModelSimulator, IResultHandler]
     func_type_klass = FUNCTION_CLASSES[registry.getType()]
+    print "registering for type %s" % func_type_klass.__name__
     for klass in func_type_klass.__subclasses__():
+        if registry.contains(klass.__name__):
+            continue
+        print "registering klass %s" % klass.__name__
         registry.registerFunction(FunctionFactory(klass).__disown__())
 %}

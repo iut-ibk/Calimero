@@ -67,7 +67,7 @@ void Calibration::clear()
 }
 
 bool Calibration::setCalibrationAlg(string ca, map<string,string>  settings)
-{   
+{
     QMutexLocker locker(mutex);
     if(!CalibrationEnv::getInstance()->getCalibrationAlgReg()->contains(ca))
     {
@@ -417,18 +417,18 @@ int Calibration::getNumOfComplete()
 {
     QMutexLocker locker(mutex);
     int result=0;
-    std::pair<int,shared_ptr<IterationResult> > p;
+    std::pair<int,IterationResult * > p;
     BOOST_FOREACH(p, iterationresults)
             result += (p.second->isComplete()) ? 1 : 0 ;
 
     return result;
 }
 
-vector<shared_ptr<IterationResult>  > Calibration::getIterationResults()
+vector<IterationResult *  > Calibration::getIterationResults()
 {
     QMutexLocker locker(mutex);
-    vector<shared_ptr<IterationResult>  > result;
-    std::pair<int,shared_ptr<IterationResult>  >p;
+    vector<IterationResult *  > result;
+    std::pair<int,IterationResult *  >p;
     BOOST_FOREACH(p,iterationresults)
             if(p.second->isComplete())
                 result.push_back(p.second);
@@ -451,10 +451,10 @@ map<string,string> Calibration::getModelSimulatorSettings()
     return modelsimulatorsettings;
 }
 
-shared_ptr<IterationResult>   Calibration::newIterationResult()
+IterationResult *   Calibration::newIterationResult()
 {
     QMutexLocker locker(mutex);
-    iterationresults.insert(pair<int,shared_ptr<IterationResult> >(iterationresults.size(),shared_ptr<IterationResult>(new IterationResult(iterationresults.size()))));
+    iterationresults.insert(pair<int,IterationResult * >(iterationresults.size(), new IterationResult(iterationresults.size())));
     return iterationresults[iterationresults.size()-1];
 }
 
@@ -558,7 +558,7 @@ bool Calibration::isDisabledGroup(const string &name)
     return disabledgroups[name];
 }
 
-bool Calibration::setIterationResults(map<int,shared_ptr<IterationResult>  > iterationresults)
+bool Calibration::setIterationResults(map<int,IterationResult *  > iterationresults)
 {
     clearIterationResults();
     this->iterationresults=iterationresults;

@@ -1,4 +1,4 @@
-FILE(GLOB GUI_CPP *.cpp)
+FILE(GLOB GUI_CPP *.cpp *.h)
 FILE(GLOB GUI_UI *.ui)
 
 QT4_WRAP_UI(GUI_CPP ${GUI_UI})

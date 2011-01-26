@@ -66,23 +66,24 @@ template <typename T> Registry<T>::Registry()
     }
 };
 
-template <typename T> Registry<T>::~Registry(){};
+typedef std::pair<string, IFunctionFactory *> str_ff_pair;
+
+template <typename T> Registry<T>::~Registry() {
+    BOOST_FOREACH(str_ff_pair f, registered_factories) {
+        delete f.second;
+    }
+    registered_factories.clear();
+};
 
 template <typename T> bool Registry<T>::registerFunction(IFunctionFactory* factory)
 {
-    if(!contains(factory->getFunctionName()))
-    {
-        Logger(Standard) << factory->getFunctionName() << " now registered";
-        registered_factories[factory->getFunctionName()]=factory;
-        return true;
-    }
-    else
-    {
+    if (contains(factory->getFunctionName())) {
         delete registered_factories[factory->getFunctionName()];
-        registered_factories[factory->getFunctionName()]=factory;
-        return true;
+    } else {
+        Logger(Standard) << factory->getFunctionName() << " now registered";
     }
-    return false;
+    registered_factories[factory->getFunctionName()]=factory;
+    return true;
 }
 
 template <typename T> T*  Registry<T>::getFunction(string name)

@@ -29,7 +29,7 @@ private:
     vector<string> observedparameters;
     Domain *dom;
     ExternalParameterRegistry *externalfilehandler;
-    shared_ptr<IterationResult>  result;
+    IterationResult *  result;
     Calibration *calibration;
     IModelSimulator *sim;
 

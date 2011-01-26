@@ -189,7 +189,7 @@ bool GeneticAlgorithm::runSamples()
     double besthealth=0.0;
     double worsthealth=0.0;
 
-    vector<boost::shared_ptr<IterationResult> > results = calibration->getIterationResults();
+    vector<IterationResult * > results = calibration->getIterationResults();
 
     if(results.size() < (populationcounter+1)*populationsize)
     {
@@ -199,7 +199,7 @@ bool GeneticAlgorithm::runSamples()
 
     for(int individual=0; individual < populationsize; individual++)
     {
-        boost::shared_ptr<IterationResult> currentresult = results.at(populationcounter*populationsize+individual);
+        IterationResult * currentresult = results.at(populationcounter*populationsize+individual);
 
         //make error sqare of all objective functions;
         double errorvalue=0.0;
@@ -375,6 +375,6 @@ bool GeneticAlgorithm::createGeneration()
 
         nextgen->push_back(individual);
     }
-    
+
     return true;
 }

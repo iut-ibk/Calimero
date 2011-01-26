@@ -372,9 +372,9 @@ bool Persistence::saveFunction(QString functionname, map<std::string, std::strin
 
 bool Persistence::saveIterationResults()
 {
-    vector<shared_ptr<IterationResult> > results = calibration->getIterationResults();
+    vector<IterationResult * > results = calibration->getIterationResults();
 
-    BOOST_FOREACH(shared_ptr<IterationResult> result,results)
+    BOOST_FOREACH(IterationResult * result,results)
     {
         QDomElement currentresult = doc->createElement("iterationresult");
         root.appendChild(currentresult);
@@ -579,7 +579,7 @@ bool Persistence::saveTemplates()
 bool Persistence::loadIterationResults()
 {
     QDomNodeList iterationresults = root.elementsByTagName("iterationresult");
-    map<int,shared_ptr<IterationResult>  > resultmap;
+    map<int,IterationResult *  > resultmap;
 
     for(int index=0; index<iterationresults.size(); index++)
     {
@@ -619,7 +619,7 @@ bool Persistence::loadIterationResults()
             objectivefunctionresults[currentelement.attribute("name").toStdString()] = stringToVector(currentelement.attribute("values").toStdString());
         }
 
-        resultmap[iterationnumber] = shared_ptr<IterationResult>(new IterationResult(iterationnumber,calibrationresults,iterationresult, objectivefunctionresults, observedresults));
+        resultmap[iterationnumber] = new IterationResult(iterationnumber,calibrationresults,iterationresult, objectivefunctionresults, observedresults);
     }
 
     return calibration->setIterationResults(resultmap);
