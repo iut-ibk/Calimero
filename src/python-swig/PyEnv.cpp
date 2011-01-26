@@ -117,6 +117,10 @@ PyEnv::PyEnv() {
 
         ScopedGILRelease scoped;
         PyRun_String(fmt.str().c_str(), Py_file_input, priv->main_namespace, 0);
+        if (PyErr_Occurred()) {
+            PyErr_Print();
+            return;
+        }
 }
 
 PyEnv::~PyEnv() {
@@ -163,12 +167,12 @@ void PyEnv::registerFunctions(IRegistry *registry, const string &module,bool imp
     {
         if(loadedmodules.find(module)==loadedmodules.end())
         {
-            Logger(Standard) << "Importing new modul: " << module;
+            Logger(Standard) << "Importing new module: " << module;
             fmt = boost::format("import %1%");
         }
         else
         {
-            Logger(Standard) << "Reloading existing modul: " << module;
+            Logger(Standard) << "Reloading existing module: " << module;
             fmt = boost::format("reload(%1%)");
         }
 
@@ -177,7 +181,7 @@ void PyEnv::registerFunctions(IRegistry *registry, const string &module,bool imp
         if (PyErr_Occurred())
         {
             PyErr_Print();
-            throw CalimeroException("");
+            throw CalimeroException("Error in python module: " + module);
             return;
         }
     }

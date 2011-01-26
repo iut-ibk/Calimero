@@ -75,9 +75,10 @@ bool Calibration::setCalibrationAlg(string ca, map<string,string>  settings)
         return false;
     }
 
+    ICalibrationAlg *testalg=0;
     try
     {
-        ICalibrationAlg *testalg = CalibrationEnv::getInstance()->getCalibrationAlgReg()->getFunction(ca);
+        testalg = CalibrationEnv::getInstance()->getCalibrationAlgReg()->getFunction(ca);
 
         std::pair<string,string> p;
         BOOST_FOREACH(p,settings)
@@ -89,17 +90,13 @@ bool Calibration::setCalibrationAlg(string ca, map<string,string>  settings)
                 }
         alg=ca;
         algsettings=settings;
+        delete testalg;
         return true;
-    }
-    catch(PythonException &exception)
-    {
-        Logger(Error) << exception.exceptionmsg;
-        Logger(Error) << exception.traceback;
-        Logger(Error) << exception.type;
-        Logger(Error) << exception.value;
     }
     catch(CalimeroException &exception)
     {
+        if(!testalg)
+            return testalg;
         Logger(Error) << exception.exceptionmsg;
     }
     return false;
@@ -114,9 +111,10 @@ bool Calibration::setModelSimulator(string ms, map<string,string> settings)
         return false;
     }
 
+    IModelSimulator *testsim=0;
     try{
 
-        IModelSimulator *testsim = CalibrationEnv::getInstance()->getModelSimulatorReg()->getFunction(ms);
+        testsim = CalibrationEnv::getInstance()->getModelSimulatorReg()->getFunction(ms);
 
         std::pair<string,string> p;
         BOOST_FOREACH(p,settings)
@@ -130,15 +128,10 @@ bool Calibration::setModelSimulator(string ms, map<string,string> settings)
         modelsimulatorsettings=settings;
         return true;
     }
-    catch(const PythonException &exception)
-    {
-        Logger(Error) << exception.exceptionmsg;
-        Logger(Error) << exception.type;
-        Logger(Error) << exception.traceback;
-        Logger(Error) << exception.value;
-    }
     catch (CalimeroException e)
     {
+        if(!testsim)
+            delete testsim;
         Logger(Error) << e.exceptionmsg;
     }
     return false;
@@ -438,6 +431,9 @@ vector<IterationResult *  > Calibration::getIterationResults()
 void Calibration::clearIterationResults()
 {
     QMutexLocker locker(mutex);
+    for(uint index=0; index<iterationresults.size(); index++)
+        delete iterationresults[index];
+
     iterationresults.clear();
 }
 

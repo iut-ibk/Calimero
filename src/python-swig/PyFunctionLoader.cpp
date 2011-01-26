@@ -21,7 +21,7 @@ void PyFunctionLoader::loadScripts(const string &path)
 
         QString file = fileInfo.fileName();
 
-        if(!file.contains(".py") || file.contains(".pyc") || file.contains(".pyd"))
+        if(!file.endsWith(".py"))
             continue;
 
         try
@@ -35,7 +35,7 @@ void PyFunctionLoader::loadScripts(const string &path)
         }
         catch (CalimeroException e)
         {
-            Logger(Error) << "Not able to load python script file";
+            Logger(Error) << e.exceptionmsg;
         }
     }
 }

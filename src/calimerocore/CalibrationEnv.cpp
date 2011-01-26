@@ -239,16 +239,12 @@ void CalibrationEnv::runCalibration()
     {
          tmpalg = creg->getFunction(calibration->getCalibrationAlg());
     }
-    catch(const PythonException &exception)
-    {
-        Logger(Error) << exception.exceptionmsg;
-        Logger(Error) << exception.type;
-        Logger(Error) << exception.value;
-        Logger(Error) << exception.traceback;
-    }
     catch(const CalimeroException &exception)
     {
+        if(!tmpalg)
+            delete tmpalg;
         Logger(Error) << exception.exceptionmsg;
+        return;
     }
 
     std::pair<string,string> p;
@@ -297,13 +293,6 @@ void CalibrationEnv::runCalibration()
     {
         if(!tmpalg->start(newcalpars,newopars,this,calibration))
             Logger(Error) << "Calibration algorithm terminates with failure";
-    }
-    catch(const PythonException &exception)
-    {
-        Logger(Error) << exception.exceptionmsg;
-        Logger(Error) << exception.type;
-        Logger(Error) << exception.traceback;
-        Logger(Error) << exception.value;
     }
     catch(const CalimeroException &exception)
     {

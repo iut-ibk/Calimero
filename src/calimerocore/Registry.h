@@ -77,12 +77,15 @@ template <typename T> Registry<T>::~Registry() {
 
 template <typename T> bool Registry<T>::registerFunction(IFunctionFactory* factory)
 {
-    if (contains(factory->getFunctionName())) {
+    if (contains(factory->getFunctionName()))
+    {
         delete registered_factories[factory->getFunctionName()];
-    } else {
-        Logger(Standard) << factory->getFunctionName() << " now registered";
+        registered_factories.erase(factory->getFunctionName());
     }
+
     registered_factories[factory->getFunctionName()]=factory;
+    Logger(Standard) << factory->getFunctionName() << " now registered";
+
     return true;
 }
 

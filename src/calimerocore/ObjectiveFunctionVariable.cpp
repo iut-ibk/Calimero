@@ -161,22 +161,18 @@ bool ObjectiveFunctionVariable::calc()
     BOOST_FOREACH(string var, objectivefunctionparameters)
         objectivevector.push_back(static_cast<ObjectiveFunctionVariable*>(domain->getPar(var)));
 
+    IObjectiveFunction *tmpfunction=0;
     try
     {
-        IObjectiveFunction *tmpfunction = CalibrationEnv::getInstance()->getObjectiveFunctionReg()->getFunction(functionname);
+        tmpfunction = CalibrationEnv::getInstance()->getObjectiveFunctionReg()->getFunction(functionname);
         tmpfunction->setValues(functionsettings);
         values=tmpfunction->eval(iterationvector,observedvector,objectivevector);
         delete tmpfunction;
     }
-    catch(const PythonException &exception)
-    {
-        Logger(Error) << exception.exceptionmsg;
-        Logger(Error) << exception.type;
-        Logger(Error) << exception.traceback;
-        Logger(Error) << exception.value;
-    }
     catch (CalimeroException e)
     {
+        if(!tmpfunction)
+            delete tmpfunction;
         Logger(Error) << e.exceptionmsg;
     }
 
@@ -206,9 +202,10 @@ bool ObjectiveFunctionVariable::setObjectiveFunction(std::string ofunction, map<
         return false;
     }
 
+    IObjectiveFunction *tmpfunction=0;
     try
     {
-        IObjectiveFunction *tmpfunction = CalibrationEnv::getInstance()->getObjectiveFunctionReg()->getFunction(ofunction);
+         tmpfunction= CalibrationEnv::getInstance()->getObjectiveFunctionReg()->getFunction(ofunction);
 
         if(!tmpfunction->setValues(settings))
         {
@@ -222,15 +219,10 @@ bool ObjectiveFunctionVariable::setObjectiveFunction(std::string ofunction, map<
         fireUpdate();
         return true;
     }
-    catch(const PythonException &exception)
-    {
-        Logger(Error) << exception.exceptionmsg;
-        Logger(Error) << exception.type;
-        Logger(Error) << exception.traceback;
-        Logger(Error) << exception.value;
-    }
     catch (CalimeroException e)
     {
+        if(!tmpfunction)
+            delete tmpfunction;
         Logger(Error) << e.exceptionmsg;
     }
     return false;
