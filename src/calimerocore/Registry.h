@@ -79,7 +79,9 @@ template <typename T> bool Registry<T>::registerFunction(IFunctionFactory* facto
 {
     if (contains(factory->getFunctionName()))
     {
-        //delete registered_factories[factory->getFunctionName()];
+        Logger(Standard) << factory->getFunctionName() << " already included";
+        return true;
+        delete registered_factories[factory->getFunctionName()];
         registered_factories.erase(factory->getFunctionName());
     }
 
