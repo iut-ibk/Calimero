@@ -390,6 +390,7 @@ class FunctionFactory(IFunctionFactory):
     def __init__(self, klass):
         IFunctionFactory.__init__(self)
         self.klass = klass
+        print "creating ff for %s" % self.getFunctionName()
 
     def createFunction(self):
         return self.klass().__disown__()
@@ -397,9 +398,13 @@ class FunctionFactory(IFunctionFactory):
     def getFunctionName(self):
         return self.klass.__name__
 
+    def __del__(self):
+        print "deleting FF for %s" % self.getFunctionName()
+
 def registerFunctions(registry):
     FUNCTION_CLASSES = [IObjectiveFunction, ICalibrationAlg, IModelSimulator, IResultHandler]
     func_type_klass = FUNCTION_CLASSES[registry.getType()]
+    print "registering for type %s" % func_type_klass.__name__
     for klass in func_type_klass.__subclasses__():
         registry.registerFunction(FunctionFactory(klass).__disown__())
 %}

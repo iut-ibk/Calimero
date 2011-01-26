@@ -1014,6 +1014,12 @@ void MainWindow::on_calfun_currentIndexChanged(QString name)
     ICalibrationAlg *fun=0;
 
     try{
+        fun = CalibrationEnv::getInstance()->getCalibrationAlgReg()->getFunction(name.toStdString());
+        if(!fun)
+        {
+            Logger(Error) << "so eine scheisse";
+            return;
+        }
         if(!CalibrationEnv::getInstance()->getCalibrationAlgReg()->getSettingTypes(name.toStdString()).size())
             ui->button_calfun_advanced->setEnabled(false);
         else
