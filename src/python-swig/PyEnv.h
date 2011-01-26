@@ -42,7 +42,7 @@ public:
         static PyEnv *getInstance();
         static void destroy();
         void addPythonPath(std::string path);
-        void registerFunctions(IRegistry *registry, const string &module);
+        void registerFunctions(IRegistry *registry, const string &module,bool import = true);
 
 private:
         PyEnv();

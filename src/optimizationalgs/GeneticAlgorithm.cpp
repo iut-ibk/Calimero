@@ -36,9 +36,7 @@ GeneticAlgorithm::~GeneticAlgorithm()
 void GeneticAlgorithm::clean()
 {
     while(generations->size())
-    {
         killGeneration(generations->size()-1);
-    }
 }
 
 void GeneticAlgorithm::killGeneration(uint index)
@@ -46,11 +44,11 @@ void GeneticAlgorithm::killGeneration(uint index)
     if(generations->size() <= index)
         return;
 
-    if(generationhealth->size() <= index)
-        return;
-
     vector<vector<double>* >* generation = generations->at(index);
-    vector<double>* health = generationhealth->at(index);
+    vector<double>* health;
+
+    if(generationhealth->size() > index)
+        health=generationhealth->at(index);
 
     if(!generation)
         return;
@@ -62,10 +60,15 @@ void GeneticAlgorithm::killGeneration(uint index)
     }
 
     delete generation;
-    delete health;
+
+    if(!health)
+    {
+        delete health;
+        generationhealth->erase(generationhealth->begin()+index);
+    }
 
     generations->erase(generations->begin()+index);
-    generationhealth->erase(generationhealth->begin()+index);
+
 }
 
 
@@ -89,6 +92,7 @@ bool GeneticAlgorithm::start(vector<CalibrationVariable*> calibrationpars, vecto
             return true;
     }
 
+    Logger(Standard) << "sdkfjalfjlkdsajflsd";
     if(maxerror >= currentminerror)
         Logger(Standard) << "Best result: " << currentminerror;
 
@@ -171,7 +175,10 @@ bool GeneticAlgorithm::runSamples()
         }
 
         if(!env->execIteration(calibrationpars))
+        {
+            env->barrier();
             return false;
+        }
     }
 
     env->barrier();

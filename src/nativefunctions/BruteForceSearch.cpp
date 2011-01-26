@@ -21,7 +21,6 @@ BruteForceSearch::~BruteForceSearch()
 
 bool BruteForceSearch::start(vector<CalibrationVariable*> calibrationpars, vector<ObjectiveFunctionVariable*> opars, CalibrationEnv *env, Calibration *calibration)
 {
-
     return bruteforcesearch(calibrationpars,0, env);
 }
 

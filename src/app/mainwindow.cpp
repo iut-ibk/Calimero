@@ -1546,20 +1546,12 @@ void MainWindow::on_actionLoad_Python_script_activated()
             return;
 
         PyEnv::getInstance()->addPythonPath(fi.absolutePath().toStdString());
-        PyEnv::getInstance()->registerFunctions(CalibrationEnv::getInstance()->getCalibrationAlgReg(),fi.fileName().replace(".py","").toStdString());
-        PyEnv::getInstance()->registerFunctions(CalibrationEnv::getInstance()->getObjectiveFunctionReg(),fi.fileName().replace(".py","").toStdString());
-        PyEnv::getInstance()->registerFunctions(CalibrationEnv::getInstance()->getModelSimulatorReg(),fi.fileName().replace(".py","").toStdString());
-        PyEnv::getInstance()->registerFunctions(CalibrationEnv::getInstance()->getResultHandlerReg(),fi.fileName().replace(".py","").toStdString());
+        PyEnv::getInstance()->registerFunctions(CalibrationEnv::getInstance()->getCalibrationAlgReg(),fi.fileName().replace(".py","").toStdString(),true);
+        PyEnv::getInstance()->registerFunctions(CalibrationEnv::getInstance()->getObjectiveFunctionReg(),fi.fileName().replace(".py","").toStdString(),false);
+        PyEnv::getInstance()->registerFunctions(CalibrationEnv::getInstance()->getModelSimulatorReg(),fi.fileName().replace(".py","").toStdString(),false);
+        PyEnv::getInstance()->registerFunctions(CalibrationEnv::getInstance()->getResultHandlerReg(),fi.fileName().replace(".py","").toStdString(),false);
         Logger(Standard) << fi.fileName().replace(".py","").toStdString() << " loaded";
         updateAll();
-    }
-    catch(PythonException &exception)
-    {
-        Logger(Error) << exception.exceptionmsg;
-        Logger(Error) << exception.traceback;
-        Logger(Error) << exception.type;
-        Logger(Error) << exception.value;
-        QMessageBox::warning(this,tr("Error"),tr("Not able to load python script file"));
     }
     catch(CalimeroException &exception)
     {

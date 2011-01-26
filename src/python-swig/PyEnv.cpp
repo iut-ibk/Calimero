@@ -54,7 +54,6 @@ bool execIteration(vector<CalibrationVariable*> calibrationparameters)
 
 void barrier()
 {
-    Logger(Standard) << "Hallo Thread";
     Py_BEGIN_ALLOW_THREADS
     CalibrationEnv::getInstance()->barrier();
     Py_END_ALLOW_THREADS
@@ -148,7 +147,7 @@ void PyEnv::addPythonPath(std::string path) {
         PyRun_String(fmt.str().c_str(), Py_file_input, priv->main_namespace, 0);
 }
 
-void PyEnv::registerFunctions(IRegistry *registry, const string &module)
+void PyEnv::registerFunctions(IRegistry *registry, const string &module,bool import)
 {
     ScopedGILRelease scoped;
     PyObject *pycalimero_module = PyImport_ImportModule("pycalimero");
@@ -158,14 +157,30 @@ void PyEnv::registerFunctions(IRegistry *registry, const string &module)
         return;
     }
 
+    
     boost::format fmt;
-    if(loadedmodules.find(module)==loadedmodules.end())
-        fmt = boost::format("import %1%");
-    else
-        fmt = boost::format("reload(%1%)");
+    if(import)
+    {
+        if(loadedmodules.find(module)==loadedmodules.end())
+        {
+            Logger(Standard) << "Importing new modul: " << module;
+            fmt = boost::format("import %1%");
+        }
+        else
+        {
+            Logger(Standard) << "Reloading existing modul: " << module;
+            fmt = boost::format("reload(%1%)");
+        }
 
-    fmt % module;
-    PyRun_String(fmt.str().c_str(), Py_file_input, priv->main_namespace, 0);
+        fmt % module;
+        PyRun_String(fmt.str().c_str(), Py_file_input, priv->main_namespace, 0);
+        if (PyErr_Occurred())
+        {
+            PyErr_Print();
+            throw CalimeroException("");
+            return;
+        }
+    }
 
     PyObject *pycalimero_dict = PyModule_GetDict(pycalimero_module);
     Py_XDECREF(pycalimero_module);

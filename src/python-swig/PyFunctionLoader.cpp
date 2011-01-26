@@ -28,21 +28,14 @@ void PyFunctionLoader::loadScripts(const string &path)
         {
             file = file.replace(".py","");
             Logger(Debug) << "Loading python module: " << file.toStdString();
-            PyEnv::getInstance()->registerFunctions(CalibrationEnv::getInstance()->getCalibrationAlgReg(),file.toStdString());
-            PyEnv::getInstance()->registerFunctions(CalibrationEnv::getInstance()->getObjectiveFunctionReg(),file.toStdString());
-            PyEnv::getInstance()->registerFunctions(CalibrationEnv::getInstance()->getModelSimulatorReg(),file.toStdString());
-            PyEnv::getInstance()->registerFunctions(CalibrationEnv::getInstance()->getResultHandlerReg(),file.toStdString());
-        }
-        catch (PythonException e)
-        {
-            Logger(Error) << e.exceptionmsg;
-            Logger(Error) << e.type;
-            Logger(Error) << e.value;
-            Logger(Error) << e.traceback;
+            PyEnv::getInstance()->registerFunctions(CalibrationEnv::getInstance()->getCalibrationAlgReg(),file.toStdString(),true);
+            PyEnv::getInstance()->registerFunctions(CalibrationEnv::getInstance()->getObjectiveFunctionReg(),file.toStdString(),false);
+            PyEnv::getInstance()->registerFunctions(CalibrationEnv::getInstance()->getModelSimulatorReg(),file.toStdString(),false);
+            PyEnv::getInstance()->registerFunctions(CalibrationEnv::getInstance()->getResultHandlerReg(),file.toStdString(),false);
         }
         catch (CalimeroException e)
         {
-            Logger(Error) << e.exceptionmsg;
+            Logger(Error) << "Not able to load python script file";
         }
     }
 }

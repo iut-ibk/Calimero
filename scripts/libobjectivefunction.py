@@ -87,11 +87,10 @@ class VectorErrorSquare(pycalimero.IObjectiveFunction):
         #calculate
         result = pycalimero.doublevector()
         
-        index = 0
-        for value1 in vectors[0]:
-            currentresult = math.pow(value1 - vectors[1][index],2)
-            result.append(currentresult)
-            index = index+1
+        for index,value1 in enumerate(vectors[0]):
+            if index < vectors[1].__len__():
+                currentresult = math.pow(value1 - vectors[1][index],2)
+                result.append(currentresult)
         
         size = max(vectors[0].__len__(),vectors[1].__len__())
         while(result.__len__() < size):

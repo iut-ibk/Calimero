@@ -29,9 +29,4 @@ if(WIN32)
        TARGET _pycalimero
        POST_BUILD
        COMMAND ${CMAKE_COMMAND} -E copy ${LIB_NAME} ${NEW_LIB_NAME})
-else()
-        SET_TARGET_PROPERTIES(_pycalimero
-        PROPERTIES
-        OUTPUT_NAME "pycalimero"
-        PREFIX "")
 endif(WIN32)

@@ -9,6 +9,8 @@ import sys
 
 error = False
 baseevo = None
+maxerror = 0.0
+minimize = True
 
 def objf(x):
 	xpars = array([],float32)
@@ -18,6 +20,13 @@ def objf(x):
 	env = None
 	global error
 	global baseevo
+	global maxerror
+	global minimize
+	global alg
+	
+	if error:
+		alg.maxEvaluations = 1
+		return maxerror
 	
 	if isinstance(x,Evolvable):
 		xpars=x.x
@@ -39,11 +48,11 @@ def objf(x):
 		calibrationvars[index].setValues(currentvalue)
 	
 	if error:
-		return 0.0
+		return maxerror
 	
 	if (not pycalimero.execIteration(calibrationvars)):
 		error = True
-		return 0.0
+		return maxerror
 	else:
 		pycalimero.barrier()
 		
@@ -54,6 +63,15 @@ def objf(x):
 	for opar in objectivevars:
 		result = result + sum(iterationresult.getResults(opar.getName()))
 
+	if minimize and (result < maxerror):
+	        pycalimero.log("Algorithm reached maximal error",pycalimero.Standard)
+	        alg.maxEvaluations = 1
+	        return maxerror
+	
+	if (not minimize) and result > maxerror:
+	        pycalimero.log("Algorithm reached maximal error",pycalimero.Standard)
+	        alg.maxEvaluations = 1
+	        return maxerror
 	return result
 
 def extractData(calibrationvars):
@@ -106,6 +124,10 @@ class Pybrain_HillClimber(pycalimero.ICalibrationAlg):
 		self.calibration=calibration
 		self.env=env
 		global error 
+		global maxerror
+		global minimize
+		global alg
+		maxerror = float(self.getValueOfParameter("max Error"))
 		error = False
 		minimize = False
 		verbose = False
@@ -144,7 +166,11 @@ class PyBrain_StochasticHillClimber(pycalimero.ICalibrationAlg):
 		self.objectivevars=objectivevars
 		self.calibration=calibration
 		self.env=env
-		global error 
+		global error
+		global maxerror
+		global alg
+		global minimize
+		maxerror = float(self.getValueOfParameter("max Error")) 
 		error = False
 		minimize = False
 		verbose = False
@@ -183,7 +209,11 @@ class PyBrain_RandomSearch(pycalimero.ICalibrationAlg):
 		self.objectivevars=objectivevars
 		self.calibration=calibration
 		self.env=env
-		global error 
+		global error
+		global maxerror
+		global minimize
+		global alg
+		maxerror = float(self.getValueOfParameter("max Error")) 
 		error = False
 		minimize = False
 		verbose = False
@@ -226,6 +256,10 @@ class PyBrain_CMAES(pycalimero.ICalibrationAlg):
 		self.calibration=calibration
 		self.env=env
 		global error
+		global maxerror
+		global minimize
+		global alg
+		maxerror = float(self.getValueOfParameter("max Error"))
 		global baseevo 
 		error = False
 		minimize = False
@@ -266,6 +300,10 @@ class PyBrain_NelderMead(pycalimero.ICalibrationAlg):
 		self.calibration=calibration
 		self.env=env
 		global error
+		global maxerror
+		global minimize
+		global alg
+		maxerror = float(self.getValueOfParameter("max Error"))
 		global baseevo 
 		error = False
 		minimize = False
@@ -306,6 +344,10 @@ class PyBrain_OriginalNES(pycalimero.ICalibrationAlg):
 		self.calibration=calibration
 		self.env=env
 		global error
+		global maxerror
+		global minimize
+		global alg
+		maxerror = float(self.getValueOfParameter("max Error"))
 		global baseevo 
 		error = False
 		minimize = False
@@ -346,6 +388,10 @@ class PyBrain_ExactNES(pycalimero.ICalibrationAlg):
 		self.calibration=calibration
 		self.env=env
 		global error
+		global maxerror
+		global minimize
+		global alg
+		maxerror = float(self.getValueOfParameter("max Error"))
 		global baseevo 
 		error = False
 		minimize = False
@@ -386,6 +432,10 @@ class PyBrain_FEM(pycalimero.ICalibrationAlg):
 		self.calibration=calibration
 		self.env=env
 		global error
+		global maxerror
+		global minimize
+		global alg
+		maxerror = float(self.getValueOfParameter("max Error"))
 		global baseevo 
 		error = False
 		minimize = False
@@ -426,6 +476,10 @@ class PyBrain_FiniteDifferences(pycalimero.ICalibrationAlg):
 		self.calibration=calibration
 		self.env=env
 		global error
+		global alg
+		global maxerror
+		global minimize
+		maxerror = float(self.getValueOfParameter("max Error"))
 		global baseevo 
 		error = False
 		minimize = False
@@ -466,6 +520,10 @@ class PyBrain_PGPE(pycalimero.ICalibrationAlg):
 		self.calibration=calibration
 		self.env=env
 		global error
+		global maxerror
+		global alg
+		global minimize
+		maxerror = float(self.getValueOfParameter("max Error"))
 		global baseevo 
 		error = False
 		minimize = False
@@ -506,6 +564,10 @@ class PyBrain_SimpleSPSA(pycalimero.ICalibrationAlg):
 		self.calibration=calibration
 		self.env=env
 		global error
+		global maxerror
+		global alg
+		global minimize
+		maxerror = float(self.getValueOfParameter("max Error"))
 		global baseevo 
 		error = False
 		minimize = False
@@ -546,6 +608,10 @@ class PyBrain_ParticleSwarmOptimizer(pycalimero.ICalibrationAlg):
 		self.calibration=calibration
 		self.env=env
 		global error
+		global maxerror
+		global alg
+		global minimize
+		maxerror = float(self.getValueOfParameter("max Error"))
 		global baseevo 
 		error = False
 		minimize = False
@@ -586,6 +652,10 @@ class PyBrain_GA(pycalimero.ICalibrationAlg):
 		self.calibration=calibration
 		self.env=env
 		global error
+		global maxerror
+		global alg
+		global minimize
+		maxerror = float(self.getValueOfParameter("max Error"))
 		global baseevo 
 		error = False
 		minimize = False
