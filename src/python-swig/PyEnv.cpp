@@ -1,3 +1,6 @@
+#define SWIG_PYTHON_THREADS
+#define SWIG_PYTHON_USE_GIL
+
 #include <boost/format.hpp>
 #include <string>
 #include <Registry.h>
@@ -46,17 +49,17 @@ void logwithlevel(std::string msg, LogLevel logl) {
 bool execIteration(vector<CalibrationVariable*> calibrationparameters)
 {
     bool result;
-    Py_BEGIN_ALLOW_THREADS
+    SWIG_PYTHON_THREAD_BEGIN_ALLOW;
     result = CalibrationEnv::getInstance()->execIteration(calibrationparameters);
-    Py_END_ALLOW_THREADS
+    SWIG_PYTHON_THREAD_END_ALLOW;
     return result;
 }
 
 void barrier()
 {
-    Py_BEGIN_ALLOW_THREADS
+    SWIG_PYTHON_THREAD_BEGIN_ALLOW;
     CalibrationEnv::getInstance()->barrier();
-    Py_END_ALLOW_THREADS
+    SWIG_PYTHON_THREAD_END_ALLOW;
 };
 
 struct PyEnvPriv {
@@ -64,9 +67,7 @@ struct PyEnvPriv {
 };
 
 PyEnv *PyEnv::instance = 0;
-extern "C" {
-void init_pycalimero();
-}
+
 
 PyEnv::PyEnv() {
         pythonmainthread=false;
@@ -74,16 +75,14 @@ PyEnv::PyEnv() {
 
         if(!Py_IsInitialized()) {
             Py_Initialize();
-            PyEval_InitThreads();
-            init_pycalimero();
+            SWIG_PYTHON_INITIALIZE_THREADS;
         }
 
+        SWIG_PYTHON_THREAD_BEGIN_BLOCK;
         PyObject *main = PyImport_ImportModule("__main__");
         priv->main_namespace = PyModule_GetDict(main);
         Py_DECREF(main);
 
-        PyThreadState *pts = PyGILState_GetThisThreadState();
-        PyEval_ReleaseThread(pts);
 
         //redirect stdout and stderr
         boost::format fmt( "import sys\n"
@@ -115,7 +114,7 @@ PyEnv::PyEnv() {
                                    "        sys.stdout=Logger(sys.stdout,False)\n"
                                    "        sys.stderr=Logger(sys.stderr,True)\n");
 
-        ScopedGILRelease scoped;
+
         PyRun_String(fmt.str().c_str(), Py_file_input, priv->main_namespace, 0);
         if (PyErr_Occurred()) {
             PyErr_Print();
@@ -147,13 +146,13 @@ void PyEnv::addPythonPath(std::string path) {
         boost::format fmt("import sys\n"
                           "sys.path.append('%1%')\n");
         fmt % path;
-        ScopedGILRelease scoped;
+        SWIG_PYTHON_THREAD_BEGIN_BLOCK;
         PyRun_String(fmt.str().c_str(), Py_file_input, priv->main_namespace, 0);
 }
 
 void PyEnv::registerFunctions(IRegistry *registry, const string &module,bool import)
 {
-    ScopedGILRelease scoped;
+    SWIG_PYTHON_THREAD_BEGIN_BLOCK;
     PyObject *pycalimero_module = PyImport_ImportModule("pycalimero");
     if (PyErr_Occurred()) {
         Logger(Error) << "Could not import pycalimero module";

@@ -1,5 +1,5 @@
 include(${SWIG_USE_FILE})
-execute_process(COMMAND ${SWIG_EXECUTABLE} -python -external-runtime swigruntime.h)
+execute_process(COMMAND ${SWIG_EXECUTABLE} -python -threads -external-runtime swigruntime.h)
 
 #execute_process(COMMAND ${SWIG_EXECUTABLE} -python -c++ -o pycalimeroWRAP.cpp ${CMAKE_CURRENT_SOURCE_DIR}/pycalimero.i
 #	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
