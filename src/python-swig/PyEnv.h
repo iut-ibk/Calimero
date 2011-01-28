@@ -17,23 +17,6 @@ using namespace std;
 
 struct PyEnvPriv;
 
-class CALIMERO_PUBLIC ScopedGILRelease
-{
-public:
-    ScopedGILRelease()
-    {
-        m_gstate = PyGILState_Ensure();
-    }
-
-    ~ScopedGILRelease()
-    {
-        PyGILState_Release(m_gstate);
-    }
-
-private:
-    PyGILState_STATE m_gstate;
-};
-
 class CALIMERO_PUBLIC PyEnv {
 public:
         bool pythonmainthread;

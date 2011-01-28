@@ -15,8 +15,7 @@ QT4_WRAP_CPP(GUI_CPP ${MOC_HEADERS})
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_BINARY_DIR})
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
-set_source_files_properties(${CMAKE_BINARY_DIR}/pycalimeroWRAP.cpp PROPERTIES GENERATED 1)
-set(GUI_CPP ${GUI_CPP} ${CMAKE_BINARY_DIR}/pycalimeroWRAP.cpp ../python-swig/PyFunctionLoader.cpp ../python-swig/PyEnv.cpp)
+set(GUI_CPP ${GUI_CPP} ../python-swig/PyFunctionLoader.cpp ../python-swig/PyEnv.cpp)
 
 ADD_EXECUTABLE(calimero ${GUI_CPP})
 

@@ -1014,12 +1014,6 @@ void MainWindow::on_calfun_currentIndexChanged(QString name)
     ICalibrationAlg *fun=0;
 
     try{
-        fun = CalibrationEnv::getInstance()->getCalibrationAlgReg()->getFunction(name.toStdString());
-        if(!fun)
-        {
-            Logger(Error) << "so eine scheisse";
-            return;
-        }
         if(!CalibrationEnv::getInstance()->getCalibrationAlgReg()->getSettingTypes(name.toStdString()).size())
             ui->button_calfun_advanced->setEnabled(false);
         else
@@ -1030,16 +1024,6 @@ void MainWindow::on_calfun_currentIndexChanged(QString name)
         if(calibration->getCalibrationAlg() != name.toStdString())
             calibration->setCalibrationAlg(name.toStdString(), fun->getParameterValues());
         delete fun;
-    }
-    catch(PythonException &exception)
-    {
-        if(fun)
-            delete fun;
-        Logger(Error) << exception.exceptionmsg;
-        Logger(Error) << exception.traceback;
-        Logger(Error) << exception.type;
-        Logger(Error) << exception.value;
-        QMessageBox::warning(this,tr("Error"),tr("Error in calibration algorithm function with name: ") + name);
     }
     catch(CalimeroException &exception)
     {
@@ -1066,13 +1050,6 @@ void MainWindow::on_button_calfun_advanced_clicked()
         }
 
         delete function;
-    }
-    catch(PythonException &exception)
-    {
-        Logger(Error) << exception.exceptionmsg;
-        Logger(Error) << exception.traceback;
-        Logger(Error) << exception.type;
-        Logger(Error) << exception.value;
     }
     catch(CalimeroException &exception)
     {

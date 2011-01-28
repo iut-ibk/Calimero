@@ -59,5 +59,4 @@ ADD_SUBDIRECTORY(src/app)
 ADD_SUBDIRECTORY(src/calimerohelper)
 ADD_SUBDIRECTORY(src/registryapp)
 ADD_SUBDIRECTORY(scripts)
-
 INCLUDE(CalimeroCPack.txt)

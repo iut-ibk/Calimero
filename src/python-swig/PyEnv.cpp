@@ -1,20 +1,8 @@
 #define SWIG_PYTHON_THREADS
-#define SWIG_PYTHON_USE_GIL
 
 #include <boost/format.hpp>
 #include <string>
 #include <Registry.h>
-/*#include <PyObjectiveFunctionWrapper.h>
-#include <PyCalibrationAlgWrapper.h>
-#include <PyVariableWrapper.h>
-#include <PyIModelSimulatorWrapper.h>
-#include <PyCalibrationEnvWrapper.h>
-#include <PyIterationResultWrapper.h>
-#include <PyRegistryWrapper.h>
-#include <PyFunctionFactory.cpp>
-#include <PyCalibrationWrapper.h>
-#include <PyDomainWrapper.h>
-#include <PyResultHandlerWrapper.h>*/
 #include <Calibration.h>
 #include <CalibrationEnv.h>
 #include <iostream>
@@ -49,17 +37,13 @@ void logwithlevel(std::string msg, LogLevel logl) {
 bool execIteration(vector<CalibrationVariable*> calibrationparameters)
 {
     bool result;
-    SWIG_PYTHON_THREAD_BEGIN_ALLOW;
     result = CalibrationEnv::getInstance()->execIteration(calibrationparameters);
-    SWIG_PYTHON_THREAD_END_ALLOW;
     return result;
 }
 
 void barrier()
 {
-    SWIG_PYTHON_THREAD_BEGIN_ALLOW;
     CalibrationEnv::getInstance()->barrier();
-    SWIG_PYTHON_THREAD_END_ALLOW;
 };
 
 struct PyEnvPriv {
@@ -76,13 +60,14 @@ PyEnv::PyEnv() {
         if(!Py_IsInitialized()) {
             Py_Initialize();
             SWIG_PYTHON_INITIALIZE_THREADS;
+            PyThreadState *pts = PyGILState_GetThisThreadState();
+            PyEval_ReleaseThread(pts);
         }
 
         SWIG_PYTHON_THREAD_BEGIN_BLOCK;
         PyObject *main = PyImport_ImportModule("__main__");
         priv->main_namespace = PyModule_GetDict(main);
         Py_DECREF(main);
-
 
         //redirect stdout and stderr
         boost::format fmt( "import sys\n"
@@ -120,6 +105,12 @@ PyEnv::PyEnv() {
             PyErr_Print();
             return;
         }
+
+        #if defined(SWIG_PYTHON_THREADS)
+            Logger(Standard) << "Pythonthreads enabled";
+        #else
+            Logger(Standard) << "Pythonthreads disabled";
+        #endif
 }
 
 PyEnv::~PyEnv() {
