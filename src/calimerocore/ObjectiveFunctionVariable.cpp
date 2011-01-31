@@ -174,6 +174,7 @@ bool ObjectiveFunctionVariable::calc()
         if(!tmpfunction)
             delete tmpfunction;
         Logger(Error) << e.exceptionmsg;
+        return false;
     }
 
     return true;

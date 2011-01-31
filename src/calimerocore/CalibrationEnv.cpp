@@ -158,7 +158,9 @@ void CalibrationEnv::run()
                 time.start();
                 runCalibration();
                 setCalibrationState(CALIBRATIONNOTRUNNING);
-                Logger(Standard) << "Time elapsed: " << time.elapsed() << "ms";
+                int elapsed = time.elapsed();
+                Logger(Standard) << "Samples/Sec: " << QString::number(calibration->getNumOfComplete()/(elapsed/(double)1000));
+                Logger(Standard) << "Time elapsed: " << QString::number(elapsed) << "ms";
                 Logger(Standard) << "Calibration stopped";
             }
             catch(PythonException &exception)
@@ -262,15 +264,11 @@ void CalibrationEnv::runCalibration()
     numthread = QThread::idealThreadCount ();
     int realthreads = 0;
     if(tmpalg->containsParameter("parallel"))
-    {
         realthreads = (boost::lexical_cast<int>(tmpalg->getValueOfParameter("parallel")));
-        if(numthread < realthreads)
-            realthreads=numthread;
-    }
     else
         realthreads = 1;
 
-    Logger(Standard) << "Enabled cores: " << realthreads;
+    Logger(Standard) << "Enabled threads: " << realthreads;
 
     threadpool = new ModelSimThreadPool(realthreads);
 

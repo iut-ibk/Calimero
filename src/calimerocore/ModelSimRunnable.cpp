@@ -81,16 +81,11 @@ void ModelSimRunnable::run()
             CalibrationEnv::getInstance()->stopCalibration();
         }
     }
-    catch(const PythonException &exception)
-    {
-        Logger(Error) << exception.exceptionmsg;
-        Logger(Error) << exception.type;
-        Logger(Error) << exception.traceback;
-        Logger(Error) << exception.value;
-    }
     catch (CalimeroException e)
     {
         Logger(Error) << e.exceptionmsg;
+        Logger(Error) << "Could not execute \"Model\"";
+        CalibrationEnv::getInstance()->stopCalibration();
     }
 
     //clean sim

@@ -19,6 +19,7 @@ INCLUDE_DIRECTORIES(src/calimerocore
                     src/nativefunctions
                     src/optimizationalgs
                     src/calimerohelper
+                    src/dummyfunctions
                     )
 
 FIND_PACKAGE(Qt4 REQUIRED)
@@ -54,6 +55,7 @@ SET(EXECUTABLE_OUTPUT_PATH ${calimero_BINARY_DIR})
 ADD_SUBDIRECTORY(src/calimerocore)
 ADD_SUBDIRECTORY(src/python-swig)
 ADD_SUBDIRECTORY(src/nativefunctions)
+ADD_SUBDIRECTORY(src/dummyfunctions)
 ADD_SUBDIRECTORY(src/optimizationalgs)
 ADD_SUBDIRECTORY(src/app)
 ADD_SUBDIRECTORY(src/calimerohelper)
