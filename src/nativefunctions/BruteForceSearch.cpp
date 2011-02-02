@@ -50,7 +50,7 @@ bool BruteForceSearch::start(vector<CalibrationVariable*> calibrationpars, vecto
         omp_set_num_threads(QString(getValueOfParameter("parallel").c_str()).toInt());
         bool ok=true;
         #pragma omp parallel for
-        for(uint iteration=0; iteration<maxiterations; iteration++)
+        for(int iteration=0; iteration<(int)maxiterations; iteration++)
         {
             if(ok)
                 ok=ok && sample(iteration,calibrationpars);
