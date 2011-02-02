@@ -19,6 +19,10 @@
 
 #include <swigruntime.h>
 
+extern "C" {
+void init_pycalimero(void);
+}
+
 using namespace boost::python;
 
 void init() {
@@ -60,6 +64,7 @@ PyEnv::PyEnv() {
         if(!Py_IsInitialized()) {
             Py_Initialize();
             SWIG_PYTHON_INITIALIZE_THREADS;
+            init_pycalimero();
             PyThreadState *pts = PyGILState_GetThisThreadState();
             PyEval_ReleaseThread(pts);
         }
@@ -71,33 +76,35 @@ PyEnv::PyEnv() {
 
         //redirect stdout and stderr
         boost::format fmt( "import sys\n"
-                                   "class Logger:\n"
-                                   "    def __init__(self, stdout,error):\n"
-                                   "        self.stdout = stdout\n"
-                                   "        self.error=error\n"
-                                   "        self.currentstring=\"\"\n"
-                                   "\n"
-                                   "    def write(self, text):\n"
-                                   "        self.stdout.write(text)\n"
-                                   "        self.currentstring = self.currentstring + \" \" + text\n"
-                                   "\n"
-                                   "        if text.rfind(\"\\n\") == -1:\n"
-                                   "                return\n"
-                                   "\n"
-                                   "        self.currentstring=self.currentstring.replace(\"\\n\",\"\")\n"
-                                   "        self.currentstring=self.currentstring.replace(\"\\r\",\"\")\n"
-                                   "        if self.error:\n"
-                                   "                pycalimero.log(self.currentstring,pycalimero.Error)\n"
-                                   "        else:\n"
-                                   "                pycalimero.log(self.currentstring,pycalimero.Standard)\n"
-                                   "        self.currentstring=\"\"\n"
-                                   "\n"
-                                   "    def close(self):\n"
-                                   "        self.stdout.close()\n"
-                                   "\n"
-                                   "if not isinstance(sys.stdout,Logger):\n"
-                                   "        sys.stdout=Logger(sys.stdout,False)\n"
-                                   "        sys.stderr=Logger(sys.stderr,True)\n");
+                           "sys.path.append(\"./\")\n"
+                           "import pycalimero\n"
+                           "class Logger:\n"
+                           "    def __init__(self, stdout,error):\n"
+                           "        self.stdout = stdout\n"
+                           "        self.error=error\n"
+                           "        self.currentstring=\"\"\n"
+                           "\n"
+                           "    def write(self, text):\n"
+                           "        self.stdout.write(text)\n"
+                           "        self.currentstring = self.currentstring + \" \" + text\n"
+                           "\n"
+                           "        if text.rfind(\"\\n\") == -1:\n"
+                           "                return\n"
+                           "\n"
+                           "        self.currentstring=self.currentstring.replace(\"\\n\",\"\")\n"
+                           "        self.currentstring=self.currentstring.replace(\"\\r\",\"\")\n"
+                           "        if self.error:\n"
+                           "                pycalimero.log(self.currentstring,pycalimero.Error)\n"
+                           "        else:\n"
+                           "                pycalimero.log(self.currentstring,pycalimero.Standard)\n"
+                           "        self.currentstring=\"\"\n"
+                           "\n"
+                           "    def close(self):\n"
+                           "        self.stdout.close()\n"
+                           "\n"
+                           "if not isinstance(sys.stdout,Logger):\n"
+                           "        sys.stdout=Logger(sys.stdout,False)\n"
+                           "        sys.stderr=Logger(sys.stderr,True)\n");
 
 
         PyRun_String(fmt.str().c_str(), Py_file_input, priv->main_namespace, 0);
@@ -161,7 +168,6 @@ void PyEnv::registerFunctions(IRegistry *registry, const string &module,bool imp
         return;
     }
 
-    
     boost::format fmt;
     if(import)
     {

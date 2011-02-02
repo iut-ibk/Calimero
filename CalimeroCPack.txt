@@ -6,8 +6,9 @@ SET(CPACK_PACKAGE_VERSION_MINOR "11")
 SET(CPACK_PACKAGE_VERSION_PATCH "2")
 
 IF(UNIX AND NOT WIN32)
-    INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/_pycalimero.so" DESTINATION lib)
-    INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/src/python-swig/pycalimero.py" DESTINATION lib)
+    INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/_pycalimero.so" DESTINATION bin)
+    INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/src/python-swig/pycalimero.py" DESTINATION bin)
+
     SET(CPACK_GENERATOR "STGZ;DEB")
     SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "Michael Mair <michael.mair@uibk.a.at>")
     SET(CPACK_DEBIAN_PACKAGE_DEPENDS   "libqt4-core,
@@ -26,7 +27,6 @@ IF(UNIX AND NOT WIN32)
                                         python-scipy,
                                         python-numpy")
 ENDIF()
-
 IF(WIN32 AND NOT UNIX)
     SET(CPACK_GENERATOR "NSIS")
     SET(CPACK_NSIS_DISPLAY_NAME "Calimero")
@@ -34,6 +34,15 @@ IF(WIN32 AND NOT UNIX)
     INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/_pycalimero.pyd" DESTINATION bin)
     INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/src/python-swig/pycalimero.py" DESTINATION bin)
     
+    INSTALL(FILES "${PYTHON_LIBRARIES}" DESTINATION bin)
+
+    INSTALL(DIRECTORY "${PYTHON_INCLUDE_PATH}/../DLLs" DESTINATION bin)
+    INSTALL(DIRECTORY "${PYTHON_INCLUDE_PATH}/../Lib" DESTINATION bin)
+    INSTALL(DIRECTORY "${PYTHON_INCLUDE_PATH}/../Scripts" DESTINATION bin)
+    INSTALL(DIRECTORY "${PYTHON_INCLUDE_PATH}/../Tools" DESTINATION bin)
+    INSTALL(DIRECTORY "${PYTHON_INCLUDE_PATH}/../tcl" DESTINATION bin)
+
+
     FILE(GLOB DLLS
         ${QT_BINARY_DIR}/QtCore4.dll
         ${QT_BINARY_DIR}/QtGui4.dll
@@ -54,7 +63,16 @@ IF(WIN32 AND NOT UNIX)
 
 
     SET(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
-        WriteRegStr HKCU \\\"Software\\\\IUT\\\\Calimero\\\" calimerohome \\\"$INSTDIR\\\\calimero\\\\,$INSTDIR\\\\calimero\\\\site-packages\\\\\\\"
+        WriteRegStr HKCU \\\"Software\\\\IUT\\\\Calimero\\\" calimerohome \\\"
+        $INSTDIR\\\\bin\\\\DLLs\\\\,
+        $INSTDIR\\\\bin\\\\lib\\\\,
+        $INSTDIR\\\\bin\\\\lib\\\\plat-win\\\\,
+        $INSTDIR\\\\bin\\\\lib\\\\lib-tk\\\\,
+        $INSTDIR\\\\bin\\\\lib\\\\site-packages,
+        $INSTDIR\\\\bin\\\\,
+        $INSTDIR\\\\calimero\\\\,
+        $INSTDIR\\\\calimero\\\\site-packages\\\\
+        \\\"
 
         ClearErrors
         ")
