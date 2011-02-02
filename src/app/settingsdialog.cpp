@@ -12,7 +12,7 @@ SettingsDialog::SettingsDialog(QWidget *parent) : QDialog(parent)
     ui->setupUi(this);
     ui->del_path->setEnabled(false);
     QSettings settings;
-    QStringList pathlist = settings.value("calimerohome","").toString().split(",");
+    QStringList pathlist = settings.value("calimerohome","").toString().replace("\\","/").split(",");
 
     for (int index = 0; index < pathlist.size(); index++)
         ui->paths->addItem(pathlist.at(index));

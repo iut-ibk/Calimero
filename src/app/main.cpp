@@ -112,7 +112,7 @@ int main(int argc, char **argv)
 
             //load scripts
             QSettings settings;
-            QStringList pathlist = settings.value("calimerohome",QStringList()).toString().split(",");
+            QStringList pathlist = settings.value("calimerohome",QStringList()).toString().replace("\\","/").split(",");
 
             for (int index = 0; index < pathlist.size(); index++)
             {

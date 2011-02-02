@@ -140,8 +140,7 @@ PyEnv *PyEnv::getInstance() {
 }
 
 void PyEnv::addPythonPath(std::string path) {
-        boost::format fmt("import sys\n"
-                          "sys.path.append('%1%')\n");
+        boost::format fmt("sys.path.append('%1%')\n");
         fmt % path;
         SWIG_PYTHON_THREAD_BEGIN_BLOCK;
         PyRun_String(fmt.str().c_str(), Py_file_input, priv->main_namespace, 0);
