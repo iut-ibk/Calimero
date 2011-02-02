@@ -284,7 +284,7 @@ void MainWindow::init()
 {
     loading = false;
     QSettings settings;
-    QStringList pathlist = settings.value("calimerohome",QStringList()).toStringList();
+    QStringList pathlist = settings.value("calimerohome",QStringList()).toString().split(",");
 
     for (int index = 0; index < pathlist.size(); index++)
         PyEnv::getInstance()->addPythonPath(pathlist.at(index).toStdString());

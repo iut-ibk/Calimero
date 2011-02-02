@@ -12,7 +12,7 @@ SettingsDialog::SettingsDialog(QWidget *parent) : QDialog(parent)
     ui->setupUi(this);
     ui->del_path->setEnabled(false);
     QSettings settings;
-    QStringList pathlist = settings.value("calimerohome",QStringList()).toStringList();
+    QStringList pathlist = settings.value("calimerohome","").toString().split(",");
 
     for (int index = 0; index < pathlist.size(); index++)
         ui->paths->addItem(pathlist.at(index));
@@ -33,7 +33,7 @@ void SettingsDialog::on_b_save_accepted()
         pathstringlist.append(ui->paths->item(index)->text());
 
 
-    settings.setValue("calimerohome",pathstringlist);
+    settings.setValue("calimerohome",pathstringlist.join(","));
     QMessageBox::information(this, tr("Calimero options..."), tr("Please restart calimero."));
     this->close();
 }
