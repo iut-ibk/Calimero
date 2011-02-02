@@ -284,6 +284,10 @@ void MainWindow::init()
 {
     loading = false;
     QSettings settings;
+    QStringList pythonhome = settings.value("pythonhome",QStringList()).toString().replace("\\","/").split(",");
+    for (int index = 0; index < pythonhome.size(); index++)
+        PyEnv::getInstance()->addPythonPath(pythonhome.at(index).toStdString());
+
     QStringList pathlist = settings.value("calimerohome",QStringList()).toString().replace("\\","/").split(",");
 
     for (int index = 0; index < pathlist.size(); index++)
