@@ -18,7 +18,6 @@ BruteForceSearch::BruteForceSearch()
     setDataType("parallel",UINT,"1");
     setDataType("clean results", BOOL, "1");
     setDataType("disableautothreads",BOOL,"0");
-
 }
 
 

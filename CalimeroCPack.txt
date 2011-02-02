@@ -34,12 +34,6 @@ IF(WIN32 AND NOT UNIX)
     SET(CPACK_NSIS_CONTACT "michael.mair@uibk.ac.at")
     INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/_pycalimero.pyd" DESTINATION lib)
     
-    INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/calimero.exe.manifest DESTINATION bin)
-    INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/calimerocore.dll.manifest DESTINATION bin)
-    INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/calimeronativefunctions.dll.manifest DESTINATION bin)
-    INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/calimerooptimizationalgs.dll.manifest DESTINATION bin)
-    INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/calimerohelper.dll.manifest DESTINATION bin)
-
     FILE(GLOB DLLS
         ${QT_BINARY_DIR}/QtCore4.dll
         ${QT_BINARY_DIR}/QtGui4.dll
@@ -60,7 +54,7 @@ IF(WIN32 AND NOT UNIX)
 
 
     SET(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
-        WriteRegStr HKCU \\\"Software\\\\IUT\\\\Calimero\\\" calimerohome \\\"$INSTDIR\\\\bin\\\\,$INSTDIR\\\\calimero\\\\,$INSTDIR\\\\calimero\\\\site-packages\\\\\\\"
+        WriteRegStr HKCU \\\"Software\\\\IUT\\\\Calimero\\\" calimerohome \\\"$INSTDIR\\\\lib\\\\,$INSTDIR\\\\calimero\\\\,$INSTDIR\\\\calimero\\\\site-packages\\\\\\\"
 
         ClearErrors
         ")
