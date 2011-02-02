@@ -126,9 +126,11 @@ template <typename T> bool Registry<T>::contains(string name)
 template <typename T> bool Registry<T>::addNativePlugin(const std::string &plugin_path) {
         QLibrary l(QString::fromStdString(plugin_path));
         bool loaded = l.load();
+
         if(!loaded)
         {
-            Logger(Error) << "could not load plugin: " << plugin_path;
+            Logger(Error) << "Could not load library: " << plugin_path;
+            Logger(Error) << l.errorString();
             return false;
         }
 
