@@ -59,8 +59,17 @@ IF(WIN32 AND NOT UNIX)
     INSTALL(FILES ${MANIFEST} DESTINATION bin)
 
 
+    SET(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
+        WriteRegStr HKCU \\\"Software\\\\IUT\\\\Calimero\\\" calimerohome \\\"$INSTDIR\\\\bin\\\\ $INSTDIR\\\\calimero $INSTDIR\\\\calimero\\\\site-packages\\\"
+
+        ClearErrors
+        ")
+
+        SET(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "
+        DeleteRegKey HKCU \\\"Software\\\\IUT\\\\Calimero\\\"
+        ")
+
 ENDIF()
 
 SET(CPACK_PACKAGE_EXECUTABLES "calimero;Calimero")
 INCLUDE(CPack)
-
