@@ -54,7 +54,7 @@ IF(WIN32 AND NOT UNIX)
 
 
     SET(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
-        WriteRegStr HKCU \\\"Software\\\\IUT\\\\Calimero\\\" calimerohome \\\"$INSTDIR\\\\calimero\\\\site-packages\\\\,$INSTDIR\\\\calimero\\\\\\\"
+        WriteRegStr HKCU \\\"Software\\\\IUT\\\\Calimero\\\" calimerohome \\\"$INSTDIR\\\\calimero\\\\,$INSTDIR\\\\calimero\\\\site-packages\\\\\\\"
 
         ClearErrors
         ")

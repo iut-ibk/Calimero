@@ -17,6 +17,9 @@ void FunctionLoader::loadNative(const string &path)
         if(!(file.contains(".dll") || file.contains(".so")))
             continue;
 
+        if(file.contains("manifest"))
+            continue;
+
         if(!CalibrationEnv::getInstance()->getCalibrationAlgReg()->addNativePlugin(file.toStdString()))
             continue;
         if(!CalibrationEnv::getInstance()->getObjectiveFunctionReg()->addNativePlugin(file.toStdString()))

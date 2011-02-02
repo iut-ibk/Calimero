@@ -129,7 +129,6 @@ template <typename T> bool Registry<T>::addNativePlugin(const std::string &plugi
 
         if(!loaded)
         {
-            Logger(Error) << "Could not load library: " << plugin_path;
             Logger(Error) << l.errorString();
             return false;
         }

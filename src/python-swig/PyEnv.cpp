@@ -145,6 +145,11 @@ void PyEnv::addPythonPath(std::string path) {
         fmt % path;
         SWIG_PYTHON_THREAD_BEGIN_BLOCK;
         PyRun_String(fmt.str().c_str(), Py_file_input, priv->main_namespace, 0);
+        if (PyErr_Occurred()) {
+            Logger(Error) << "Could not add python path";
+            PyErr_Print();
+            return;
+        }
 }
 
 void PyEnv::registerFunctions(IRegistry *registry, const string &module,bool import)
