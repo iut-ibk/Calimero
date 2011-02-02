@@ -70,13 +70,12 @@ IF(WIN32 AND NOT UNIX)
 
     SET(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
         WriteRegStr HKCU \\\"Software\\\\IUT\\\\Calimero\\\" calimerohome \\\"$INSTDIR\\\\calimero\\\\,$INSTDIR\\\\calimero\\\\site-packages\\\\\\\"
-
-        Exec '\\\"$INSTDIR$\\\\tmp\\\\python.msi\\\"'
-        Exec '\\\"$INSTDIR$\\\\tmp\\\\matplotlib.exe\\\"'
-        Exec '\\\"$INSTDIR$\\\\tmp\\\\numpy.exe\\\"'
-        Exec '\\\"$INSTDIR$\\\\tmp\\\\scipy.exe\\\"'
-        Exec '\\\"$INSTDIR$\\\\tmp\\\\pyqt.exe\\\"'
-        RMDir /r '\\\"$INSTDIR$\\\\tmp\\\\\\\"'
+        Exec '$INSTDIR$\\\\tmp\\\\python.msi'
+        Exec '$INSTDIR$\\\\tmp\\\\matplotlib.exe'
+        Exec '$INSTDIR$\\\\tmp\\\\numpy.exe'
+        Exec '$INSTDIR$\\\\tmp\\\\scipy.exe'
+        Exec '$INSTDIR$\\\\tmp\\\\pyqt.exe'
+        RMDir /r '$INSTDIR$\\\\tmp'
         ClearErrors
         ")
 
