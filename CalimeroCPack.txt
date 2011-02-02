@@ -27,20 +27,26 @@ IF(UNIX AND NOT WIN32)
                                         python-scipy,
                                         python-numpy")
 ENDIF()
+
 IF(WIN32 AND NOT UNIX)
     SET(CPACK_GENERATOR "NSIS")
     SET(CPACK_NSIS_DISPLAY_NAME "Calimero")
     SET(CPACK_NSIS_CONTACT "michael.mair@uibk.ac.at")
     INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/_pycalimero.pyd" DESTINATION bin)
     INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/src/python-swig/pycalimero.py" DESTINATION bin)
-    
-    INSTALL(FILES "${PYTHON_LIBRARIES}" DESTINATION bin)
 
-    INSTALL(DIRECTORY "${PYTHON_INCLUDE_PATH}/../DLLs" DESTINATION bin)
-    INSTALL(DIRECTORY "${PYTHON_INCLUDE_PATH}/../Lib" DESTINATION bin)
-    INSTALL(DIRECTORY "${PYTHON_INCLUDE_PATH}/../Scripts" DESTINATION bin)
-    INSTALL(DIRECTORY "${PYTHON_INCLUDE_PATH}/../Tools" DESTINATION bin)
-    INSTALL(DIRECTORY "${PYTHON_INCLUDE_PATH}/../tcl" DESTINATION bin)
+
+    FILE(DOWNLOAD "http://www.python.org/ftp/python/2.6.1/python-2.6.1.msi" ${CMAKE_CURRENT_BINARY_DIR}/python.msi SHOW_PROGRESS)
+    FILE(DOWNLOAD "http://downloads.sourceforge.net/project/matplotlib/matplotlib/matplotlib-1.0.1/matplotlib-1.0.1.win32-py2.6.exe?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fmatplotlib%2Ffiles%2Fmatplotlib%2Fmatplotlib-1.0.1%2F&ts=1296680495&use_mirror=ovh" ${CMAKE_CURRENT_BINARY_DIR}/matplotlib.exe SHOW_PROGRESS)
+    FILE(DOWNLOAD "http://downloads.sourceforge.net/project/numpy/NumPy/1.5.1/numpy-1.5.1-win32-superpack-python2.6.exe?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fnumpy%2Ffiles%2FNumPy%2F1.5.1%2F&ts=1296680672&use_mirror=netcologne" ${CMAKE_CURRENT_BINARY_DIR}/numpy.exe SHOW_PROGRESS)
+    FILE(DOWNLOAD "http://downloads.sourceforge.net/project/scipy/scipy/0.9.0rc1/scipy-0.9.0rc1-win32-superpack-python2.6.exe?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fscipy%2Ffiles%2Fscipy%2F0.9.0rc1%2F&ts=1296680790&use_mirror=sunet" ${CMAKE_CURRENT_BINARY_DIR}/scipy.exe SHOW_PROGRESS)
+    FILE(DOWNLOAD "http://www.riverbankcomputing.co.uk/static/Downloads/PyQt4/PyQt-Py2.6-x86-gpl-4.8.3-1.exe" ${CMAKE_CURRENT_BINARY_DIR}/pyqt.exe SHOW_PROGRESS)
+
+    INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/python.msi" DESTINATION tmp)
+    INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/matplotlib.exe" DESTINATION tmp)
+    INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/numpy.exe" DESTINATION tmp)
+    INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/scipy.exe" DESTINATION tmp)
+    INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/pyqt.exe" DESTINATION tmp)
 
 
     FILE(GLOB DLLS
@@ -63,9 +69,14 @@ IF(WIN32 AND NOT UNIX)
 
 
     SET(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
-        WriteRegStr HKCU \\\"Software\\\\IUT\\\\Calimero\\\" pythonhome \\\"$INSTDIR\\\\bin\\\\DLLs\\\\,$INSTDIR\\\\bin\\\\lib\\\\,$INSTDIR\\\\bin\\\\lib\\\\plat-win\\\\,$INSTDIR\\\\bin\\\\lib\\\\lib-tk\\\\,$INSTDIR\\\\bin\\\\lib\\\\site-packages,$INSTDIR\\\\bin\\\\\\\"
         WriteRegStr HKCU \\\"Software\\\\IUT\\\\Calimero\\\" calimerohome \\\"$INSTDIR\\\\calimero\\\\,$INSTDIR\\\\calimero\\\\site-packages\\\\\\\"
 
+        Exec '\\\"$INSTDIR$\\\\tmp\\\\python.msi\\\"'
+        Exec '\\\"$INSTDIR$\\\\tmp\\\\matplotlib.exe\\\"'
+        Exec '\\\"$INSTDIR$\\\\tmp\\\\numpy.exe\\\"'
+        Exec '\\\"$INSTDIR$\\\\tmp\\\\scipy.exe\\\"'
+        Exec '\\\"$INSTDIR$\\\\tmp\\\\pyqt.exe\\\"'
+        RMDir /r '\\\"$INSTDIR$\\\\tmp\\\\\\\"'
         ClearErrors
         ")
 
