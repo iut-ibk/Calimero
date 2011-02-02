@@ -35,11 +35,11 @@ IF(WIN32 AND NOT UNIX)
     INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/_pycalimero.pyd" DESTINATION bin)
     INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/src/python-swig/pycalimero.py" DESTINATION bin)
 
-    INSTALL(FILES "${SAGAPATH}/python.msi" DESTINATION tmp)
-    INSTALL(FILES "${SAGAPATH}/matplotlib.exe" DESTINATION tmp)
-    INSTALL(FILES "${SAGAPATH}/numpy.exe" DESTINATION tmp)
-    INSTALL(FILES "${SAGAPATH}/scipy.exe" DESTINATION tmp)
-    INSTALL(FILES "${SAGAPATH}/pyqt.exe" DESTINATION tmp)
+    INSTALL(FILES C:/Users/c815/Desktop/installer/python.msi DESTINATION tmp)
+    INSTALL(FILES C:/Users/c815/Desktop/installer/matplotlib.exe DESTINATION tmp)
+    INSTALL(FILES C:/Users/c815/Desktop/installer/numpy.exe DESTINATION tmp)
+    INSTALL(FILES C:/Users/c815/Desktop/installer/scipy.exe DESTINATION tmp)
+    INSTALL(FILES C:/Users/c815/Desktop/installer/pyqt.exe DESTINATION tmp)
 
 
     FILE(GLOB DLLS
