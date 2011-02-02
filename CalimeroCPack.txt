@@ -3,45 +3,41 @@ SET(CPACK_PACKAGE_NAME "calimero-swig")
 SET(CPACK_PACKAGE_VENDOR "University of Innsbruck")
 SET(CPACK_PACKAGE_VERSION_MAJOR "1")
 SET(CPACK_PACKAGE_VERSION_MINOR "11")
-SET(CPACK_PACKAGE_VERSION_PATCH "1")
+SET(CPACK_PACKAGE_VERSION_PATCH "2")
+
+INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/src/python-swig/pycalimero.py" DESTINATION lib)
 
 IF(UNIX AND NOT WIN32)
+    INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/_pycalimero.so" DESTINATION lib)
     SET(CPACK_GENERATOR "STGZ;DEB")
-    SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "Michael Mair <abroxos@gmail.com>")
-
-    IF(CMAKE_BUILD_TYPE STREQUAL Debug)
-        SET(CPACK_DEBIAN_PACKAGE_DEPENDS   "libqt4-dev,
-                                            libboost1.41-all-dev
-                                            ")
-    ELSE()
-        SET(CPACK_DEBIAN_PACKAGE_DEPENDS   "libqt4-core,
-                                            libqt4-gui,
-                                            libqt4-xml,
-                                            libqt4-svg,
-                                            libboost-program-options1.41.0 ,
-                                            libboost-iostreams1.41.0 ,
-                                            libboost-system1.41.0 ,
-                                            libboost-thread1.41.0 ,
-                                            libboost-filesystem1.41.0 ,
-                                            libboost-python1.41.0 ,
-                                            libboost-signals1.41.0 ,
-                                            libboost-math1.41.0
-                                            ")
-    ENDIF()
+    SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "Michael Mair <michael.mair@uibk.a.at>")
+    SET(CPACK_DEBIAN_PACKAGE_DEPENDS   "libqt4-core,
+                                        libqt4-gui,
+                                        libqt4-xml,
+                                        libqt4-svg,
+                                        libboost-program-options1.41.0 ,
+                                        libboost-iostreams1.41.0 ,
+                                        libboost-system1.41.0 ,
+                                        libboost-thread1.41.0 ,
+                                        libboost-filesystem1.41.0 ,
+                                        libboost-python1.41.0 ,
+                                        libboost-signals1.41.0 ,
+                                        libboost-math1.41.0,
+                                        python2.6,
+                                        python-scipy,
+                                        python-numpy")
 ENDIF()
 
 IF(WIN32 AND NOT UNIX)
     SET(CPACK_GENERATOR "NSIS")
     SET(CPACK_NSIS_DISPLAY_NAME "Calimero")
     SET(CPACK_NSIS_CONTACT "michael.mair@uibk.ac.at")
-    INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/src/python-swig/pycalimero.py" DESTINATION bin)
-    INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/_pycalimero.pyd" DESTINATION bin)
+    INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/_pycalimero.pyd" DESTINATION lib)
     
     INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/calimero.exe.manifest DESTINATION bin)
     INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/calimerocore.dll.manifest DESTINATION bin)
     INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/calimeronativefunctions.dll.manifest DESTINATION bin)
     INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/calimerooptimizationalgs.dll.manifest DESTINATION bin)
-    INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/regapp.exe.manifest DESTINATION bin)
     INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/calimerohelper.dll.manifest DESTINATION bin)
 
     FILE(GLOB DLLS

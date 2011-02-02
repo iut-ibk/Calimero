@@ -11,10 +11,14 @@
 #include <Calibration.h>
 #include <CalibrationEnv.h>
 
-
-ModelSimThreadPool::ModelSimThreadPool(int threadnum)
+ModelSimThreadPool::ModelSimThreadPool(int threadnum,bool disableautothreads)
 {
-    this->setMaxThreadCount(threadnum);
+    this->disableautothreads=disableautothreads;
+
+    if(disableautothreads)
+        this->setMaxThreadCount(0);
+    else
+        this->setMaxThreadCount(threadnum);
 }
 
 ModelSimThreadPool::~ModelSimThreadPool()
@@ -23,18 +27,32 @@ ModelSimThreadPool::~ModelSimThreadPool()
 
 bool ModelSimThreadPool::pushIteration( vector<CalibrationVariable*> vars, Calibration *calibration)
 {
+    QMutexLocker *locker = new QMutexLocker(&mutex);
     ModelSimRunnable *simulation = new ModelSimRunnable(vars,calibration);
+    delete locker;
     simulation->setAutoDelete(true);
 
-    while(!tryStart(simulation));
+    if(disableautothreads)
     {
         if(!CalibrationEnv::getInstance()->isCalibrationRunning())
         {
             delete simulation;
             return false;
         }
-    }
 
+        simulation->run();
+        return true;
+    }
+    else
+    {
+        while(!tryStart(simulation));
+        {
+            if(!CalibrationEnv::getInstance()->isCalibrationRunning())
+            {
+                delete simulation;
+                return false;
+            }
+        }
+    }
     return true;
 }
-

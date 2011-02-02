@@ -121,6 +121,8 @@ int main(int argc, char **argv)
 
             for (int index = 0; index < pathlist.size(); index++)
             {
+                if(pathlist.at(index).contains("site-packages"))
+                    continue;
                 PyFunctionLoader::loadScripts(pathlist.at(index).toStdString());
                 FunctionLoader::loadNative(pathlist.at(index).toStdString());
             }

@@ -6,6 +6,8 @@
 #include <CalimeroGlob.h>
 #include <string>
 #include <set>
+#include <QMutex>
+#include <QMutexLocker>
 
 class CalibrationVariable;
 class Variable;
@@ -20,8 +22,11 @@ using namespace std;
 
 class CALIMERO_PUBLIC ModelSimThreadPool : public QThreadPool
 {
+private:
+    QMutex mutex;
+    bool disableautothreads;
 public:
-    ModelSimThreadPool(int threadnum);
+    ModelSimThreadPool(int threadnum,bool omp);
     ~ModelSimThreadPool();
     bool pushIteration( vector<CalibrationVariable*> vars, Calibration *calibration);
 };

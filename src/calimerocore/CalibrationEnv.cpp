@@ -261,6 +261,7 @@ void CalibrationEnv::runCalibration()
     else
         calibration->clearIterationResults();
 
+    //threads
     numthread = QThread::idealThreadCount ();
     int realthreads = 0;
     if(tmpalg->containsParameter("parallel"))
@@ -270,7 +271,14 @@ void CalibrationEnv::runCalibration()
 
     Logger(Standard) << "Enabled threads: " << realthreads;
 
-    threadpool = new ModelSimThreadPool(realthreads);
+    //disableautothreads
+    bool disableautothreads = false;
+    if(tmpalg->containsParameter("disableautothreads"))
+        disableautothreads = (boost::lexical_cast<bool>(tmpalg->getValueOfParameter("disableautothreads")));
+
+    Logger(Standard) << "Disable autothreads: " << disableautothreads;
+
+    threadpool = new ModelSimThreadPool(realthreads,disableautothreads);
 
     int startiteration = this->getCalibration()->getNumOfComplete();
 
