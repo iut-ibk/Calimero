@@ -27,19 +27,20 @@ IF(UNIX AND NOT WIN32)
                                         python-scipy,
                                         python-numpy")
 ENDIF()
-
 IF(WIN32 AND NOT UNIX)
     SET(CPACK_GENERATOR "NSIS")
     SET(CPACK_NSIS_DISPLAY_NAME "Calimero")
     SET(CPACK_NSIS_CONTACT "michael.mair@uibk.ac.at")
     INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/_pycalimero.pyd" DESTINATION bin)
     INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/src/python-swig/pycalimero.py" DESTINATION bin)
+    
+    INSTALL(FILES "${PYTHON_LIBRARIES}" DESTINATION bin)
 
-    INSTALL(FILES C:/Users/c815/Desktop/installer/python.msi DESTINATION tmp)
-    INSTALL(FILES C:/Users/c815/Desktop/installer/matplotlib.exe DESTINATION tmp)
-    INSTALL(FILES C:/Users/c815/Desktop/installer/numpy.exe DESTINATION tmp)
-    INSTALL(FILES C:/Users/c815/Desktop/installer/scipy.exe DESTINATION tmp)
-    INSTALL(FILES C:/Users/c815/Desktop/installer/pyqt.exe DESTINATION tmp)
+    INSTALL(DIRECTORY "${PYTHON_INCLUDE_PATH}/../DLLs" DESTINATION bin)
+    INSTALL(DIRECTORY "${PYTHON_INCLUDE_PATH}/../Lib" DESTINATION bin)
+    INSTALL(DIRECTORY "${PYTHON_INCLUDE_PATH}/../Scripts" DESTINATION bin)
+    INSTALL(DIRECTORY "${PYTHON_INCLUDE_PATH}/../Tools" DESTINATION bin)
+    INSTALL(DIRECTORY "${PYTHON_INCLUDE_PATH}/../tcl" DESTINATION bin)
 
 
     FILE(GLOB DLLS
@@ -62,13 +63,9 @@ IF(WIN32 AND NOT UNIX)
 
 
     SET(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
+        WriteRegStr HKCU \\\"Software\\\\IUT\\\\Calimero\\\" pythonhome \\\"$INSTDIR\\\\bin\\\\DLLs\\\\,$INSTDIR\\\\bin\\\\lib\\\\,$INSTDIR\\\\bin\\\\lib\\\\plat-win\\\\,$INSTDIR\\\\bin\\\\lib\\\\lib-tk\\\\,$INSTDIR\\\\bin\\\\lib\\\\site-packages,$INSTDIR\\\\bin\\\\\\\"
         WriteRegStr HKCU \\\"Software\\\\IUT\\\\Calimero\\\" calimerohome \\\"$INSTDIR\\\\calimero\\\\,$INSTDIR\\\\calimero\\\\site-packages\\\\\\\"
-        Exec '\\\"$INSTDIR$\\\\tmp\\\\python.msi \\\"\\\"'
-        Exec '\\\"$INSTDIR$\\\\tmp\\\\matplotlib.exe \\\"\\\"'
-        Exec '\\\"$INSTDIR$\\\\tmp\\\\numpy.exe \\\"\\\"'
-        Exec '\\\"$INSTDIR$\\\\tmp\\\\scipy.exe \\\"\\\"'
-        Exec '\\\"$INSTDIR$\\\\tmp\\\\pyqt.exe\\\" \\\"\\\"'
-        RMDir /r \\\"$INSTDIR$\\\\tmp\\\"
+
         ClearErrors
         ")
 
