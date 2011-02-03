@@ -154,6 +154,7 @@ bool ExternalParameterRegistry::updateParameters(Domain *domain, int iteration)
 
 bool ExternalParameterRegistry::updateParameters(Domain *domain, const string &templatename, const string &values)
 {
+    std::map<std::string,std::vector<double>* > extractedvalues;
     //check existence of templatename and regfile
     if(regtemplates.find(templatename)==regtemplates.end())
         return false;
@@ -189,6 +190,7 @@ bool ExternalParameterRegistry::updateParameters(Domain *domain, const string &t
             int valuelength = 10;
             double value = 0;
 
+
             while(doubleok)
             {
                 value = valuefilestring.mid(textposition,valuelength).toDouble(&doubleok);
@@ -201,7 +203,10 @@ bool ExternalParameterRegistry::updateParameters(Domain *domain, const string &t
             {
                 valuelength--;
                 if(valuelength<1)
+                {
+                    destroy(extractedvalues);
                     return false;
+                }
 
                 value = valuefilestring.mid(textposition,valuelength).toDouble(&doubleok);
             }
@@ -210,7 +215,10 @@ bool ExternalParameterRegistry::updateParameters(Domain *domain, const string &t
             textposition+=valuelength;
 
             if(textposition>valuefilestring.length())
+            {
+                destroy(extractedvalues);
                 return false;
+            }
 
             //check if parameter is a vector element
             bool isvectorelement=false;
@@ -222,24 +230,20 @@ bool ExternalParameterRegistry::updateParameters(Domain *domain, const string &t
             }
 
             if(!domain->contains(parametername.toStdString()))
+            {
+                destroy(extractedvalues);
                 return false;
+            }
 
-            Variable* tmpvar = domain->getPar(parametername.toStdString());
-            vector<double> tmpvec;
-            if(tmpvar->getType()==CALIBRATIONVARIABLE)
-                tmpvec = (static_cast<CalibrationVariable*>(tmpvar))->getInitValues();
-            else
-                tmpvec = tmpvar->getValues();
+            if(extractedvalues.find(parametername.toStdString())==extractedvalues.end())
+                extractedvalues[parametername.toStdString()] = new vector<double>();
+
+            vector<double> *tmpvec = extractedvalues[parametername.toStdString()];
 
             if(!isvectorelement)
-                tmpvec.clear();
+                tmpvec->clear();
 
-            //TODO make faster
-            tmpvec.push_back(value);
-            if(tmpvar->getType()==CALIBRATIONVARIABLE)
-                (static_cast<CalibrationVariable*>(tmpvar))->setInitValues(tmpvec);
-            else
-                tmpvar->setValues(tmpvec);
+            tmpvec->push_back(value);
         }
         else
         {
@@ -247,14 +251,35 @@ bool ExternalParameterRegistry::updateParameters(Domain *domain, const string &t
             QString s2 = valuefilestring.mid(textposition,parametersplit.at(index).length());
 
             if(s1.length()!=s2.length())
+            {
+                destroy(extractedvalues);
                 return false;
+            }
 
             textposition+=parametersplit.at(index).length();
         }
     }
 
+    //save values
+    std::pair<string, vector<double>* > exval;
+    BOOST_FOREACH(exval,extractedvalues)
+    {
+        Variable* tmpvar = domain->getPar(exval.first);
+        if(tmpvar->getType()==CALIBRATIONVARIABLE)
+            (static_cast<CalibrationVariable*>(tmpvar))->setInitValues(*exval.second);
+        else
+            tmpvar->setValues(*exval.second);
+    }
+    destroy(extractedvalues);
     return true;
 
+}
+
+void ExternalParameterRegistry::destroy(map<string, vector<double>* > extracted)
+{
+    std::pair<string, vector<double>* > exval;
+    BOOST_FOREACH(exval,extracted)
+            delete exval.second;
 }
 
 bool ExternalParameterRegistry::createValueFiles(Domain *dom, int iteration)

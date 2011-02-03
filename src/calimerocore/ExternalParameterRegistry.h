@@ -23,7 +23,8 @@ private:
     //[templatename][VariableType]
     map<string, VARTYPE> types;
 
-
+private:
+    void destroy(map<string, vector<double>* > extracted);
 public:
     ExternalParameterRegistry();
     ExternalParameterRegistry(const ExternalParameterRegistry &oldreg);
