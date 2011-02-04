@@ -13,6 +13,7 @@ CalibrationEnv* CalibrationEnv::instance = 0;
 CalibrationEnv::CalibrationEnv()
 {
     stopthread=false;
+    inmemory=true;
     calstate=CALIBRATIONNOTRUNNING;
     oreg = new Registry<IObjectiveFunction>();
     mreg = new  Registry<IModelSimulator>();
@@ -34,6 +35,16 @@ CalibrationEnv::~CalibrationEnv()
     delete creg;
     delete rreg;
     instance=0;
+}
+
+bool CalibrationEnv::inMemory()
+{
+    return inmemory;
+}
+
+void CalibrationEnv::setInMemory(bool inmemory)
+{
+    this->inmemory=inmemory;
 }
 
 CalibrationEnv* CalibrationEnv::getInstance()

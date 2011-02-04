@@ -9,7 +9,7 @@
 #include <QCloseEvent>
 #include <Logger.h>
 
-#define UPDATETIME 1000
+#define DEFAULTUPDATETIME 1000
 
 namespace Ui {
 	class MainWindow;
@@ -37,6 +37,7 @@ Q_OBJECT
         bool loading;
         int sp;
         int ls;
+        int UPDATETIME;
 
     public Q_SLOTS:
         void on_comboBox_currentIndexChanged ( int index );

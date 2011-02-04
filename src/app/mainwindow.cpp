@@ -284,6 +284,14 @@ void MainWindow::init()
 {
     loading = false;
     QSettings settings;
+    bool memory = settings.value("inmemory",true).toBool();
+    CalibrationEnv::getInstance()->setInMemory(memory);
+
+    if(memory)
+        UPDATETIME=DEFAULTUPDATETIME;
+    else
+        UPDATETIME=10000;
+
     QStringList pythonhome = settings.value("pythonhome",QStringList()).toString().replace("\\","/").split(",");
     for (int index = 0; index < pythonhome.size(); index++)
         PyEnv::getInstance()->addPythonPath(pythonhome.at(index).toStdString());

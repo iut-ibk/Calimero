@@ -21,8 +21,10 @@ class CALIMERO_PUBLIC CalibrationEnv : public QThread
 {
 public:
     enum CALIBRATIONSTATE{CALIBRATIONINIT=0, CALIBRATIONRUNNING=1, CALIBRATIONSHUTDOWN=2, CALIBRATIONNOTRUNNING=3};
+
 private:
     int numthread;
+    bool inmemory;
     bool stopthread;
     static CalibrationEnv *instance;
     QMutex *mutex;
@@ -59,6 +61,8 @@ public:
     bool isCalibrationRunning();
     int getNumThreads();
     bool setNumThreads(int num);
+    bool inMemory();
+    void setInMemory(bool inmemory);
 
     //calibration
     bool startCalibration();

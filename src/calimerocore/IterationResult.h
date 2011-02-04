@@ -7,6 +7,7 @@
 #include <CalimeroGlob.h>
 #include <Logger.h>
 #include <boost/shared_ptr.hpp>
+#include <QStringList>
 
 class ObjectiveFunctionVariable;
 class Variable;
@@ -21,12 +22,13 @@ class CALIMERO_PUBLIC IterationResult
 private:
     int complete;
     int iterationnumber;
-    map<string, vector<double> > calibrationparameters;
-    map<string, vector<double> > iterationparameters;
-    map<string, vector<double> > objectivefucntionparameters;
-    map<string, vector<double> > observedparameters;
+    QStringList calibrationparameters;
+    QStringList iterationparameters;
+    QStringList objectivefucntionparameters;
+    QStringList observedparameters;
 
 public:
+    ~IterationResult();
     IterationResult(int iterationnum);
     IterationResult(int iterationnum,
                     map<string, vector<double> > calibrationparameters,
@@ -45,6 +47,20 @@ public:
     vector<string> getNamesOfObservedParameters();
     vector<string> getNamesOfCalibrationParameters();
     vector<string> getNamesOfIterationParameters();
+};
+
+class CalimeroDB
+{
+private:
+    static CalimeroDB* instance;
+private:
+    CalimeroDB();
+public:
+    ~CalimeroDB();
+    static CalimeroDB* getInstance();
+    bool saveVector(std::string name, std::vector<double> vector, int iteration);
+    bool removeVector(std::string name, int iteration);
+    std::vector<double> getVector(std::string name, int iteration);
 };
 
 #endif // ITERATIONRESULT_H

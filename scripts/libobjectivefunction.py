@@ -59,15 +59,6 @@ class VectorErrorSquare(pycalimero.IObjectiveFunction):
         pycalimero.IObjectiveFunction.__init__(self)
         
     def eval(self,iterationparameters, observedparameters, objectivefunctionparameters):
-        #search for number of vectors
-        numberofvectors = 0
-        numberofvectors = numberofvectors+iterationparameters.__len__()
-        numberofvectors = numberofvectors+observedparameters.__len__()
-        numberofvectors = numberofvectors+objectivefunctionparameters.__len__()
-        
-        if(numberofvectors!=2):
-            pycalimero.log("Only two vectors are allowed in VectorErrorSquare", pycalimero.Warning)
-        
         #search for vectors and check their size
         vectors = pycalimero.doublevectorvector()
         
@@ -81,20 +72,20 @@ class VectorErrorSquare(pycalimero.IObjectiveFunction):
         for var in objectivefunctionparameters:
             vectors.append(var.getValues())
         
+        if(vectors.__len__()!=2):
+            pycalimero.log("Only two vectors are allowed in VectorErrorSquare", pycalimero.Error)
+            return pycalimero.doublevector(1,999999999999999)
+        
+        
         if(vectors[0].__len__()!=vectors[1].__len__()):
-            pycalimero.log("Vectors do not have the same size in VectorErrorSquare. Fill missing elements with a high value", pycalimero.Warning)
-
+            pycalimero.log("Vectors do not have the same size in VectorErrorSquare. Fill missing elements with a high value", pycalimero.Error)
+            return pycalimero.doublevector(1,999999999999999)
+            
         #calculate
-        result = pycalimero.doublevector()
+        result = pycalimero.doublevector(vectors[0].__len__())
         
         for index,value1 in enumerate(vectors[0]):
-            if index < vectors[1].__len__():
-                currentresult = math.pow(value1 - vectors[1][index],2)
-                result.append(currentresult)
-        
-        size = max(vectors[0].__len__(),vectors[1].__len__())
-        while(result.__len__() < size):
-            result.append(999999999999999)
+            result[index] = math.pow(value1 - vectors[1][index],2)
         
         return result
  

@@ -1,9 +1,6 @@
 CMAKE_MINIMUM_REQUIRED (VERSION 2.8)
 PROJECT(calimero)
 
-
-
-
 IF (${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
         MESSAGE(STATUS "Using Visual C compilers")
         SET(CMAKE_CXX_FLAGS "/EHsc")
@@ -16,10 +13,12 @@ ENDIF()
 
 INCLUDE_DIRECTORIES(src/calimerocore
                     src/python-swig
-                    src/nativefunctions
-                    src/optimizationalgs
+                    src/plugins
+                    src/plugins/nativefunctions
+                    src/plugins/optimizationalgs
+                    src/plugins/calimerohelper
+                    src/plugins/dummyfunctions
                     src/calimerohelper
-                    src/dummyfunctions
                     )
 
 FIND_PACKAGE(Qt4 REQUIRED)
@@ -57,6 +56,7 @@ ENDIF()
 MESSAGE(STATUS ${CMAKE_CXX_COMPILER_ID})
 SET(QT_USE_QTXML true)
 SET(QT_USE_QTSVG true)
+SET(QT_USE_QTSQL true)
 SET(QT_NOTUSE_QTGUI true)
 ADD_DEFINITIONS(-DQT_NO_KEYWORDS)
 INCLUDE(${QT_USE_FILE})
@@ -65,12 +65,9 @@ SET(EXECUTABLE_OUTPUT_PATH ${calimero_BINARY_DIR})
 
 ADD_SUBDIRECTORY(src/calimerocore)
 ADD_SUBDIRECTORY(src/python-swig)
-ADD_SUBDIRECTORY(src/nativefunctions)
-ADD_SUBDIRECTORY(src/dummyfunctions)
-ADD_SUBDIRECTORY(src/optimizationalgs)
+ADD_SUBDIRECTORY(src/plugins)
 ADD_SUBDIRECTORY(src/app)
 ADD_SUBDIRECTORY(src/calimerohelper)
-ADD_SUBDIRECTORY(src/registryapp)
 ADD_SUBDIRECTORY(scripts)
 ADD_SUBDIRECTORY(site-packages)
 INCLUDE(CalimeroCPack.txt)

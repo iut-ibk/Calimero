@@ -16,6 +16,8 @@ SettingsDialog::SettingsDialog(QWidget *parent) : QDialog(parent)
 
     for (int index = 0; index < pathlist.size(); index++)
         ui->paths->addItem(pathlist.at(index));
+
+    ui->memory->setTristate(settings.value("inmemory",true).toBool());
 }
 
 SettingsDialog::~SettingsDialog()
@@ -34,6 +36,8 @@ void SettingsDialog::on_b_save_accepted()
 
 
     settings.setValue("calimerohome",pathstringlist.join(","));
+
+    settings.setValue("inmemory",ui->memory->isTristate());
     QMessageBox::information(this, tr("Calimero options..."), tr("Please restart calimero."));
     this->close();
 }
