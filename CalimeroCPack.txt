@@ -38,12 +38,15 @@ IF(WIN32 AND NOT UNIX)
     
     INSTALL(FILES "${PYTHON_LIBRARIES}" DESTINATION bin)
 
+    MESSAGE(QT_BIN_DIR: ${QT_BINARY_DIR})
+
     INSTALL(DIRECTORY "${PYTHON_INCLUDE_PATH}/../DLLs" DESTINATION bin)
     INSTALL(DIRECTORY "${PYTHON_INCLUDE_PATH}/../Lib" DESTINATION bin)
     INSTALL(DIRECTORY "${PYTHON_INCLUDE_PATH}/../Scripts" DESTINATION bin)
     INSTALL(DIRECTORY "${PYTHON_INCLUDE_PATH}/../Tools" DESTINATION bin)
     INSTALL(DIRECTORY "${PYTHON_INCLUDE_PATH}/../tcl" DESTINATION bin)
-
+    INSTALL(FILE "${CMAKE_CURRENT_SOURCE_DIR}/qtconf/qt.conf" bin)
+    INSTALL(FILE ${QT_BINARY_DIR}/../plugins/sqldrivers/qsqlite4.dll bin/plugins/sqldrivers)
 
     FILE(GLOB DLLS
         ${QT_BINARY_DIR}/QtCore4.dll
@@ -51,8 +54,6 @@ IF(WIN32 AND NOT UNIX)
         ${QT_BINARY_DIR}/QtXml4.dll
         ${QT_BINARY_DIR}/QtSvg4.dll
         ${QT_BINARY_DIR}/QtSql4.dll
-        ${QT_PLUINGS_DIR}/sqldrivers/qsqlite4.dll
-        ${QT_PLUINGS_DIR}/imageformats/qsvg4.dll
         ${Boost_LIBRARY_DIRS}/boost_signals-*-mt-1_*.dll
         ${Boost_LIBRARY_DIRS}/boost_thread-*-mt-1_*.dll
         ${Boost_LIBRARY_DIRS}/boost_python-*-mt-1_*.dll
