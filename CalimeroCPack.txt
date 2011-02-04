@@ -51,7 +51,7 @@ IF(WIN32 AND NOT UNIX)
         ${QT_BINARY_DIR}/QtXml4.dll
         ${QT_BINARY_DIR}/QtSvg4.dll
         ${QT_BINARY_DIR}/QtSql4.dll
-        ${QT_PLUINGS_DIR}/plugins/sqldrivers/qsqlite4.dll
+        ${QT_PLUINGS_DIR}/sqldrivers/qsqlite4.dll
         ${QT_PLUINGS_DIR}/imageformats/qsvg4.dll
         ${Boost_LIBRARY_DIRS}/boost_signals-*-mt-1_*.dll
         ${Boost_LIBRARY_DIRS}/boost_thread-*-mt-1_*.dll
@@ -70,6 +70,7 @@ IF(WIN32 AND NOT UNIX)
         WriteRegStr HKCU \\\"Software\\\\IUT\\\\Calimero\\\" pythonhome \\\"$INSTDIR\\\\bin\\\\DLLs\\\\,$INSTDIR\\\\bin\\\\lib\\\\,$INSTDIR\\\\bin\\\\lib\\\\plat-win\\\\,$INSTDIR\\\\bin\\\\lib\\\\lib-tk\\\\,$INSTDIR\\\\bin\\\\lib\\\\site-packages,$INSTDIR\\\\bin\\\\\\\"
         WriteRegStr HKCU \\\"Software\\\\IUT\\\\Calimero\\\" calimerohome \\\"$INSTDIR\\\\calimero\\\\,$INSTDIR\\\\calimero\\\\site-packages\\\\\\\"
 
+        CopyFiles \\\"$INSTDIR\\\\bin\\\\DLLs\\\\sqlite3.dll\\\" \\\"$INSTDIR\\\\bin\\\\sqlite3.dll\\\"
         ClearErrors
         ")
 
