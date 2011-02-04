@@ -45,8 +45,8 @@ IF(WIN32 AND NOT UNIX)
     INSTALL(DIRECTORY "${PYTHON_INCLUDE_PATH}/../Scripts" DESTINATION bin)
     INSTALL(DIRECTORY "${PYTHON_INCLUDE_PATH}/../Tools" DESTINATION bin)
     INSTALL(DIRECTORY "${PYTHON_INCLUDE_PATH}/../tcl" DESTINATION bin)
-    INSTALL(FILE "${CMAKE_CURRENT_SOURCE_DIR}/qtconf/qt.conf" bin)
-    INSTALL(FILE ${QT_BINARY_DIR}/../plugins/sqldrivers/qsqlite4.dll bin/plugins/sqldrivers)
+    INSTALL(FILES "${CMAKE_CURRENT_SOURCE_DIR}/qtconf/qt.conf" bin)
+    INSTALL(FILES ${QT_BINARY_DIR}/../plugins/sqldrivers/qsqlite4.dll bin/plugins/sqldrivers)
 
     FILE(GLOB DLLS
         ${QT_BINARY_DIR}/QtCore4.dll
