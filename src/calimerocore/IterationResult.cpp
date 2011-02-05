@@ -60,7 +60,7 @@ bool CalimeroDB::saveVector(std::string name, std::vector<double> vector, int it
     buffer.open(QIODevice::WriteOnly);
     QDataStream datastream(&buffer);
     datastream  << QVector<double>::fromStdVector(vector);
-    qba=qba.toHex();
+    //qba=qba.toHex();
 
     QSqlQuery query;
     query.prepare("INSERT INTO calimeroresults (id, iterationnr, val) "
@@ -82,7 +82,7 @@ std::vector<double> CalimeroDB::getVector(std::string name, int iteration)
     {
         QVector<double> result;
         QByteArray qba = query.value(0).toByteArray();
-        qba = QByteArray::fromHex(qba);
+        //qba = QByteArray::fromHex(qba);
         QBuffer b(&qba);
         b.open(QBuffer::ReadOnly);
         QDataStream s(&b);

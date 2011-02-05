@@ -22,13 +22,7 @@ class CALIMERO_PUBLIC Persistence
         Persistence(Calibration *calibration);
         ~Persistence();
         bool saveCalibration(QString filename);
-        bool buildXMLTree();
-        bool saveIterationResult(IterationResult *result);
-
         bool loadCalibration(QString filename);
-        std::string vectorToString(std::vector<double> vec);
-        std::vector<double> stringToVector(std::string stringvalue, bool *ok=NULL);
-
 
     private:
         //load functions
@@ -47,18 +41,20 @@ class CALIMERO_PUBLIC Persistence
         bool loadResultHandler();
 
         //save functions
-        bool saveResultHandler();
-        bool saveTemplates();
-        bool saveIterationResults();
-        bool saveGroups();
-        bool saveEnabledObjectiveFunctionParameters();
-        bool saveModelSimulator();
-        bool saveCalibrationAlgorithm();
-        bool saveCalibrationParameters();
-        bool saveIterationParameters();
-        bool saveObservedParameters();
-        bool saveObjectiveFunctionParameters();
-        bool saveFunction(QString functionname, std::map<std::string, std::string> parameters, QDomElement *element);
+        bool saveResultHandler(QTextStream *out);
+        bool saveTemplates(QTextStream *out);
+        bool saveIterationResults(QTextStream *out);
+        bool saveGroups(QTextStream *out);
+        bool saveEnabledObjectiveFunctionParameters(QTextStream *out);
+        bool saveModelSimulator(QTextStream *out);
+        bool saveCalibrationAlgorithm(QTextStream *out);
+        bool saveCalibrationParameters(QTextStream *out);
+        bool saveIterationParameters(QTextStream *out);
+        bool saveObservedParameters(QTextStream *out);
+        bool saveObjectiveFunctionParameters(QTextStream *out);
+        bool saveFunction(QString functionname, std::map<std::string, std::string> parameters, QString *string);
+        std::string vectorToString(std::vector<double> vec);
+        std::vector<double> stringToVector(std::string stringvalue, bool *ok=NULL);
         /*
         bool saveGroups();
         bool saveIterationResults();

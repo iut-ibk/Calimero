@@ -33,102 +33,70 @@ Persistence::~Persistence()
     delete doc;
 }
 
-bool Persistence::buildXMLTree()
-{
-    doc->clear();
-    root.clear();
-    root = doc->createElement(CALIMERO_VERSION);
-    doc->appendChild(root);
-
-    if(!Persistence::saveCalibrationParameters())
-        return false;
-
-    if(!Persistence::saveObservedParameters())
-        return false;
-    if(!Persistence::saveIterationParameters())
-        return false;
-    if(!Persistence::saveObjectiveFunctionParameters())
-        return false;
-    if(!Persistence::saveCalibrationAlgorithm())
-        return false;
-    if(!Persistence::saveModelSimulator())
-        return false;
-    if(!Persistence::saveEnabledObjectiveFunctionParameters())
-        return false;
-    if(!Persistence::saveGroups())
-        return false;
-    if(!Persistence::saveTemplates())
-        return false;
-    if(!Persistence::saveIterationResults())
-        return false;
-    if(!Persistence::saveResultHandler())
-        return false;
-    return true;
-}
-
-
-bool Persistence::saveCalibrationParameters()
+bool Persistence::saveCalibrationParameters(QTextStream *out)
 {
     vector<Variable*> calibrationparameters = calibration->getDomain()->getAllPars(CALIBRATIONVARIABLE);
 
     BOOST_FOREACH(Variable * currentvar, calibrationparameters)
     {
-        CalibrationVariable* tmpvar = static_cast<CalibrationVariable*>(currentvar);
-        QDomElement var = doc->createElement("calibrationparameter");
-        root.appendChild(var);
-        var.setAttribute("name", QString::fromStdString(tmpvar->getName()));
-        var.setAttribute("value", QString::fromStdString(vectorToString(tmpvar->getValues())));
-        var.setAttribute("initvalue", QString::fromStdString(vectorToString(tmpvar->getInitValues())));
-        var.setAttribute("min", QString::number(tmpvar->getMin()));
-        var.setAttribute("max", QString::number(tmpvar->getMax()));
-        var.setAttribute("step", QString::number(tmpvar->getStep()));
+        CalibrationVariable *tmpvar = static_cast<CalibrationVariable*>(currentvar);
+        QString par = "\t<calibrationparameter value=\"" + QString::fromStdString(vectorToString(tmpvar->getValues())) +
+                      "\" min=\"" + QString::number(tmpvar->getMin()) +
+                      "\" step=\"" + QString::number(tmpvar->getStep()) +
+                      "\" name=\"" + QString::fromStdString(tmpvar->getName()) +
+                      "\" max=\"" + QString::number(tmpvar->getMax()) +
+                      "\" initvalue=\"" + QString::fromStdString(vectorToString(tmpvar->getInitValues())) +
+                      "\"/>\n";
+        *out << par;
     }
 
     return true;
 }
 
-bool Persistence::saveObservedParameters()
+bool Persistence::saveObservedParameters(QTextStream *out)
 {
     vector<Variable*> calibrationparameters = calibration->getDomain()->getAllPars(OBSERVEDVARIABLE);
 
     BOOST_FOREACH(Variable * tmpvar, calibrationparameters)
     {
-        QDomElement var = doc->createElement("observedparameter");
-        root.appendChild(var);
-        var.setAttribute("name", QString::fromStdString(tmpvar->getName()));
-        var.setAttribute("value", QString::fromStdString(vectorToString(tmpvar->getValues())));
+        QString par = "\t<observedparameter value=\"" + QString::fromStdString(vectorToString(tmpvar->getValues())) +
+                      "\" name=\"" + QString::fromStdString(tmpvar->getName()) +
+                      "\"/>\n";
+        *out << par;
     }
 
     return true;
 }
 
-bool Persistence::saveIterationParameters()
+bool Persistence::saveIterationParameters(QTextStream *out)
 {
     vector<Variable*> calibrationparameters = calibration->getDomain()->getAllPars(ITERATIONVARIABLE);
 
     BOOST_FOREACH(Variable * tmpvar, calibrationparameters)
     {
-        QDomElement var = doc->createElement("iterationparameter");
-        root.appendChild(var);
-        var.setAttribute("name", QString::fromStdString(tmpvar->getName()));
-        var.setAttribute("value", QString::fromStdString(vectorToString(tmpvar->getValues())));
+        QString par = "\t<iterationparameter value=\"" + QString::fromStdString(vectorToString(tmpvar->getValues())) +
+                      "\" name=\"" + QString::fromStdString(tmpvar->getName()) +
+                      "\"/>\n";
+        *out << par;
     }
 
     return true;
 }
 
-bool Persistence::saveObjectiveFunctionParameters()
+bool Persistence::saveObjectiveFunctionParameters(QTextStream *out)
 {
     vector<Variable*> calibrationparameters = calibration->getDomain()->getAllPars(OBJECTIVEFUNCTIONVARIABLE);
 
     BOOST_FOREACH(Variable * currentvar, calibrationparameters)
     {
-        ObjectiveFunctionVariable* tmpvar = static_cast<ObjectiveFunctionVariable*>(currentvar);
-        QDomElement var = doc->createElement("objectivefunctionparameter");
-        root.appendChild(var);
-        var.setAttribute("name", QString::fromStdString(tmpvar->getName()));
-        var.setAttribute("value", QString::fromStdString(vectorToString(tmpvar->getValues())));
-        saveFunction(QString::fromStdString(tmpvar->getObjectiveFunction()),tmpvar->getObjectiveFunctionSettings(),&var);
+        ObjectiveFunctionVariable *tmpvar = static_cast<ObjectiveFunctionVariable*>(currentvar);
+        QString par = "\t<objectivefunctionparameter value=\"" + QString::fromStdString(vectorToString(tmpvar->getValues())) +
+                      "\" name=\"" + QString::fromStdString(tmpvar->getName()) +
+                      "\">\n";
+
+        saveFunction(QString::fromStdString(tmpvar->getObjectiveFunction()),tmpvar->getObjectiveFunctionSettings(),&par);
+
+        par += "\t</objectivefunctionparameter>\n";
 
         //save members
         set<string> members;
@@ -136,29 +104,28 @@ bool Persistence::saveObjectiveFunctionParameters()
         members = tmpvar->getIterationParameters();
         for( std::set<string>::const_iterator it = members.begin(); it != members.end(); ++it)
         {
-            QDomElement connection = doc->createElement("connection");
-            root.appendChild(connection);
-            connection.setAttribute("source",QString::fromStdString(*it));
-            connection.setAttribute("destination",QString::fromStdString(tmpvar->getName()));
+            par += "\t<connection destination=\"" + QString::fromStdString(tmpvar->getName()) +
+                   "\" source=\"" + QString::fromStdString(*it) +
+                   "\"/>\n";
         }
 
         members = tmpvar->getObservedParameters();
         for( std::set<string>::const_iterator it = members.begin(); it != members.end(); ++it)
         {
-            QDomElement connection = doc->createElement("connection");
-            root.appendChild(connection);
-            connection.setAttribute("source",QString::fromStdString(*it));
-            connection.setAttribute("destination",QString::fromStdString(tmpvar->getName()));
+            par += "\t<connection destination=\"" + QString::fromStdString(tmpvar->getName()) +
+                   "\" source=\"" + QString::fromStdString(*it) +
+                   "\"/>\n";
         }
 
         members = tmpvar->getObjectiveFunctionParameters();
         for( std::set<string>::const_iterator it = members.begin(); it != members.end(); ++it)
         {
-            QDomElement connection = doc->createElement("connection");
-            root.appendChild(connection);
-            connection.setAttribute("source",QString::fromStdString(*it));
-            connection.setAttribute("destination",QString::fromStdString(tmpvar->getName()));
+            par += "\t<connection destination=\"" + QString::fromStdString(tmpvar->getName()) +
+                   "\" source=\"" + QString::fromStdString(*it) +
+                   "\"/>\n";
         }
+
+        *out << par;
     }
 
     return true;
@@ -188,18 +155,21 @@ bool Persistence::loadResultHandler()
     return true;
 }
 
-bool Persistence::saveResultHandler()
+bool Persistence::saveResultHandler(QTextStream *out)
 {
     map<string, string> handlers = calibration->getResultHandlers();
     std::pair<string, string> p;
 
     BOOST_FOREACH(p, handlers)
     {
-        QDomElement handler = doc->createElement("resulthandler");
-        root.appendChild(handler);
-        handler.setAttribute("name", QString::fromStdString(p.first));
-        handler.setAttribute("enabled",QString::number(calibration->isResultHandlerEnabled(p.first)));
-        saveFunction(QString::fromStdString(p.second),calibration->getResultHandlerSettings(p.first),&handler);
+        QString par = "\t<resulthandler enabled=\"" + QString::number(calibration->isResultHandlerEnabled(p.first)) +
+                          "\" name=\"" + QString::fromStdString(p.first) +
+                          "\">\n";
+
+        saveFunction(QString::fromStdString(p.second),calibration->getResultHandlerSettings(p.first),&par);
+
+        par += "\t</resulthandler>\n";
+        *out << par;
     }
 
     return true;
@@ -289,53 +259,56 @@ bool Persistence::loadGroups()
     return true;
 }
 
-bool Persistence::saveGroups()
+bool Persistence::saveGroups(QTextStream *out)
 {
     //save all groups
     vector<string> groups = calibration->getAllGroups();
     BOOST_FOREACH(string name, groups)
     {
-        QDomElement currentgroup = doc->createElement("group");
-        root.appendChild(currentgroup);
-        currentgroup.setAttribute("name", QString::fromStdString(name));
-        currentgroup.setAttribute("enabledgroup",QString::number(calibration->isEnabledGroup(name)));
-        currentgroup.setAttribute("disabledgroup",QString::number(calibration->isDisabledGroup(name)));
+        QString par = "\t<group enabledgroup=\"" + QString::number(calibration->isEnabledGroup(name)) +
+                      "\" disabledgroup=\"" + QString::number(calibration->isDisabledGroup(name)) +
+                      "\" name=\"" + QString::fromStdString(name) +
+                      "\">\n";
+
+        *out << par;
+
         //save groupmembers
         set<string> members = calibration->getGroupMembers(name);
         for( std::set<string>::const_iterator it = members.begin(); it != members.end(); ++it)
-        {
-            QDomElement member = doc->createElement("groupmember");
-            currentgroup.appendChild(member);
-            member.setAttribute("name", QString::fromStdString(*it));
-        }
+            *out << "\t\t<groupmember name=\"" + QString::fromStdString(*it) + "\"/>\n";
+
+        *out << "\t</group>\n";
     }
     return true;
 }
 
-bool Persistence::saveEnabledObjectiveFunctionParameters()
+bool Persistence::saveEnabledObjectiveFunctionParameters(QTextStream *out)
 {
     set<string> enabledparameters = calibration->evalObjectiveFunctionParameters();
     for( std::set<string>::const_iterator it = enabledparameters.begin(); it != enabledparameters.end(); ++it)
-    {
-        QDomElement currentparameter = doc->createElement("enabledobjectivefunction");
-        root.appendChild(currentparameter);
-        currentparameter.setAttribute("name",QString::fromStdString(*it));
-    }
+        *out << "\t<enabledobjectivefunction name=\"" + QString::fromStdString(*it) + "\"/>\n";
+
     return true;
 }
 
-bool Persistence::saveModelSimulator()
+bool Persistence::saveModelSimulator(QTextStream *out)
 {
-    QDomElement alg = doc->createElement("modelsimulatoralgorithm");
-    root.appendChild(alg);
-    return saveFunction(QString::fromStdString(calibration->getModelSimulator()),calibration->getModelSimulatorSettings(),&alg);
+    QString par = "\t<modelsimulatoralgorithm>\n";
+    if(!saveFunction(QString::fromStdString(calibration->getModelSimulator()),calibration->getModelSimulatorSettings(),&par))
+        return false;
+    par += "\t</modelsimulatoralgorithm>\n";
+    *out << par;
+    return true;
 }
 
-bool Persistence::saveCalibrationAlgorithm()
+bool Persistence::saveCalibrationAlgorithm(QTextStream *out)
 {
-    QDomElement alg = doc->createElement("calibrationalgorithm");
-    root.appendChild(alg);
-    return saveFunction(QString::fromStdString(calibration->getCalibrationAlg()),calibration->getCalibrationAlgSettings(),&alg);
+    QString par = "\t<calibrationalgorithm>\n";
+    if(!saveFunction(QString::fromStdString(calibration->getCalibrationAlg()),calibration->getCalibrationAlgSettings(),&par))
+        return false;
+    par += "\t</calibrationalgorithm>\n";
+    *out << par;
+    return true;
 }
 
 bool Persistence::loadConnections()
@@ -352,75 +325,72 @@ bool Persistence::loadConnections()
     return true;
 }
 
-bool Persistence::saveFunction(QString functionname, map<std::string, std::string> parameters, QDomElement *element)
+bool Persistence::saveFunction(QString functionname, map<std::string, std::string> parameters, QString *string)
 {
-    QDomElement function = doc->createElement("function");
-    element->appendChild(function);
-    function.setAttribute("function", functionname);
+    QString func = "\t\t<function function=\"" + functionname + "\">\n";
 
     std::pair<std::string, std::string>p;
     BOOST_FOREACH(p,parameters)
     {
-        QDomElement newparameter = doc->createElement("functionparameter");
-        function.appendChild(newparameter);
-        newparameter.setAttribute("key", QString::fromStdString(p.first));
-        newparameter.setAttribute("value", QString::fromStdString(p.second));
+        func += "\t\t\t<functionparameter key=\"" + QString::fromStdString(p.first) +
+                "\" value=\"" + QString::fromStdString(p.second) +
+                "\"/>\n";
     }
-
+    func += "\t\t</function>\n";
+    (*string) += func;
     return true;
 }
 
-bool Persistence::saveIterationResults()
+bool Persistence::saveIterationResults(QTextStream *out)
 {
     vector<IterationResult * > results = calibration->getIterationResults();
 
     BOOST_FOREACH(IterationResult * result,results)
     {
-        QDomElement currentresult = doc->createElement("iterationresult");
-        root.appendChild(currentresult);
-        currentresult.setAttribute("iterationnumber", QString::number(result->getIterationNumber()));
+        QString par = "\t<iterationresult iterationnumber=\"" + QString::number(result->getIterationNumber()) +
+                      "\">\n";
 
+        *out << par;
         vector<Variable*> parameters;
 
         //calibration parameters
         parameters = calibration->getDomain()->getAllPars(CALIBRATIONVARIABLE);
         BOOST_FOREACH(Variable *var, parameters)
         {
-            QDomElement currentvar = doc->createElement("calibrationparameterresult");
-            currentresult.appendChild(currentvar);
-            currentvar.setAttribute("name",QString::fromStdString(var->getName()));
-            currentvar.setAttribute("values",QString::fromStdString(vectorToString(result->getCalibrationParameterResults(var->getName()))));
+            *out << "\t\t<calibrationparameterresult values=\"" + QString::fromStdString(vectorToString(result->getCalibrationParameterResults(var->getName()))) +
+                   "\" name=\"" + QString::fromStdString(var->getName()) +
+                   "\"/>\n";
         }
 
         //iteration parameters
         parameters = calibration->getDomain()->getAllPars(ITERATIONVARIABLE);
         BOOST_FOREACH(Variable *var, parameters)
         {
-            QDomElement currentvar = doc->createElement("iterationparameterresult");
-            currentresult.appendChild(currentvar);
-            currentvar.setAttribute("name",QString::fromStdString(var->getName()));
-            currentvar.setAttribute("values",QString::fromStdString(vectorToString(result->getIterationParameterResults(var->getName()))));
+            *out << "\t\t<iterationparameterresult values=\"" + QString::fromStdString(vectorToString(result->getIterationParameterResults(var->getName()))) +
+                   "\" name=\"" + QString::fromStdString(var->getName()) +
+                   "\"/>\n";
         }
 
         //observed parameter
         parameters = calibration->getDomain()->getAllPars(OBSERVEDVARIABLE);
         BOOST_FOREACH(Variable *var, parameters)
         {
-            QDomElement currentvar = doc->createElement("observedparameterresult");
-            currentresult.appendChild(currentvar);
-            currentvar.setAttribute("name",QString::fromStdString(var->getName()));
-            currentvar.setAttribute("values",QString::fromStdString(vectorToString(result->getObservedParameterResults(var->getName()))));
+            *out << "\t\t<observedparameterresult values=\"" + QString::fromStdString(vectorToString(result->getObservedParameterResults(var->getName()))) +
+                   "\" name=\"" + QString::fromStdString(var->getName()) +
+                   "\"/>\n";
         }
 
         //objective function parameters
         parameters = calibration->getDomain()->getAllPars(OBJECTIVEFUNCTIONVARIABLE);
         BOOST_FOREACH(Variable *var, parameters)
         {
-            QDomElement currentvar = doc->createElement("objectivefunctionparameterresult");
-            currentresult.appendChild(currentvar);
-            currentvar.setAttribute("name",QString::fromStdString(var->getName()));
-            currentvar.setAttribute("values",QString::fromStdString(vectorToString(result->getObjectiveFunctionParameterResults(var->getName()))));
+            *out << "\t\t<objectivefunctionparameterresult values=\"" + QString::fromStdString(vectorToString(result->getObjectiveFunctionParameterResults(var->getName()))) +
+                   "\" name=\"" + QString::fromStdString(var->getName()) +
+                   "\"/>\n";
         }
+
+        par = "\t</iterationresult>\n";
+        *out << par;
     }
     return true;
 }
@@ -496,8 +466,8 @@ bool Persistence::loadTemplates()
     return true;
 }
 
-bool Persistence::saveTemplates()
-{
+bool Persistence::saveTemplates(QTextStream *out)
+{    
     ExternalParameterRegistry* reg = calibration->getExternalParameterRegistry();
     vector<string> names;
     vector<Variable*> vars;
@@ -507,23 +477,21 @@ bool Persistence::saveTemplates()
     vars = calibration->getDomain()->getAllPars(CALIBRATIONVARIABLE);
     BOOST_FOREACH(string name, names)
     {
-        QDomElement currenttemplate = doc->createElement("calibrationparametertemplate");
-        root.appendChild(currenttemplate);
-        currenttemplate.setAttribute("name",QString::fromStdString(name));
-        currenttemplate.setAttribute("path",QString::fromStdString(reg->getPath(name)));
-        QDomElement templatestring = doc->createElement("templatestring");
-        currenttemplate.appendChild(templatestring);
-        QDomCDATASection templatestringcdata = doc->createCDATASection("templatetext");
-        templatestring.appendChild(templatestringcdata);
-        templatestringcdata.setNodeValue(QString::fromStdString(reg->getTemplate(name)));
+        QString par = "\t<calibrationparametertemplate path=\"" + QString::fromStdString(reg->getPath(name)) +
+                      "\" name=\"" + QString::fromStdString(name) +
+                      "\">\n" +
+                      "\t\t<templatestring>\n" +
+                      "\t\t\t<![CDATA[" + QString::fromStdString(reg->getTemplate(name)) +
+                      "]]>\n" +
+                      "\t\t</templatestring>\n";
+
+        *out << par;
 
         BOOST_FOREACH(Variable *var, vars)
                 if(reg->containsParameter(var->getName(),name))
-                {
-                    QDomElement member = doc->createElement("templatemember");
-                    currenttemplate.appendChild(member);
-                    member.setAttribute("name", QString::fromStdString(var->getName()));
-                }
+                    *out << "\t\t<templatemember name=\"" + QString::fromStdString(var->getName()) + "\"/>\n";
+
+          *out << "\t</calibrationparametertemplate>\n";
     }
 
     //iterationvariables
@@ -531,23 +499,21 @@ bool Persistence::saveTemplates()
     vars = calibration->getDomain()->getAllPars(ITERATIONVARIABLE);
     BOOST_FOREACH(string name, names)
     {
-        QDomElement currenttemplate = doc->createElement("iterationparametertemplate");
-        root.appendChild(currenttemplate);
-        currenttemplate.setAttribute("name",QString::fromStdString(name));
-        currenttemplate.setAttribute("path",QString::fromStdString(reg->getPath(name)));
-        QDomElement templatestring = doc->createElement("templatestring");
-        currenttemplate.appendChild(templatestring);
-        QDomCDATASection templatestringcdata = doc->createCDATASection("templatetext");
-        templatestring.appendChild(templatestringcdata);
-        templatestringcdata.setNodeValue(QString::fromStdString(reg->getTemplate(name)));
+        QString par = "\t<iterationparametertemplate path=\"" + QString::fromStdString(reg->getPath(name)) +
+                      "\" name=\"" + QString::fromStdString(name) +
+                      "\">\n" +
+                      "\t\t<templatestring>\n" +
+                      "\t\t\t<![CDATA[" + QString::fromStdString(reg->getTemplate(name)) +
+                      "]]>\n" +
+                      "\t\t</templatestring>\n";
+
+        *out << par;
 
         BOOST_FOREACH(Variable *var, vars)
                 if(reg->containsParameter(var->getName(),name))
-                {
-                    QDomElement member = doc->createElement("templatemember");
-                    currenttemplate.appendChild(member);
-                    member.setAttribute("name", QString::fromStdString(var->getName()));
-                }
+                    *out << "\t\t<templatemember name=\"" + QString::fromStdString(var->getName()) + "\"/>\n";
+
+          *out << "\t</iterationparametertemplate>\n";
     }
 
     //observedvariables
@@ -555,23 +521,21 @@ bool Persistence::saveTemplates()
     vars = calibration->getDomain()->getAllPars(OBSERVEDVARIABLE);
     BOOST_FOREACH(string name, names)
     {
-        QDomElement currenttemplate = doc->createElement("observedparametertemplate");
-        root.appendChild(currenttemplate);
-        currenttemplate.setAttribute("name",QString::fromStdString(name));
-        currenttemplate.setAttribute("path",QString::fromStdString(reg->getPath(name)));
-        QDomElement templatestring = doc->createElement("templatestring");
-        currenttemplate.appendChild(templatestring);
-        QDomCDATASection templatestringcdata = doc->createCDATASection("templatetext");
-        templatestring.appendChild(templatestringcdata);
-        templatestringcdata.setNodeValue(QString::fromStdString(reg->getTemplate(name)));
+        QString par = "\t<observedparametertemplate path=\"" + QString::fromStdString(reg->getPath(name)) +
+                      "\" name=\"" + QString::fromStdString(name) +
+                      "\">\n" +
+                      "\t\t<templatestring>\n" +
+                      "\t\t\t<![CDATA[" + QString::fromStdString(reg->getTemplate(name)) +
+                      "]]>\n" +
+                      "\t\t</templatestring>\n";
+
+        *out << par;
 
         BOOST_FOREACH(Variable *var, vars)
                 if(reg->containsParameter(var->getName(),name))
-                {
-                    QDomElement member = doc->createElement("templatemember");
-                    currenttemplate.appendChild(member);
-                    member.setAttribute("name", QString::fromStdString(var->getName()));
-                }
+                    *out << "\t\t<templatemember name=\"" + QString::fromStdString(var->getName()) + "\"/>\n";
+
+          *out << "\t</observedparametertemplate>\n";
     }
     return true;
 }
@@ -731,7 +695,65 @@ bool Persistence::saveCalibration(QString filename)
     }
 
     QTextStream out( &file );
-    doc->save(out,1);
+
+    out << "<Calimero_v1.10.05>\n";
+    if(!Persistence::saveCalibrationParameters(&out))
+    {
+        file.close();
+        return false;
+    }
+    if(!Persistence::saveObservedParameters(&out))
+    {
+        file.close();
+        return false;
+    }
+    if(!Persistence::saveIterationParameters(&out))
+    {
+        file.close();
+        return false;
+    }
+    if(!Persistence::saveObjectiveFunctionParameters(&out))
+    {
+        file.close();
+        return false;
+    }
+    if(!Persistence::saveCalibrationAlgorithm(&out))
+    {
+        file.close();
+        return false;
+    }
+    if(!Persistence::saveModelSimulator(&out))
+    {
+        file.close();
+        return false;
+    }
+    if(!Persistence::saveEnabledObjectiveFunctionParameters(&out))
+    {
+        file.close();
+        return false;
+    }
+    if(!Persistence::saveGroups(&out))
+    {
+        file.close();
+        return false;
+    }
+    if(!Persistence::saveTemplates(&out))
+    {
+        file.close();
+        return false;
+    }
+    if(!Persistence::saveResultHandler(&out))
+    {
+        file.close();
+        return false;
+    }
+    if(!Persistence::saveIterationResults(&out))
+    {
+        file.close();
+        return false;
+    }
+
+    out << "</Calimero_v1.10.05>\n";
     file.close();
     return true;
 }

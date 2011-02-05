@@ -1496,7 +1496,7 @@ void MainWindow::on_actionsave_activated()
     if(savefilepath.isEmpty())
         return on_actionsaveas_activated();
 
-    if(!persistence->buildXMLTree() || !persistence->saveCalibration(savefilepath))
+    if(!persistence->saveCalibration(savefilepath))
         QMessageBox::warning(this,tr("Error"),tr("Could not save current project"));
 }
 
@@ -1561,7 +1561,6 @@ void MainWindow::on_actionLoad_Python_script_activated()
 void MainWindow::on_actionnew_activated()
 {
     CalibrationEnv::getInstance()->getCalibration()->clear();
-    persistence->buildXMLTree();
     savefilepath="";
     updateAll();
 }

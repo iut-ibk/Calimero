@@ -78,7 +78,7 @@ void DiagramScene::setValues(QMap<QString, QVector<QPointF> > values)
         if(!yscale)
         {
             Logger(Error) << "Divided by zero in DiagramScene";
-            return;
+            yscale=1;
         }
 
         data=values;
