@@ -18,6 +18,7 @@
 #include <map>
 #include <ExternalParameterRegistry.h>
 #include <boost/shared_ptr.hpp>
+#include <QStatusBar>
 
 using namespace boost;
 using namespace std;
@@ -347,6 +348,12 @@ bool Persistence::saveIterationResults(QTextStream *out)
 
     BOOST_FOREACH(IterationResult * result,results)
     {
+        if(status)
+        {
+            status->showMessage("Save Iteration Results: " + QString::number(result->getIterationNumber()+1) + "/" + QString::number(results.size()));
+            QCoreApplication::processEvents();
+        }
+
         QString par = "\t<iterationresult iterationnumber=\"" + QString::number(result->getIterationNumber()) +
                       "\">\n";
 
@@ -391,6 +398,11 @@ bool Persistence::saveIterationResults(QTextStream *out)
 
         par = "\t</iterationresult>\n";
         *out << par;
+    }
+    if(status)
+    {
+        status->showMessage("");
+        QCoreApplication::processEvents();
     }
     return true;
 }
@@ -684,8 +696,9 @@ bool Persistence::loadObjectiveFunctionParameters()
     return true;
 }
 
-bool Persistence::saveCalibration(QString filename)
+bool Persistence::saveCalibration(QString filename, QStatusBar *status)
 {
+    this->status=status;
     //saving file
     QFile file(filename);
     if(!file.open( QIODevice::WriteOnly  ))

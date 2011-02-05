@@ -9,6 +9,7 @@
 
 class Calibration;
 class IterationResult;
+class QStatusBar;
 
 #define CALIMERO_VERSION "Calimero_v1.10.05"
 
@@ -18,10 +19,12 @@ class CALIMERO_PUBLIC Persistence
         Calibration *calibration;
         QDomDocument *doc;
         QDomElement root;
+        QStatusBar *status;
+
     public:
         Persistence(Calibration *calibration);
         ~Persistence();
-        bool saveCalibration(QString filename);
+        bool saveCalibration(QString filename,QStatusBar *status=0);
         bool loadCalibration(QString filename);
 
     private:
