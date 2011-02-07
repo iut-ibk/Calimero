@@ -143,6 +143,29 @@ class FindBestResult(pycalimero.IResultHandler):
         QMessageBox.information(QApplication.activeWindow(),title,text)
         return True
 
+class GetCalibrationParameters(pycalimero.IResultHandler):
+    def __init__(self):
+        pycalimero.IResultHandler.__init__(self)
+        self.setDataType("Iteration", pycalimero.UINT, "0")
+        
+    def run(self, results):
+        iteration = int(self.getValueOfParameter("Iteration"))
+        if results.__len__() <= iteration:
+            QMessageBox.information(QApplication.activeWindow(),"Error","There are no results for iteration %s" % iteration) 
+            return False
+        
+        names = results[iteration].getNamesOfCalibrationParameters()
+        title = "Calibration values of iteration %s" % iteration
+        messagetext = ""
+        
+        for name in names:
+            value = results[iteration].getCalibrationParameterResults(name)[0]
+            values = (messagetext , name , value )
+            messagetext =  "%sName: %s Value: %f\n" % values
+                                                                 
+        QMessageBox.information(QApplication.activeWindow(),title,messagetext)                                                       
+        return True
+
 class FindAllBestResults(pycalimero.IResultHandler):
     def __init__(self):
         pycalimero.IResultHandler.__init__(self)
