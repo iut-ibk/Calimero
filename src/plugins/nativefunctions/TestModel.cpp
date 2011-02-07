@@ -4,6 +4,63 @@
 #include <CalibrationVariable.h>
 #include <IterationResult.h>
 #include <QString>
+#include <math.h>
+
+CALIMERO_DECLARE_MODELSIMULATOR_NAME(Schmutzstoffmodell)
+
+Schmutzstoffmodell::Schmutzstoffmodell()
+{
+    setDataType("Abfluss-Parameter",STRING,"");
+    setDataType("W-Parameter",STRING,"");
+    setDataType("b-Parameter",STRING,"");
+    setDataType("Result-Parameter",STRING,"");
+}
+
+bool Schmutzstoffmodell::exec(Domain *dom)
+{
+    std::vector<double> result;
+    std::string abfluss = QString::fromStdString(getValueOfParameter("Abfluss-Parameter")).toStdString();
+    std::string wpar = QString::fromStdString(getValueOfParameter("W-Parameter")).toStdString();
+    std::string bpar = QString::fromStdString(getValueOfParameter("b-Parameter")).toStdString();
+    std::string rpar = QString::fromStdString(getValueOfParameter("Result-Parameter")).toStdString();
+
+    if(!dom->contains(abfluss))
+        return false;
+
+    if(!dom->contains(wpar))
+        return false;
+
+    if(!dom->contains(bpar))
+        return false;
+
+    if(!dom->contains(rpar))
+        return false;
+
+    if(dom->getPar(wpar)->getType()!=CALIBRATIONVARIABLE)
+        return false;
+
+    if(dom->getPar(bpar)->getType()!=CALIBRATIONVARIABLE)
+        return false;
+
+    if(dom->getPar(rpar)->getType()!=ITERATIONVARIABLE)
+        return false;
+
+    if(dom->getPar(abfluss)->getType()!=OBSERVEDVARIABLE)
+        return false;
+
+    CalibrationVariable *w = static_cast<CalibrationVariable*>(dom->getPar(wpar));
+    CalibrationVariable *b = static_cast<CalibrationVariable*>(dom->getPar(bpar));
+    Variable *r = dom->getPar(rpar);
+    Variable *a = dom->getPar(abfluss);
+
+    std::vector<double> avector = a->getValues();
+
+    for(uint index=0; index < avector.size(); index++)
+        result.push_back(w->getValues()[0]*powf(avector[index],b->getValues()[0]));
+
+    return r->setValues(result);
+}
+
 
 CALIMERO_DECLARE_MODELSIMULATOR_NAME(TestModel)
 

@@ -135,11 +135,11 @@ class FindBestResult(pycalimero.IResultHandler):
         iteration = findBestIterationNumber(results,name)
         bestvalue = -1
         if(iteration > -1):
-            bestvalue = results[0].getObjectiveFunctionParameterResults(name)[0]
+            bestvalue = results[iteration].getObjectiveFunctionParameterResults(name)[0]
         
         title = "Best result"
         values = (name, str(iteration), str(bestvalue) )
-        text = "Name: %s\nIteration: %s\n Value: %s" % values
+        text = "Name: %s Iteration: %s Value: %s" % values
         QMessageBox.information(QApplication.activeWindow(),title,text)
         return True
 

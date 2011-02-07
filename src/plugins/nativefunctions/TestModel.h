@@ -18,4 +18,11 @@ public:
 
 double fac(int value);
 
+CALIMERO_DECLARE_MODELSIMULATOR(Schmutzstoffmodell)
+public:
+    Schmutzstoffmodell();
+    bool exec(Domain *dom);
+};
+
+
 #endif // TESTMODEL_H
