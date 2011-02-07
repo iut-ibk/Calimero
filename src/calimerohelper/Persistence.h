@@ -10,6 +10,7 @@
 class Calibration;
 class IterationResult;
 class QStatusBar;
+class CalibrationEnv;
 
 #define CALIMERO_VERSION "Calimero_v1.10.05"
 
@@ -17,32 +18,17 @@ class CALIMERO_PUBLIC Persistence
 {
     private:
         Calibration *calibration;
-        QDomDocument *doc;
-        QDomElement root;
         QStatusBar *status;
 
     public:
         Persistence(Calibration *calibration);
         ~Persistence();
         bool saveCalibration(QString filename,QStatusBar *status=0);
-        bool loadCalibration(QString filename);
+        bool loadCalibration(QString filename,QStatusBar *status=0);
+        static std::string vectorToString(std::vector<double> vec);
+        static std::vector<double> stringToVector(std::string stringvalue, bool *ok=NULL);
 
     private:
-        //load functions
-        bool loadCalibrationParameters();
-        bool loadIterationParameters();
-        bool loadObservedParameters();
-        bool loadObjectiveFunctionParameters();
-        bool loadFunction(QString &functionname, std::map<std::string,std::string> &functionparameters, QDomElement *element );
-        bool loadConnections();
-        bool loadModelSimulator();
-        bool loadCalibrationAlgorithm();
-        bool loadEnabledObjectiveFunctionParameters();
-        bool loadGroups();
-        bool loadIterationResults();
-        bool loadTemplates();
-        bool loadResultHandler();
-
         //save functions
         bool saveResultHandler(QTextStream *out);
         bool saveTemplates(QTextStream *out);
@@ -56,12 +42,46 @@ class CALIMERO_PUBLIC Persistence
         bool saveObservedParameters(QTextStream *out);
         bool saveObjectiveFunctionParameters(QTextStream *out);
         bool saveFunction(QString functionname, std::map<std::string, std::string> parameters, QString *string);
-        std::string vectorToString(std::vector<double> vec);
-        std::vector<double> stringToVector(std::string stringvalue, bool *ok=NULL);
-        /*
-        bool saveGroups();
-        bool saveIterationResults();
-        */
+};
+
+class CalimeroXmlHandler : public QXmlDefaultHandler
+{
+    private:
+        std::map<int, IterationResult*> results;
+        std::map<std::string, std::vector<double> > objectiveparameters;
+        std::map<std::string, std::vector<double> > calibrationparameters;
+        int iterationnr;
+        std::string currentname;
+        std::string function;
+        std::map<std::string, std::string> settings;
+        std::string resulthandlername;
+        bool reshandlerenabled;
+        std::string currentgroup;
+        std::vector<std::pair<std::string,std::string> > connections;
+        std::string templatepath;
+        std::string templatename;
+        std::string templatestring;
+        int loadediterations;
+        QStatusBar *status;
+
+    public:
+        CalimeroXmlHandler(Calibration *calibration,QStatusBar *status=0);
+        bool fatalError ( const QXmlParseException & exception );
+        bool startDocument();
+        bool characters(const QString &ch);
+        bool endDocument();
+        bool endElement( const QString&, const QString&, const QString &name );
+        bool startElement( const QString&, const QString&, const QString &name, const QXmlAttributes &attrs );
+
+    private:
+        Calibration *calibration;
+
+    private:
+        bool loadCalibrationParameters(const QXmlAttributes &attrs );
+        bool loadIterationParameters(const QXmlAttributes &attrs );
+        bool loadObservedParameters(const QXmlAttributes &attrs );
+        bool loadIterationResults(const QString &name,const QXmlAttributes &attrs );
+        bool loadObjectiveFunctionParameters(const QXmlAttributes &attrs );
 };
 
 #endif // PERSISTENCE_H_INCLUDED

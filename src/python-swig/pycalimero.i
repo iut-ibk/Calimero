@@ -186,21 +186,15 @@ public:
     IterationResult(int iterationnum);
     IterationResult(int iterationnum,
                     std::map<std::string, std::vector<double> > calibrationparameters,
-                    std::map<std::string, std::vector<double> > iterationparameters,
-                    std::map<std::string, std::vector<double> > objectivefunctionparameters,
-                    std::map<std::string, std::vector<double> > observedparameters);
+                    std::map<std::string, std::vector<double> > objectivefunctionparameters);
     void setResults(Domain *dom);
     bool isComplete();
     int getIterationNumber();
     std::vector<double> getResults(std::string name);
-    std::vector<double> getIterationParameterResults(std::string name);
-    std::vector<double> getObservedParameterResults(std::string name);
     std::vector<double> getCalibrationParameterResults(std::string name);
     std::vector<double> getObjectiveFunctionParameterResults(std::string name);
     std::vector<std::string> getNamesOfObjectiveFunctionParameters();
-    std::vector<std::string> getNamesOfObservedParameters();
     std::vector<std::string> getNamesOfCalibrationParameters();
-    std::vector<std::string> getNamesOfIterationParameters();
 };
 
 

@@ -128,9 +128,7 @@ IterationResult::IterationResult(int iterationnum)
 
 IterationResult::IterationResult(int iterationnum,
                 map<string, vector<double> > calibrationparameters,
-                map<string, vector<double> > iterationparameters,
-                map<string, vector<double> > objectivefunctionparameters,
-                map<string, vector<double> > observedparameters)
+                map<string, vector<double> > objectivefunctionparameters)
 {
     CalimeroDB* db = CalimeroDB::getInstance();
 
@@ -155,30 +153,12 @@ IterationResult::IterationResult(int iterationnum,
         this->calibrationparameters.append(QString::fromStdString(pair.first));
     }
 
-    BOOST_FOREACH(pair, iterationparameters)
-    {
-        db->saveVector(pair.first,pair.second,iterationnum);
-        this->iterationparameters.append(QString::fromStdString(pair.first));
-    }
-
-    BOOST_FOREACH(pair, observedparameters)
-    {
-        db->saveVector(pair.first,pair.second,iterationnum);
-        this->observedparameters.append(QString::fromStdString(pair.first));
-    }
-
     complete = 1;
 }
 
 IterationResult::~IterationResult()
 {
     CalimeroDB* db = CalimeroDB::getInstance();
-
-    for(int index=0; index < iterationparameters.size(); index++)
-        db->removeVector(iterationparameters.at(index).toStdString(),iterationnumber);
-
-    for(int index=0; index < observedparameters.size(); index++)
-        db->removeVector(observedparameters.at(index).toStdString(),iterationnumber);
 
     for(int index=0; index < calibrationparameters.size(); index++)
         db->removeVector(calibrationparameters.at(index).toStdString(),iterationnumber);
@@ -200,22 +180,6 @@ void IterationResult::setResults(Domain *dom)
     {
         db->saveVector(var->getName(),var->getValues(),iterationnumber);
         this->calibrationparameters.append(QString::fromStdString(var->getName()));
-    }
-
-    //save all iteration parameters
-    tmpvec = dom->getAllPars(ITERATIONVARIABLE);
-    BOOST_FOREACH(Variable *var, tmpvec)
-    {
-        db->saveVector(var->getName(),var->getValues(),iterationnumber);
-        this->iterationparameters.append(QString::fromStdString(var->getName()));
-    }
-
-    //save all observed parameters
-    tmpvec = dom->getAllPars(OBSERVEDVARIABLE);
-    BOOST_FOREACH(Variable *var, tmpvec)
-    {
-        db->saveVector(var->getName(),var->getValues(),iterationnumber);
-        this->observedparameters.append(QString::fromStdString(var->getName()));
     }
 
     //save all objective function parameters
@@ -242,18 +206,6 @@ vector<double> IterationResult::getResults(string name)
 
     vector<double> result;
 
-    if(iterationparameters.contains(QString::fromStdString(name)))
-    {
-        result = getIterationParameterResults(name);
-        return result;
-    }
-
-    if(observedparameters.contains(QString::fromStdString(name)))
-    {
-        result = getObservedParameterResults(name);
-        return result;
-    }
-
     if(calibrationparameters.contains(QString::fromStdString(name)))
     {
         result = getCalibrationParameterResults(name);
@@ -268,34 +220,6 @@ vector<double> IterationResult::getResults(string name)
 
     Logger(Error) << "Result container does not contain parameter [" << name << "]";
     return vector<double>();
-}
-
-vector<double> IterationResult::getIterationParameterResults(string name)
-{
-    assert(complete);
-
-    if(!iterationparameters.contains(QString::fromStdString(name)))
-    {
-        Logger(Error) << "Result container does not contain parameter [" << name << "]";
-        return vector<double>();
-    }
-
-    CalimeroDB* db = CalimeroDB::getInstance();
-    return db->getVector(name,iterationnumber);
-}
-
-vector<double> IterationResult::getObservedParameterResults(string name)
-{
-    assert(complete);
-
-    if(!observedparameters.contains(QString::fromStdString(name)))
-    {
-        Logger(Error) << "Result container does not contain parameter [" << name << "]";
-        return vector<double>();
-    }
-
-    CalimeroDB* db = CalimeroDB::getInstance();
-    return db->getVector(name,iterationnumber);
 }
 
 vector<double> IterationResult::getCalibrationParameterResults(string name)
@@ -341,16 +265,6 @@ vector<string> IterationResult::getNamesOfObjectiveFunctionParameters()
     return result;
 }
 
-vector<string> IterationResult::getNamesOfObservedParameters()
-{
-    vector<string> result;
-
-    for(int index=0; index < observedparameters.size(); index++)
-        result.push_back(observedparameters.at(index).toStdString());
-
-    return result;
-}
-
 vector<string> IterationResult::getNamesOfCalibrationParameters()
 {
     vector<string> result;
@@ -359,14 +273,4 @@ vector<string> IterationResult::getNamesOfCalibrationParameters()
         result.push_back(calibrationparameters.at(index).toStdString());
 
     return result;;
-}
-
-vector<string> IterationResult::getNamesOfIterationParameters()
-{
-    vector<string> result;
-
-    for(int index=0; index < iterationparameters.size(); index++)
-        result.push_back(iterationparameters.at(index).toStdString());
-
-    return result;
 }

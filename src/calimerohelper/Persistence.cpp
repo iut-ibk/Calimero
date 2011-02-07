@@ -19,19 +19,346 @@
 #include <ExternalParameterRegistry.h>
 #include <boost/shared_ptr.hpp>
 #include <QStatusBar>
+#include <QXmlInputSource>
+#include <QXmlContentHandler>
 
 using namespace boost;
 using namespace std;
 
+CalimeroXmlHandler::CalimeroXmlHandler(Calibration *calibration,QStatusBar *status)
+{
+    this->calibration=calibration;
+    this->status=status;
+}
+
+bool CalimeroXmlHandler::startDocument()
+{
+    connections.clear();
+    objectiveparameters.clear();
+    calibrationparameters.clear();
+    settings.clear();
+    loadediterations=0;
+    return true;
+}
+
+bool CalimeroXmlHandler::characters(const QString &ch)
+{
+    templatestring += ch.toStdString();
+    return true;
+}
+
+bool CalimeroXmlHandler::endDocument()
+{
+    for(uint index = 0; index < connections.size(); index++)
+    {
+        ObjectiveFunctionVariable *tmpvar = static_cast<ObjectiveFunctionVariable*>(calibration->getDomain()->getPar(connections[index].second));
+        if(!tmpvar->addParameter(connections[index].first))
+            return false;
+    }
+
+    if(status)
+    {
+        status->showMessage("");
+        QCoreApplication::processEvents();
+    }
+
+    return calibration->setIterationResults(results);
+}
+
+bool CalimeroXmlHandler::endElement( const QString&, const QString&, const QString &name )
+{
+    if(name == "iterationresult")
+    {
+        results[iterationnr] = new IterationResult(iterationnr,calibrationparameters,objectiveparameters);
+        calibrationparameters.clear();
+        objectiveparameters.clear();
+
+        if(status)
+        {
+            status->showMessage("Loaded iteration-results: " + QString::number(++loadediterations));
+            QCoreApplication::processEvents();
+        }
+    }
+
+    if(name == "objectivefunctionparameter")
+    {
+        ObjectiveFunctionVariable* regparameter = static_cast<ObjectiveFunctionVariable*>(calibration->getDomain()->getPar(currentname));
+
+        if(function!="")
+            if(!regparameter->setObjectiveFunction(function,settings))
+                return false;
+    }
+
+    if(name == "calibrationalgorithm")
+    {
+        if(function!="")
+            if(!calibration->setCalibrationAlg(function,settings))
+                return false;
+    }
+
+    if(name == "modelsimulatoralgorithm")
+    {
+        if(function!="")
+            if(!calibration->setModelSimulator(function,settings))
+                return false;
+    }
+
+    if(name == "resulthandler")
+    {
+        if(function!="")
+            if(!calibration->addResultHandler(resulthandlername,function,settings,reshandlerenabled))
+                return false;
+    }
+
+    if(name == "observedparametertemplate")
+    {
+        if(!calibration->getExternalParameterRegistry()->registerTemplate(templatename,templatepath,templatestring,calibration,OBSERVEDVARIABLE))
+            return false;
+
+        templatename="";
+        templatestring="";
+        templatepath="";
+    }
+
+    if(name == "iterationparametertemplate")
+    {
+        if(!calibration->getExternalParameterRegistry()->registerTemplate(templatename,templatepath,templatestring,calibration,ITERATIONVARIABLE))
+            return false;
+
+        templatename="";
+        templatestring="";
+        templatepath="";
+    }
+
+    if(name == "calibrationparametertemplate")
+    {
+        if(!calibration->getExternalParameterRegistry()->registerTemplate(templatename,templatepath,templatestring,calibration,CALIBRATIONVARIABLE))
+            return false;
+
+        templatename="";
+        templatestring="";
+        templatepath="";
+    }
+
+    return true;
+}
+
+bool CalimeroXmlHandler::startElement( const QString&, const QString&, const QString &name, const QXmlAttributes &attrs )
+{
+    if(name == "calibrationparameter")
+        if(!loadCalibrationParameters(attrs))
+            return false;
+
+    if(name == "iterationparameter")
+        if(!loadIterationParameters(attrs))
+            return false;
+
+    if(name == "objectivefunctionparameter")
+        if(!loadObjectiveFunctionParameters(attrs))
+            return false;
+
+    if(name == "observedparameter")
+        if(!loadObservedParameters(attrs))
+            return false;
+
+    if(!loadIterationResults(name,attrs))
+        return false;
+
+    if(name == "function")
+    {
+        settings.clear();
+        function = attrs.value("function").toStdString();
+    }
+
+    if(name == "functionparameter")
+        settings[attrs.value("key").toStdString()]=attrs.value("value").toStdString();
+
+    if(name == "connection")
+        connections.push_back(std::pair<string,string>(attrs.value("source").toStdString(),attrs.value("destination").toStdString()));
+
+    if(name == "enabledobjectivefunction")
+    {
+        if(!calibration->addEnabledOParameter(attrs.value("name").toStdString()))
+                return false;
+    }
+
+    if(name == "resulthandler")
+    {
+        resulthandlername = attrs.value("name").toStdString();
+        reshandlerenabled = attrs.value("enabled").toInt();
+    }
+
+    if(name ==  "group")
+    {
+        currentgroup = attrs.value("name").toStdString();
+        calibration->addGroup(currentgroup);
+
+        if(attrs.value("enabledgroup").toDouble())
+            calibration->addEnabledGroup(currentgroup);
+        else
+            calibration->removeEnabledGroup(currentgroup);
+
+        if(attrs.value("disabledgroup").toDouble())
+            calibration->addDisabledGroup(currentgroup);
+        else
+            calibration->removeDisabledGroup(currentgroup);
+    }
+
+    if(name == "groupmember")
+        if(!calibration->addParameterToGroup(attrs.value("name").toStdString(),currentgroup))
+            return false;
+
+    if(name == "observedparametertemplate")
+    {
+        templatename=attrs.value("name").toStdString();
+        templatepath=attrs.value("path").toStdString();
+        templatestring="";
+    }
+
+    if(name == "iterationparametertemplate")
+    {
+        templatename=attrs.value("name").toStdString();
+        templatepath=attrs.value("path").toStdString();
+        templatestring="";
+    }
+
+    if(name == "calibrationparametertemplate")
+    {
+        templatename=attrs.value("name").toStdString();
+        templatepath=attrs.value("path").toStdString();
+        templatestring="";
+    }
+
+    if(name == "templatestring")
+        templatestring="";
+
+    return true;
+}
+
+bool CalimeroXmlHandler::loadObjectiveFunctionParameters(const QXmlAttributes &attrs )
+{
+    std::string name = attrs.value("name").toStdString();
+
+    ObjectiveFunctionVariable newparameter(name);
+    currentname = name;
+
+    if(!calibration->addParameter(&newparameter))
+        return false;
+
+    return true;
+}
+
+bool CalimeroXmlHandler::loadIterationResults(const QString &name, const QXmlAttributes &attrs )
+{
+    if(name == "iterationresult")
+        iterationnr = attrs.value("iterationnumber").toInt();
+
+    if(name == "calibrationparameterresult")
+        calibrationparameters[attrs.value("name").toStdString()]=Persistence::stringToVector(attrs.value("values").toStdString());
+
+    if(name == "objectivefunctionparameterresult")
+        objectiveparameters[attrs.value("name").toStdString()]=Persistence::stringToVector(attrs.value("values").toStdString());
+
+    return true;
+}
+
+bool CalimeroXmlHandler::loadCalibrationParameters(const QXmlAttributes &attrs)
+{
+    std::string name;
+    double step=0, max=0, min=0;
+    std::vector<double> init, values;
+
+    for(int index=0; index<attrs.count(); index++)
+    {
+        if(attrs.localName(index)=="name")
+            name = attrs.value(index).toStdString();
+
+        if(attrs.localName(index)=="step")
+            step = attrs.value(index).toDouble();
+
+        if(attrs.localName(index)=="max")
+            max = attrs.value(index).toDouble();
+
+        if(attrs.localName(index)=="min")
+            min = attrs.value(index).toDouble();
+
+        if(attrs.localName(index)=="initvalue")
+            init = Persistence::stringToVector(attrs.value(index).toStdString());
+
+        if(attrs.localName(index)=="value")
+            values = Persistence::stringToVector(attrs.value(index).toStdString());
+    }
+
+    CalibrationVariable calibrationparameter(name, vector<double>());
+    calibrationparameter.setStep(step);
+    calibrationparameter.setMax(max);
+    calibrationparameter.setMin(min);
+    calibrationparameter.setInitValues(init);
+    calibrationparameter.setValues(values);
+    if(!calibration->addParameter(&calibrationparameter))
+        return false;
+
+    return true;
+}
+
+bool CalimeroXmlHandler::loadIterationParameters(const QXmlAttributes &attrs)
+{
+    std::string name;
+    std::vector<double> values;
+
+    for(int index=0; index<attrs.count(); index++)
+    {
+        if(attrs.localName(index)=="name")
+            name = attrs.value(index).toStdString();
+
+        if(attrs.localName(index)=="value")
+            values = Persistence::stringToVector(attrs.value(index).toStdString());
+    }
+
+    Variable newparameter(name, values, ITERATIONVARIABLE);
+
+    if(!calibration->addParameter(&newparameter))
+        return false;
+
+    return true;
+}
+
+bool CalimeroXmlHandler::loadObservedParameters(const QXmlAttributes &attrs)
+{
+    std::string name;
+    std::vector<double> values;
+
+    for(int index=0; index<attrs.count(); index++)
+    {
+        if(attrs.localName(index)=="name")
+            name = attrs.value(index).toStdString();
+
+        if(attrs.localName(index)=="value")
+            values = Persistence::stringToVector(attrs.value(index).toStdString());
+    }
+
+    Variable newparameter(name, values, OBSERVEDVARIABLE);
+
+    if(!calibration->addParameter(&newparameter))
+        return false;
+
+    return true;
+}
+
+bool CalimeroXmlHandler::fatalError ( const QXmlParseException & exception )
+{
+    Logger(Error) << "Cannot load calimero project";
+    Logger(Error) << "Calimerp cmp file: Line: " << exception.lineNumber() << " Column: " << exception.columnNumber();
+    return false;
+}
+
 Persistence::Persistence(Calibration *calibration)
 {
     this->calibration=calibration;
-    doc = new QDomDocument();
 }
 
 Persistence::~Persistence()
 {
-    delete doc;
 }
 
 bool Persistence::saveCalibrationParameters(QTextStream *out)
@@ -132,30 +459,6 @@ bool Persistence::saveObjectiveFunctionParameters(QTextStream *out)
     return true;
 }
 
-bool Persistence::loadResultHandler()
-{
-    QDomNodeList handlers = root.elementsByTagName("resulthandler");
-
-    for(int index=0; index<handlers.size(); index++)
-    {
-        QDomElement handler = handlers.at(index).toElement();
-        map<string, string> functionparameters;
-        QString functionname;
-        bool enabled = false;
-
-        if(!loadFunction(functionname,functionparameters,&handler))
-            return false;
-
-        if(handler.attribute("enabled").toDouble())
-            enabled=true;
-
-        if(functionname!="")
-            if(!calibration->addResultHandler(handler.attribute("name").toStdString(),functionname.toStdString(),functionparameters,enabled))
-                return false;
-    }
-    return true;
-}
-
 bool Persistence::saveResultHandler(QTextStream *out)
 {
     map<string, string> handlers = calibration->getResultHandlers();
@@ -173,90 +476,6 @@ bool Persistence::saveResultHandler(QTextStream *out)
         *out << par;
     }
 
-    return true;
-}
-
-bool Persistence::loadModelSimulator()
-{
-    QDomNodeList parameters = root.elementsByTagName("modelsimulatoralgorithm");
-
-    for(int index=0; index<parameters.size(); index++)
-    {
-        QDomElement alg = parameters.at(index).toElement();
-        QString functionname;
-        map<string, string> functionparameters;
-
-        if(!loadFunction(functionname,functionparameters,&alg))
-            return false;
-
-        if(functionname!="")
-            if(!calibration->setModelSimulator(functionname.toStdString(),functionparameters))
-                return false;
-    }
-    return true;
-}
-
-bool Persistence::loadCalibrationAlgorithm()
-{
-    QDomNodeList parameters = root.elementsByTagName("calibrationalgorithm");
-
-    for(int index=0; index<parameters.size(); index++)
-    {
-        QDomElement alg = parameters.at(index).toElement();
-        QString functionname;
-        map<string, string> functionparameters;
-
-        if(!loadFunction(functionname,functionparameters,&alg))
-            return false;
-
-        if(functionname!="")
-            if(!calibration->setCalibrationAlg(functionname.toStdString(),functionparameters))
-                return false;
-    }
-    return true;
-}
-
-bool Persistence::loadEnabledObjectiveFunctionParameters()
-{
-    QDomNodeList parameters = root.elementsByTagName("enabledobjectivefunction");
-
-    for(int index=0; index<parameters.size(); index++)
-    {
-        QDomElement currentparameter = parameters.at(index).toElement();
-        if(!calibration->addEnabledOParameter(currentparameter.attribute("name").toStdString()))
-                return false;
-    }
-    return true;
-}
-
-bool Persistence::loadGroups()
-{
-    QDomNodeList parameters = root.elementsByTagName("group");
-
-    for(int index=0; index<parameters.size(); index++)
-    {
-        QDomElement currentgroup = parameters.at(index).toElement();
-        string name = currentgroup.attribute("name").toStdString();
-        calibration->addGroup(name);
-
-        if(currentgroup.attribute("enabledgroup").toDouble())
-            calibration->addEnabledGroup(name);
-        else
-            calibration->removeEnabledGroup(name);
-
-        if(currentgroup.attribute("disabledgroup").toDouble())
-            calibration->addDisabledGroup(name);
-        else
-            calibration->removeDisabledGroup(name);
-
-        //load members
-        QDomNodeList members = currentgroup.elementsByTagName("groupmember");
-        for(int i=0; i<members.size(); i++)
-        {
-            QDomElement currentmember = members.at(i).toElement();
-            calibration->addParameterToGroup(currentmember.attribute("name").toStdString(),name);
-        }
-    }
     return true;
 }
 
@@ -312,20 +531,6 @@ bool Persistence::saveCalibrationAlgorithm(QTextStream *out)
     return true;
 }
 
-bool Persistence::loadConnections()
-{
-    QDomNodeList parameters = root.elementsByTagName("connection");
-
-    for(int index=0; index<parameters.size(); index++)
-    {
-        QDomElement connection = parameters.at(index).toElement();
-        ObjectiveFunctionVariable *tmpvar = static_cast<ObjectiveFunctionVariable*>(calibration->getDomain()->getPar(connection.attribute("destination").toStdString()));
-        if(!tmpvar->addParameter(connection.attribute("source").toStdString()))
-            return false;
-    }
-    return true;
-}
-
 bool Persistence::saveFunction(QString functionname, map<std::string, std::string> parameters, QString *string)
 {
     QString func = "\t\t<function function=\"" + functionname + "\">\n";
@@ -350,7 +555,7 @@ bool Persistence::saveIterationResults(QTextStream *out)
     {
         if(status)
         {
-            status->showMessage("Save Iteration Results: " + QString::number(result->getIterationNumber()+1) + "/" + QString::number(results.size()));
+            status->showMessage("Saved iteration-results: " + QString::number(result->getIterationNumber()+1) + "/" + QString::number(results.size()));
             QCoreApplication::processEvents();
         }
 
@@ -365,24 +570,6 @@ bool Persistence::saveIterationResults(QTextStream *out)
         BOOST_FOREACH(Variable *var, parameters)
         {
             *out << "\t\t<calibrationparameterresult values=\"" + QString::fromStdString(vectorToString(result->getCalibrationParameterResults(var->getName()))) +
-                   "\" name=\"" + QString::fromStdString(var->getName()) +
-                   "\"/>\n";
-        }
-
-        //iteration parameters
-        parameters = calibration->getDomain()->getAllPars(ITERATIONVARIABLE);
-        BOOST_FOREACH(Variable *var, parameters)
-        {
-            *out << "\t\t<iterationparameterresult values=\"" + QString::fromStdString(vectorToString(result->getIterationParameterResults(var->getName()))) +
-                   "\" name=\"" + QString::fromStdString(var->getName()) +
-                   "\"/>\n";
-        }
-
-        //observed parameter
-        parameters = calibration->getDomain()->getAllPars(OBSERVEDVARIABLE);
-        BOOST_FOREACH(Variable *var, parameters)
-        {
-            *out << "\t\t<observedparameterresult values=\"" + QString::fromStdString(vectorToString(result->getObservedParameterResults(var->getName()))) +
                    "\" name=\"" + QString::fromStdString(var->getName()) +
                    "\"/>\n";
         }
@@ -407,77 +594,6 @@ bool Persistence::saveIterationResults(QTextStream *out)
     return true;
 }
 
-bool Persistence::loadTemplates()
-{
-    ExternalParameterRegistry* reg = calibration->getExternalParameterRegistry();
-
-    QDomNodeList templates;
-
-    //calibrationvariables
-    templates = root.elementsByTagName("calibrationparametertemplate");
-
-    for(int index=0; index<templates.size(); index++)
-    {
-        QDomElement currenttemplate = templates.at(index).toElement();
-        QDomNodeList members = currenttemplate.elementsByTagName("templatemember");
-        QDomNodeList templatestrings = currenttemplate.elementsByTagName("templatestring");
-        if(templatestrings.size() != 1)
-            return false;
-
-        string name = currenttemplate.attribute("name").toStdString();
-        string path = currenttemplate.attribute("path").toStdString();
-        string templatestring = templatestrings.at(0).toElement().childNodes().at(0).toCDATASection().nodeValue().toStdString();
-        if(!reg->registerTemplate(name,path,templatestring,calibration,CALIBRATIONVARIABLE))
-            return false;
-
-        for(int i=0; i < members.size(); i++)
-            reg->registerParameter(members.at(i).toElement().attribute("name").toStdString(),name,calibration->getDomain());
-    }
-
-    //observedvariables
-    templates = root.elementsByTagName("observedparametertemplate");
-
-    for(int index=0; index<templates.size(); index++)
-    {
-        QDomElement currenttemplate = templates.at(index).toElement();
-        QDomNodeList members = currenttemplate.elementsByTagName("templatemember");
-        QDomNodeList templatestrings = currenttemplate.elementsByTagName("templatestring");
-        if(templatestrings.size() != 1)
-            return false;
-
-        string name = currenttemplate.attribute("name").toStdString();
-        string path = currenttemplate.attribute("path").toStdString();
-        string templatestring = templatestrings.at(0).toElement().childNodes().at(0).toCDATASection().nodeValue().toStdString();
-        if(!reg->registerTemplate(name,path,templatestring,calibration,OBSERVEDVARIABLE))
-            return false;
-
-        for(int i=0; i < members.size(); i++)
-            reg->registerParameter(members.at(i).toElement().attribute("name").toStdString(),name,calibration->getDomain());
-    }
-
-    //iterationvariables
-    templates = root.elementsByTagName("iterationparametertemplate");
-
-    for(int index=0; index<templates.size(); index++)
-    {
-        QDomElement currenttemplate = templates.at(index).toElement();
-        QDomNodeList members = currenttemplate.elementsByTagName("templatemember");
-        QDomNodeList templatestrings = currenttemplate.elementsByTagName("templatestring");
-        if(templatestrings.size() != 1)
-            return false;
-
-        string name = currenttemplate.attribute("name").toStdString();
-        string path = currenttemplate.attribute("path").toStdString();
-        string templatestring = templatestrings.at(0).toElement().childNodes().at(0).toCDATASection().nodeValue().toStdString();
-        if(!reg->registerTemplate(name,path,templatestring,calibration,ITERATIONVARIABLE))
-            return false;
-
-        for(int i=0; i < members.size(); i++)
-            reg->registerParameter(members.at(i).toElement().attribute("name").toStdString(),name,calibration->getDomain());
-    }
-    return true;
-}
-
 bool Persistence::saveTemplates(QTextStream *out)
 {    
     ExternalParameterRegistry* reg = calibration->getExternalParameterRegistry();
@@ -492,10 +608,10 @@ bool Persistence::saveTemplates(QTextStream *out)
         QString par = "\t<calibrationparametertemplate path=\"" + QString::fromStdString(reg->getPath(name)) +
                       "\" name=\"" + QString::fromStdString(name) +
                       "\">\n" +
-                      "\t\t<templatestring>\n" +
-                      "\t\t\t<![CDATA[" + QString::fromStdString(reg->getTemplate(name)) +
-                      "]]>\n" +
-                      "\t\t</templatestring>\n";
+                      "<templatestring>" +
+                      "<![CDATA[" + QString::fromStdString(reg->getTemplate(name)) +
+                      "]]>" +
+                      "</templatestring>\n";
 
         *out << par;
 
@@ -514,10 +630,10 @@ bool Persistence::saveTemplates(QTextStream *out)
         QString par = "\t<iterationparametertemplate path=\"" + QString::fromStdString(reg->getPath(name)) +
                       "\" name=\"" + QString::fromStdString(name) +
                       "\">\n" +
-                      "\t\t<templatestring>\n" +
-                      "\t\t\t<![CDATA[" + QString::fromStdString(reg->getTemplate(name)) +
-                      "]]>\n" +
-                      "\t\t</templatestring>\n";
+                      "<templatestring>" +
+                      "<![CDATA[" + QString::fromStdString(reg->getTemplate(name)) +
+                      "]]>" +
+                      "</templatestring>\n";
 
         *out << par;
 
@@ -536,10 +652,10 @@ bool Persistence::saveTemplates(QTextStream *out)
         QString par = "\t<observedparametertemplate path=\"" + QString::fromStdString(reg->getPath(name)) +
                       "\" name=\"" + QString::fromStdString(name) +
                       "\">\n" +
-                      "\t\t<templatestring>\n" +
-                      "\t\t\t<![CDATA[" + QString::fromStdString(reg->getTemplate(name)) +
-                      "]]>\n" +
-                      "\t\t</templatestring>\n";
+                      "<templatestring>" +
+                      "<![CDATA[" + QString::fromStdString(reg->getTemplate(name)) +
+                      "]]>" +
+                      "</templatestring>\n";
 
         *out << par;
 
@@ -548,150 +664,6 @@ bool Persistence::saveTemplates(QTextStream *out)
                     *out << "\t\t<templatemember name=\"" + QString::fromStdString(var->getName()) + "\"/>\n";
 
           *out << "\t</observedparametertemplate>\n";
-    }
-    return true;
-}
-
-bool Persistence::loadIterationResults()
-{
-    QDomNodeList iterationresults = root.elementsByTagName("iterationresult");
-    map<int,IterationResult *  > resultmap;
-
-    for(int index=0; index<iterationresults.size(); index++)
-    {
-        QDomElement currentresult = iterationresults.at(index).toElement();
-        int iterationnumber = currentresult.attribute("iterationnumber").toDouble();
-        map<string, vector<double> > calibrationresults, iterationresult, observedresults, objectivefunctionresults;
-
-        //calibration results
-        QDomNodeList list = currentresult.elementsByTagName("calibrationparameterresult");
-        for(int i=0; i < list.size(); i++)
-        {
-            QDomElement currentelement = list.at(i).toElement();
-            calibrationresults[currentelement.attribute("name").toStdString()] = stringToVector(currentelement.attribute("values").toStdString());
-        }
-
-        //iterationresult results
-        list = currentresult.elementsByTagName("iterationparameterresult");
-        for(int i=0; i < list.size(); i++)
-        {
-            QDomElement currentelement = list.at(i).toElement();
-            iterationresult[currentelement.attribute("name").toStdString()] = stringToVector(currentelement.attribute("values").toStdString());
-        }
-
-        //observed results
-        list = currentresult.elementsByTagName("observedparameterresult");
-        for(int i=0; i < list.size(); i++)
-        {
-            QDomElement currentelement = list.at(i).toElement();
-            observedresults[currentelement.attribute("name").toStdString()] = stringToVector(currentelement.attribute("values").toStdString());
-        }
-
-        //objectivefunctionresults results
-        list = currentresult.elementsByTagName("objectivefunctionparameterresult");
-        for(int i=0; i < list.size(); i++)
-        {
-            QDomElement currentelement = list.at(i).toElement();
-            objectivefunctionresults[currentelement.attribute("name").toStdString()] = stringToVector(currentelement.attribute("values").toStdString());
-        }
-
-        resultmap[iterationnumber] = new IterationResult(iterationnumber,calibrationresults,iterationresult, objectivefunctionresults, observedresults);
-    }
-
-    return calibration->setIterationResults(resultmap);
-}
-
-bool Persistence::loadFunction(QString &functionname, map<std::string,std::string> &functionparameters, QDomElement *element )
-{
-    QDomNodeList functions = element->elementsByTagName("function");
-
-    if(functions.size()!=1)
-        return false;
-
-    QDomElement function = functions.at(0).toElement();
-    QDomNodeList functionparameterslist = function.elementsByTagName("functionparameter");
-    functionname=function.attribute("function");
-
-    for(int index=0; index<functionparameterslist.size(); index++)
-    {
-        QDomElement functionparameter = functionparameterslist.at(index).toElement();
-        functionparameters[functionparameter.attribute("key").toStdString()]=functionparameter.attribute("value").toStdString();
-    }
-
-    return true;
-}
-
-bool Persistence::loadCalibrationParameters()
-{
-    QDomNodeList parameters = root.elementsByTagName("calibrationparameter");
-
-    for(int index=0; index<parameters.size(); index++)
-    {
-        QDomElement parameter = parameters.at(index).toElement();
-        CalibrationVariable calibrationparameter(parameter.attribute("name").toStdString(), vector<double>());
-        calibrationparameter.setStep(parameter.attribute("step").toDouble());
-        calibrationparameter.setMax(parameter.attribute("max").toDouble());
-        calibrationparameter.setMin(parameter.attribute("min").toDouble());
-        calibrationparameter.setInitValues(stringToVector(parameter.attribute("initvalue").toStdString()));
-        calibrationparameter.setValues(stringToVector(parameter.attribute("value").toStdString()));
-        if(!calibration->addParameter(&calibrationparameter))
-            return false;
-    }
-    return true;
-}
-
-bool Persistence::loadIterationParameters()
-{
-    QDomNodeList parameters = root.elementsByTagName("iterationparameter");
-
-    for(int index=0; index<parameters.size(); index++)
-    {
-        QDomElement parameter = parameters.at(index).toElement();
-        Variable newparameter(parameter.attribute("name").toStdString(), stringToVector(parameter.attribute("value").toStdString()), ITERATIONVARIABLE);
-
-        if(!calibration->addParameter(&newparameter))
-            return false;
-    }
-    return true;
-}
-
-bool Persistence::loadObservedParameters()
-{
-    QDomNodeList parameters = root.elementsByTagName("observedparameter");
-
-    for(int index=0; index<parameters.size(); index++)
-    {
-        QDomElement parameter = parameters.at(index).toElement();
-        Variable newparameter(parameter.attribute("name").toStdString(), stringToVector(parameter.attribute("value").toStdString()), OBSERVEDVARIABLE);
-
-        if(!calibration->addParameter(&newparameter))
-            return false;
-    }
-    return true;
-}
-
-bool Persistence::loadObjectiveFunctionParameters()
-{
-    QDomNodeList parameters = root.elementsByTagName("objectivefunctionparameter");
-
-    for(int index=0; index<parameters.size(); index++)
-    {
-        QDomElement parameter = parameters.at(index).toElement();
-        ObjectiveFunctionVariable newparameter(parameter.attribute("name").toStdString());
-
-        if(!calibration->addParameter(&newparameter))
-            return false;
-
-        ObjectiveFunctionVariable* regparameter = static_cast<ObjectiveFunctionVariable*>(calibration->getDomain()->getPar(newparameter.getName()));
-        QString functionname;
-        map<string, string> functionparameters;
-
-        if(!loadFunction(functionname,functionparameters,&parameter))
-            return false;
-
-        if(functionname!="")
-            if(!regparameter->setObjectiveFunction(functionname.toStdString(),functionparameters))
-                return false;
     }
     return true;
 }
@@ -808,70 +780,17 @@ vector<double> Persistence::stringToVector(string string, bool *ok)
     return vec;
 }
 
-bool Persistence::loadCalibration(QString filename)
+bool Persistence::loadCalibration(QString filename,QStatusBar *status)
 {
     bool error = false;
-    QFile file(filename);
-
-    if (!file.open(QIODevice::ReadOnly))
-    {
-        file.close();
-        return false;
-    }
-
     calibration->clear();
-    doc->clear();
-    root.clear();
-
-    doc->setContent(&file);
-
-    root = doc->documentElement();
-
-    error  = root.tagName() != CALIMERO_VERSION;
-
-    if(!error)
-        error = error || !loadCalibrationParameters();
-
-    if(!error)
-        error = error || !loadIterationParameters();
-
-    if(!error)
-        error = error || !loadObservedParameters();
-
-    if(!error)
-        error = error || !loadObjectiveFunctionParameters();
-
-    if(!error)
-        error = error || !loadConnections();
-
-    if(!error)
-        error = error || !loadCalibrationAlgorithm();
-
-    if(!error)
-        error = error || !loadModelSimulator();
-
-    if(!error)
-        error = error || !loadEnabledObjectiveFunctionParameters();
-
-    if(!error)
-        error = error || !loadGroups();
-
-    if(!error)
-        error = error || !loadTemplates();
-
-    if(!error)
-        error = error || !loadResultHandler();
-
-    if(!error)
-        error = error || !loadIterationResults();
-
-    if(error)
-    {
-        doc->clear();
-        root.clear();
-        calibration->clear();
-    }
-
+    CalimeroXmlHandler handler(calibration,status);
+    QFile file(filename);
+    QXmlInputSource source(&file);
+    QXmlSimpleReader reader;
+    reader.setContentHandler(&handler);
+    reader.setErrorHandler(&handler);
+    error = reader.parse(source);
     file.close();
-    return !error;
+    return error;
 }

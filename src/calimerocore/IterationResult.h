@@ -23,30 +23,22 @@ private:
     int complete;
     int iterationnumber;
     QStringList calibrationparameters;
-    QStringList iterationparameters;
     QStringList objectivefucntionparameters;
-    QStringList observedparameters;
 
 public:
     ~IterationResult();
     IterationResult(int iterationnum);
     IterationResult(int iterationnum,
                     map<string, vector<double> > calibrationparameters,
-                    map<string, vector<double> > iterationparameters,
-                    map<string, vector<double> > objectivefunctionparameters,
-                    map<string, vector<double> > observedparameters);
+                    map<string, vector<double> > objectivefunctionparameters);
     void setResults(Domain *dom);
     bool isComplete();
     int getIterationNumber();
-    vector<double> getResults(string name);
-    vector<double> getIterationParameterResults(string name);
-    vector<double> getObservedParameterResults(string name);
+    vector<double> getResults(string name);;
     vector<double> getCalibrationParameterResults(string name);
     vector<double> getObjectiveFunctionParameterResults(string name);
     vector<string> getNamesOfObjectiveFunctionParameters();
-    vector<string> getNamesOfObservedParameters();
     vector<string> getNamesOfCalibrationParameters();
-    vector<string> getNamesOfIterationParameters();
 };
 
 class CalimeroDB

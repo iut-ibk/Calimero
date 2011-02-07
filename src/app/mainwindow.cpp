@@ -34,7 +34,7 @@ MainWindow::MainWindow(QWidget *parent, QString load_file ,LogLevel maxlevel) : 
 
         if(load_file!="")
         {
-            if(persistence->loadCalibration(load_file))
+            if(persistence->loadCalibration(load_file,ui->statusbar))
                 savefilepath=load_file;
             else
                 QMessageBox::warning(this,tr("Error"),tr("Could not load file"));
@@ -1469,7 +1469,7 @@ void MainWindow::on_actionopen_activated()
     if(fileName.isEmpty())
         return;
 
-    if(persistence->loadCalibration(fileName))
+    if(persistence->loadCalibration(fileName,ui->statusbar))
         savefilepath=fileName;
     else
         QMessageBox::warning(this,tr("Error"),tr("Could not load file"));
