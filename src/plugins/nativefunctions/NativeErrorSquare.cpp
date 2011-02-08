@@ -55,3 +55,47 @@ std::vector<double> NativeErrorSquare::eval(std::vector<Variable*> iterationpara
 
     return result;
 }
+
+CALIMERO_DECLARE_OFUNCTION_NAME(SSE)
+
+SSE::SSE()
+{
+}
+
+std::vector<double> SSE::eval(std::vector<Variable*> iterationparameters,
+                                 std::vector<Variable*> observedparameters,
+                                 std::vector<ObjectiveFunctionVariable*> objectivefunctionparameters)
+{
+    NativeErrorSquare error;
+    std::vector<double> ev = error.eval(iterationparameters,observedparameters,objectivefunctionparameters);
+
+    double result = 0.0;
+
+    for(uint index=0; index < ev.size(); index++)
+        result += ev[index];
+
+    return std::vector<double>(1,result);
+}
+
+CALIMERO_DECLARE_OFUNCTION_NAME(MSE)
+
+MSE::MSE()
+{
+}
+
+std::vector<double> MSE::eval(std::vector<Variable*> iterationparameters,
+                                 std::vector<Variable*> observedparameters,
+                                 std::vector<ObjectiveFunctionVariable*> objectivefunctionparameters)
+{
+    NativeErrorSquare error;
+    std::vector<double> ev = error.eval(iterationparameters,observedparameters,objectivefunctionparameters);
+
+    double result = 0.0;
+
+    for(uint index=0; index < ev.size(); index++)
+        result += ev[index];
+
+    result /= ev.size();
+
+    return std::vector<double>(1,result);
+}

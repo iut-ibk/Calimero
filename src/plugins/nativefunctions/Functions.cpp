@@ -24,6 +24,8 @@ extern "C"
     {
         registry->registerFunction(new NativeFunctionFactory<TestOFunction>());
         registry->registerFunction(new NativeFunctionFactory<NativeErrorSquare>());
+        registry->registerFunction(new NativeFunctionFactory<SSE>());
+        registry->registerFunction(new NativeFunctionFactory<MSE>());
     }
 
     void CALIMERO_PUBLIC registerCalibrationAlgs(Registry<ICalibrationAlg> *registry)
