@@ -112,7 +112,7 @@ bool CalimeroXmlHandler::endElement( const QString&, const QString&, const QStri
 
     if(name == "observedparametertemplate")
     {
-        if(!calibration->getExternalParameterRegistry()->registerTemplate(templatename,templatepath,templatestring,calibration,OBSERVEDVARIABLE))
+        if(!calibration->getExternalParameterRegistry()->registerTemplate(templatename,templatepath,QString::fromStdString(templatestring).replace("calimero///","]]>").toStdString(),calibration,OBSERVEDVARIABLE))
             return false;
 
         templatename="";
@@ -122,7 +122,7 @@ bool CalimeroXmlHandler::endElement( const QString&, const QString&, const QStri
 
     if(name == "iterationparametertemplate")
     {
-        if(!calibration->getExternalParameterRegistry()->registerTemplate(templatename,templatepath,templatestring,calibration,ITERATIONVARIABLE))
+        if(!calibration->getExternalParameterRegistry()->registerTemplate(templatename,templatepath,QString::fromStdString(templatestring).replace("calimero///","]]>").toStdString(),calibration,ITERATIONVARIABLE))
             return false;
 
         templatename="";
@@ -132,7 +132,7 @@ bool CalimeroXmlHandler::endElement( const QString&, const QString&, const QStri
 
     if(name == "calibrationparametertemplate")
     {
-        if(!calibration->getExternalParameterRegistry()->registerTemplate(templatename,templatepath,templatestring,calibration,CALIBRATIONVARIABLE))
+        if(!calibration->getExternalParameterRegistry()->registerTemplate(templatename,templatepath,QString::fromStdString(templatestring).replace("calimero///","]]>").toStdString(),calibration,CALIBRATIONVARIABLE))
             return false;
 
         templatename="";
@@ -348,7 +348,7 @@ bool CalimeroXmlHandler::loadObservedParameters(const QXmlAttributes &attrs)
 bool CalimeroXmlHandler::fatalError ( const QXmlParseException & exception )
 {
     Logger(Error) << "Cannot load calimero project";
-    Logger(Error) << "Calimerp cmp file: Line: " << exception.lineNumber() << " Column: " << exception.columnNumber();
+    Logger(Error) << "Calimerp cmp file: Line: " << exception.lineNumber() << " Column: " << exception.columnNumber() << " <" << exception.message() << ">";
     return false;
 }
 
@@ -609,7 +609,7 @@ bool Persistence::saveTemplates(QTextStream *out)
                       "\" name=\"" + QString::fromStdString(name) +
                       "\">\n" +
                       "<templatestring>" +
-                      "<![CDATA[" + QString::fromStdString(reg->getTemplate(name)) +
+                      "<![CDATA[" + QString::fromStdString(reg->getTemplate(name)).replace("]]>","calimero///") +
                       "]]>" +
                       "</templatestring>\n";
 
