@@ -31,4 +31,13 @@ public:
     bool pushIteration( vector<CalibrationVariable*> vars, Calibration *calibration);
 };
 
+class CalimeroSleep : public QThread
+{
+public:
+    static void msleep(int ms)
+    {
+        QThread::msleep(ms);
+    }
+};
+
 #endif // MODELSIMTHREADPOOL_H

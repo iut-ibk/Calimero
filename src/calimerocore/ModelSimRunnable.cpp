@@ -102,8 +102,6 @@ void ModelSimRunnable::run()
     {
         Logger(Error) << "Could not extract result files";
         CalibrationEnv::getInstance()->stopCalibration();
-        delete dom;
-        delete externalfilehandler;
         return;
     }
 

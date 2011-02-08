@@ -52,6 +52,7 @@ bool ModelSimThreadPool::pushIteration( vector<CalibrationVariable*> vars, Calib
                 delete simulation;
                 return false;
             }
+            CalimeroSleep::msleep(1000);
         }
     }
     return true;

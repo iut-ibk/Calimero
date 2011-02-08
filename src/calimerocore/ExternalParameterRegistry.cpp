@@ -312,7 +312,6 @@ bool ExternalParameterRegistry::createValueFile(const string &templatename, Doma
 
 bool ExternalParameterRegistry::createValueFile(const string &templatename, Domain *domain, const string &filepath, int iteration)
 {
-    Logger(Error) << "sdlfjsdalkfjsdaklfjdsaklf";
     //check existence of templatename and regfile
     if(regtemplates.find(templatename)==regtemplates.end())
         return false;
