@@ -67,6 +67,9 @@ ModelSimRunnable::~ModelSimRunnable()
 
 void ModelSimRunnable::run()
 {
+    if(!CalibrationEnv::getInstance()->isCalibrationRunning())
+        return;
+
     if(error)
     {
         Logger(Error) << "Could not execute \"Model\"";

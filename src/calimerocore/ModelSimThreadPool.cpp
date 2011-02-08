@@ -45,15 +45,7 @@ bool ModelSimThreadPool::pushIteration( vector<CalibrationVariable*> vars, Calib
     }
     else
     {
-        while(!tryStart(simulation));
-        {
-            if(!CalibrationEnv::getInstance()->isCalibrationRunning())
-            {
-                delete simulation;
-                return false;
-            }
-            CalimeroSleep::msleep(1000);
-        }
+        start(simulation);
     }
     return true;
 }
