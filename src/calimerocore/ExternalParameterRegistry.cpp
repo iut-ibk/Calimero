@@ -61,6 +61,9 @@ vector<string> ExternalParameterRegistry::getTemplateNames(VARTYPE type)
 
 bool ExternalParameterRegistry::registerParameter(const string &parametername, const string &templatename, Domain *domain)
 {
+    if(parametername=="iteration")
+        return true;
+
     if(regtemplates.find(templatename)==regtemplates.end())
         return false;
 
@@ -303,11 +306,11 @@ bool ExternalParameterRegistry::createValueFile(const string &templatename, Doma
         return false;
 
     path.replace(QRegExp("\\$iteration\\$"), QString::number(iteration));
-    return createValueFile(templatename,domain,path.toStdString());
+    return createValueFile(templatename,domain,path.toStdString(),iteration);
 }
 
 
-bool ExternalParameterRegistry::createValueFile(const string &templatename, Domain *domain, const string &filepath)
+bool ExternalParameterRegistry::createValueFile(const string &templatename, Domain *domain, const string &filepath, int iteration)
 {
     //check existence of templatename and regfile
     if(regtemplates.find(templatename)==regtemplates.end())
@@ -382,6 +385,8 @@ bool ExternalParameterRegistry::createValueFile(const string &templatename, Doma
                     {
                         line.replace(QRegExp("\\$" + QString::fromStdString(var->getName()) + QString("_") + QString::number(parameterindex) + "\\$"), QString::number(var->getValues().at(parameterindex)));
                     }
+
+                    line.replace(QRegExp("\\$iteration\\$"), QString::number(iteration));
                 }
             }
         }
@@ -455,7 +460,10 @@ bool ExternalParameterRegistry::updateTemplate(const string &templatename, strin
 
             //check duplicates in current template
             if(std::find(templateparameters.begin(),templateparameters.end(),parametername.toStdString())!=templateparameters.end())
-                return false;
+            {
+                if(parametername.toStdString()!="iteration")
+                    return false;
+            }
 
             templateparameters.push_back(parametername.toStdString());
 

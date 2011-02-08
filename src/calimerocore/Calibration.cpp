@@ -152,6 +152,12 @@ bool Calibration::addParameter(Variable *parameter)
     QMutexLocker locker(mutex);
     string parname = parameter->getName();
 
+    if(parameter->getName()=="iteration")
+    {
+        Logger(Warning) << "Parameter with name \"iteration\" is a key parameter of calimero";
+        return false;
+    }
+
     if(domain->contains(parname))
     {
         Logger(Error) << parameter << " already registered in calibration domain";

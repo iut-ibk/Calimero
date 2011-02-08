@@ -39,7 +39,7 @@ public:
     bool deleteTemplate(const string &templatename);
     bool deleteParameter(const string &parametername);
     bool createValueFile(const string &templatename, Domain *domain, int iteration);
-    bool createValueFile(const string &templatename, Domain *domain, const string &filepath);
+    bool createValueFile(const string &templatename, Domain *domain, const string &filepath, int iteration);
     bool createValueFiles(Domain *dom, int iteration);
     string getPath(const string &templatename);
     string getTemplate(const string &templatename);
