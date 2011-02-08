@@ -12,6 +12,7 @@
 ModelSimRunnable::ModelSimRunnable(vector<CalibrationVariable*> newcalpars,
                                    Calibration *calibration)
 {
+    error=false;
     //clone all
     dom = new Domain(*(calibration->getDomain()));
     externalfilehandler = new ExternalParameterRegistry(*(calibration->getExternalParameterRegistry()));
@@ -43,31 +44,39 @@ ModelSimRunnable::ModelSimRunnable(vector<CalibrationVariable*> newcalpars,
             setting.replace(QRegExp(QString::fromStdString(name)), path);
         }
 
+
         if(!sim->setValueOfParameter(p.first,setting.toStdString()))
         {
-            delete sim;
-            delete dom;
-            delete externalfilehandler;
-            sim = 0;
+            error=true;
+            return;
         }
     }
 }
 
 ModelSimRunnable::~ModelSimRunnable()
 {
-    Logger(Debug) << "ModelSimRunnable destroyed";
+    if(sim)
+        delete sim;
+
+    if(dom)
+        delete dom;
+
+    if(externalfilehandler)
+        delete externalfilehandler;
 }
 
 void ModelSimRunnable::run()
 {
-    //create all external files
-    if(!externalfilehandler->createValueFiles(this->dom,result->getIterationNumber()))
+    if(error)
     {
-        delete sim;
-        delete dom;
-        delete externalfilehandler;
+        Logger(Error) << "Could not execute \"Model\"";
+        CalibrationEnv::getInstance()->stopCalibration();
         return;
     }
+
+    //create all external files
+    if(!externalfilehandler->createValueFiles(this->dom,result->getIterationNumber()))
+        return;
 
     //run simulator
     if(!sim)
@@ -88,9 +97,6 @@ void ModelSimRunnable::run()
         CalibrationEnv::getInstance()->stopCalibration();
     }
 
-    //clean sim
-    delete sim;
-
     //extract all files
     if(!externalfilehandler->updateParameters(dom,result->getIterationNumber()))
     {
@@ -104,8 +110,4 @@ void ModelSimRunnable::run()
     Logger(Debug) << "Extract results in ModelSimRunnable";
     //save values in result container
     result->setResults(dom);
-
-    //clean thread
-    delete dom;
-    delete externalfilehandler;
 }

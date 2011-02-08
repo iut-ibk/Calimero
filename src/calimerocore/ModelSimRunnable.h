@@ -32,6 +32,7 @@ private:
     IterationResult *  result;
     Calibration *calibration;
     IModelSimulator *sim;
+    bool error;
 
 public:
     ModelSimRunnable(vector<CalibrationVariable*> newcalpars,Calibration *calibration);

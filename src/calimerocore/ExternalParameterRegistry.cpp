@@ -312,6 +312,7 @@ bool ExternalParameterRegistry::createValueFile(const string &templatename, Doma
 
 bool ExternalParameterRegistry::createValueFile(const string &templatename, Domain *domain, const string &filepath, int iteration)
 {
+    Logger(Error) << "sdlfjsdalkfjsdaklfjdsaklf";
     //check existence of templatename and regfile
     if(regtemplates.find(templatename)==regtemplates.end())
         return false;
@@ -334,6 +335,8 @@ bool ExternalParameterRegistry::createValueFile(const string &templatename, Doma
     for(int counter=0; counter<stringlist.size(); counter++)
     {
         QString line = stringlist.at(counter);
+        line = line.replace(QRegExp("\\$iteration\\$"), QString::number(iteration));
+
 
         while(line.contains("$"))
         {
@@ -385,8 +388,6 @@ bool ExternalParameterRegistry::createValueFile(const string &templatename, Doma
                     {
                         line.replace(QRegExp("\\$" + QString::fromStdString(var->getName()) + QString("_") + QString::number(parameterindex) + "\\$"), QString::number(var->getValues().at(parameterindex)));
                     }
-
-                    line.replace(QRegExp("\\$iteration\\$"), QString::number(iteration));
                 }
             }
         }
@@ -411,7 +412,7 @@ bool ExternalParameterRegistry::createValueFile(const string &templatename, Doma
 string ExternalParameterRegistry::getPath(const string &templatename)
 {
     if(templatepaths.find(templatename)==templatepaths.end())
-        return false;
+        return "";
 
     return templatepaths[templatename];
 }
