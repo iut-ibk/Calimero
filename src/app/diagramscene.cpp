@@ -60,8 +60,10 @@ void DiagramScene::setValues(QMap<QString, QVector<QPointF> > values)
     }
 
     bool dirty = true;
-    while(dirty)
+    int searchiteration=0;
+    while(dirty && searchiteration<1000)
     {
+        searchiteration++;
         mouseline=0;
         clear();
 
@@ -74,12 +76,8 @@ void DiagramScene::setValues(QMap<QString, QVector<QPointF> > values)
         minvaluey=0.0;
         maxvaluey=0.0;
 
-
         if(!yscale)
-        {
-            Logger(Error) << "Divided by zero in DiagramScene";
             yscale=1;
-        }
 
         data=values;
 

@@ -92,7 +92,6 @@ bool GeneticAlgorithm::start(vector<CalibrationVariable*> calibrationpars, vecto
             return true;
     }
 
-    Logger(Standard) << "sdkfjalfjlkdsajflsd";
     if(maxerror >= currentminerror)
         Logger(Standard) << "Best result: " << currentminerror;
 

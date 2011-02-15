@@ -36,7 +36,7 @@ CalimeroDB::CalimeroDB()
     }
     else
     {
-        Logger(Standard) << "Databese connection established";
+        Logger(Standard) << "Database connection established";
     }
 
     QSqlQuery query;
@@ -45,6 +45,20 @@ CalimeroDB::CalimeroDB()
                "val text, "
                "PRIMARY KEY (id,iterationnr))"))
          Logger(Error) << "Cannot create DB";
+}
+
+void CalimeroDB::beginTransaction()
+{
+    QSqlQuery query;
+    if(!query.exec("BEGIN TRANSACTION"))
+         Logger(Error) << "DB error in \"BEGIN TRANSACTION\" statement";
+}
+
+void CalimeroDB::endTransaction()
+{
+    QSqlQuery query;
+    if(!query.exec("END TRANSACTION"))
+         Logger(Error) << "DB error in \"END TRANSACTION\" statement";
 }
 
 CalimeroDB::~CalimeroDB()
@@ -141,6 +155,8 @@ IterationResult::IterationResult(int iterationnum,
     this->iterationnumber=iterationnum;
 
     std::pair<string, vector<double> > pair;
+
+    db->beginTransaction();
     BOOST_FOREACH(pair, objectivefunctionparameters)
     {
         db->saveVector(pair.first,pair.second,iterationnum);
@@ -152,7 +168,7 @@ IterationResult::IterationResult(int iterationnum,
         db->saveVector(pair.first,pair.second,iterationnum);
         this->calibrationparameters.append(QString::fromStdString(pair.first));
     }
-
+    db->endTransaction();
     complete = 1;
 }
 
@@ -160,11 +176,13 @@ IterationResult::~IterationResult()
 {
     CalimeroDB* db = CalimeroDB::getInstance();
 
+    db->beginTransaction();
     for(int index=0; index < calibrationparameters.size(); index++)
         db->removeVector(calibrationparameters.at(index).toStdString(),iterationnumber);
 
     for(int index=0; index < objectivefucntionparameters.size(); index++)
         db->removeVector(objectivefucntionparameters.at(index).toStdString(),iterationnumber);
+    db->endTransaction();
 }
 
 void IterationResult::setResults(Domain *dom)
@@ -189,7 +207,6 @@ void IterationResult::setResults(Domain *dom)
         db->saveVector(var->getName(),var->getValues(),iterationnumber);
         this->objectivefucntionparameters.append(QString::fromStdString(var->getName()));
     }
-
 
     Logger(Debug) << "Iteration " << iterationnumber << "is complete";
     complete=1;

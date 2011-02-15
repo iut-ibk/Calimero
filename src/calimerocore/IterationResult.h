@@ -51,6 +51,8 @@ public:
     ~CalimeroDB();
     static CalimeroDB* getInstance();
     bool saveVector(std::string name, std::vector<double> vector, int iteration);
+    void beginTransaction();
+    void endTransaction();
     bool removeVector(std::string name, int iteration);
     std::vector<double> getVector(std::string name, int iteration);
 };

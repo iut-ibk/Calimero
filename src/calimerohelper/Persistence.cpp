@@ -348,7 +348,7 @@ bool CalimeroXmlHandler::loadObservedParameters(const QXmlAttributes &attrs)
 bool CalimeroXmlHandler::fatalError ( const QXmlParseException & exception )
 {
     Logger(Error) << "Cannot load calimero project";
-    Logger(Error) << "Calimerp cmp file: Line: " << exception.lineNumber() << " Column: " << exception.columnNumber() << " <" << exception.message() << ">";
+    Logger(Error) << "Calimero cmp file: Line: " << exception.lineNumber() << " Column: " << exception.columnNumber() << " <" << exception.message() << ">";
     return false;
 }
 
@@ -782,7 +782,7 @@ vector<double> Persistence::stringToVector(string string, bool *ok)
 
 bool Persistence::loadCalibration(QString filename,QStatusBar *status)
 {
-    bool error = false;
+    bool noerror = true;
     calibration->clear();
     CalimeroXmlHandler handler(calibration,status);
     QFile file(filename);
@@ -790,7 +790,7 @@ bool Persistence::loadCalibration(QString filename,QStatusBar *status)
     QXmlSimpleReader reader;
     reader.setContentHandler(&handler);
     reader.setErrorHandler(&handler);
-    error = reader.parse(source);
+    noerror = reader.parse(source);
     file.close();
-    return error;
+    return noerror;
 }
