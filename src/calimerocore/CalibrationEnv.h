@@ -59,6 +59,7 @@ public:
     bool setCalibration(Calibration *cal);
     Calibration* getCalibration();
     bool isCalibrationRunning();
+    bool calibrationShutDownState();
     int getNumThreads();
     bool setNumThreads(int num);
     bool inMemory();

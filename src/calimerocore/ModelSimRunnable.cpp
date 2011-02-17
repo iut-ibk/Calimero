@@ -67,7 +67,7 @@ ModelSimRunnable::~ModelSimRunnable()
 
 void ModelSimRunnable::run()
 {
-    if(!CalibrationEnv::getInstance()->isCalibrationRunning())
+    if(CalibrationEnv::getInstance()->calibrationShutDownState())
         return;
 
     if(error)

@@ -28,6 +28,7 @@ class BruteForceSearch_P(pycalimero.ICalibrationAlg):
     def start(self,calibrationvars, objectivevars, env, calibration):
         pycalimero.log("Start BruteForceSearch_P",pycalimero.Standard)
         result =  self.bruteforcesearch(calibrationvars,0,env)
+        pycalimero.barrier()
         pycalimero.log("BruteForceSearch_P DONE",pycalimero.Standard)
         
         return result;

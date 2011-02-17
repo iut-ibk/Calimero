@@ -326,6 +326,11 @@ bool CalibrationEnv::isCalibrationRunning()
     return (getCalibrationState()==CALIBRATIONNOTRUNNING) ? 0 : 1;
 }
 
+bool CalibrationEnv::calibrationShutDownState()
+{
+    return (getCalibrationState()==CALIBRATIONSHUTDOWN) ? 1 : 0;
+}
+
 bool CalibrationEnv::execIteration(vector<CalibrationVariable*> calibrationparameters)
 {
     if(getCalibrationState()==CALIBRATIONSHUTDOWN)
