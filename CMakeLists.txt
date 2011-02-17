@@ -8,7 +8,7 @@ ENDIF()
 
 IF (${CMAKE_CXX_COMPILER_ID} STREQUAL GNU)
         MESSAGE(STATUS "Using GNU compilers")
-        SET(CMAKE_CXX_FLAGS "-g -Wall")
+        SET(CMAKE_CXX_FLAGS "-g -Wall -O3")
 ENDIF()
 
 INCLUDE_DIRECTORIES(src/calimerocore

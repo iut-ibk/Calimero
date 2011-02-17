@@ -77,9 +77,19 @@ class VectorErrorSquare(pycalimero.IObjectiveFunction):
             return pycalimero.doublevector(1,999999999999999)
         
         
-        if(vectors[0].__len__()!=vectors[1].__len__()):
-            pycalimero.log("Vectors do not have the same size in VectorErrorSquare. Fill missing elements with a high value", pycalimero.Error)
-            return pycalimero.doublevector(1,999999999999999)
+        if(vectors[0].__len__() < vectors[1].__len__()):
+            tmp = pycalimero.doublevector(vectors[0])
+            while(tmp.__len__() < vectors[1].__len__()): 
+                tmp.append(999)
+            
+            vectors[0]=tmp;
+   
+        if(vectors[0].__len__() > vectors[1].__len__()):
+            tmp = pycalimero.doublevector(vectors[1])
+            while(tmp.__len__() < vectors[0].__len__()): 
+                tmp.append(999)
+            
+            vectors[1]=tmp;
             
         #calculate
         result = pycalimero.doublevector(vectors[0].__len__())
