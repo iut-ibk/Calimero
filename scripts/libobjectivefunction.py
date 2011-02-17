@@ -18,6 +18,26 @@ class Sum(pycalimero.IObjectiveFunction):
 
         result.push_back(resultvalue)
         return result
+     
+class DummyOFunction_P(pycalimero.IObjectiveFunction):
+    def __init__(self):
+        pycalimero.IObjectiveFunction.__init__(self)
+        self.setDataType("fac n", pycalimero.UINT, "0")
+        self.setDataType("iterations", pycalimero.DOUBLE, "1000")
+        
+    def eval(self,iterationparameters, observedparameters, objectivefunctionparameters):
+        result = pycalimero.doublevector()
+        resultvalue = 1.0
+        result.push_back(resultvalue)
+        
+        iterations = int(self.getValueOfParameter("iterations"))
+        n = int(self.getValueOfParameter("fac n"))
+        
+        for i in range(iterations):
+            for ni in range(n):
+                resultvalue *= (ni+1)
+
+        return result
     
 class ReverseVector(pycalimero.IObjectiveFunction):
     def __init__(self):
