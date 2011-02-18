@@ -6,6 +6,7 @@
 #include <CalibrationEnv.h>
 #include <QProcess>
 #include <Logger.h>
+#include <QDir>
 
 CALIMERO_DECLARE_MODELSIMULATOR_NAME(ExternalModel)
 
@@ -26,6 +27,17 @@ ExternalModel::ExternalModel()
     setDataType("Post-arguments",STRING,"");
 }
 
+QStringList ExternalModel::convertArgumentList(QString string)
+{
+    QString news = string.replace("\\ ","\\$");
+    QStringList tmplist = news.split(" ");
+    QStringList result;
+    for(int index=0; index<tmplist.size(); index++)
+        result.append(tmplist[index].replace("\\$"," "));
+
+    return result;
+}
+
 bool ExternalModel::exec(Domain *dom)
 {
     int timeout = QString::fromStdString(getValueOfParameter("Timeout")).toInt();
@@ -38,11 +50,13 @@ bool ExternalModel::exec(Domain *dom)
     QString iterationprog = QString::fromStdString(getValueOfParameter("Iteration-exec-path"));
     QString postprog = QString::fromStdString(getValueOfParameter("Post-exec-path"));
 
-    QStringList preprogarguments = QString::fromStdString(getValueOfParameter("Pre-arguments")).split(" ");
-    QStringList iterationprogarguments = QString::fromStdString(getValueOfParameter("Iteration-arguments")).split(" ");
-    QStringList postprogarguments = QString::fromStdString(getValueOfParameter("Post-arguments")).split(" ");
+    QStringList preprogarguments = convertArgumentList(QString::fromStdString(getValueOfParameter("Pre-arguments")));
+    QStringList iterationprogarguments = convertArgumentList(QString::fromStdString(getValueOfParameter("Iteration-arguments")));
+    QStringList postprogarguments = convertArgumentList(QString::fromStdString(getValueOfParameter("Post-arguments")));
 
     QProcess process;
+    process.setStandardErrorFile(QDir::tempPath()+"/calimero.err");
+    process.setStandardOutputFile(QDir::tempPath()+"/calimero.out");
 
     QDir dir(preworkspace);
 

@@ -45,7 +45,7 @@ ModelSimRunnable::ModelSimRunnable(vector<CalibrationVariable*> newcalpars,
         }
 
 
-        if(!sim->setValueOfParameter(p.first,setting.toStdString()))
+        if(!sim->setValueOfParameter(p.first,setting.replace(QRegExp("\\$iteration\\$"), QString::number(result->getIterationNumber())).toStdString()))
         {
             error=true;
             return;
