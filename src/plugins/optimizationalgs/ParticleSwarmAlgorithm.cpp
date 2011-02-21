@@ -287,7 +287,7 @@ bool ParticleSwarmAlgorithm::runStep()
 
     //check if all results are completed
 
-    if(completeiterations > calibration->getNumOfComplete()-pposition.size())
+    if(completeiterations != calibration->getNumOfComplete()-pposition.size())
     {
         Logger(Error) << "Could not find all results for current swarm";
         return false;
