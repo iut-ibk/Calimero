@@ -347,6 +347,7 @@ class IResultHandler : public IFunction
 class IModelSimulator : public IFunction
 {
     public:
+        virtual ~IModelSimulator(){};
         IModelSimulator(){};
 
 

@@ -36,7 +36,7 @@ private:
 
 public:
     ModelSimRunnable(vector<CalibrationVariable*> newcalpars,Calibration *calibration);
-    ~ModelSimRunnable();
+    virtual ~ModelSimRunnable();
     void run();
 };
 

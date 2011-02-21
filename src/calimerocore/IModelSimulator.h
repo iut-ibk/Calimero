@@ -30,6 +30,7 @@ class CALIMERO_PUBLIC IModelSimulator : public IFunction
 {
     public:
         IModelSimulator(){};
+        virtual ~IModelSimulator(){};
         static IFUNCTIONTYPE getType()
         {
             return MODELSIMULATOR;

@@ -41,6 +41,7 @@ bool ModelSimThreadPool::pushIteration( vector<CalibrationVariable*> vars, Calib
         }
 
         simulation->run();
+        delete simulation;
         return true;
     }
     else

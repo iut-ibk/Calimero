@@ -111,4 +111,5 @@ void ModelSimRunnable::run()
     Logger(Debug) << "Extract results in ModelSimRunnable";
     //save values in result container
     result->setResults(dom);
+    return;
 }
