@@ -29,12 +29,25 @@ IF(UNIX AND NOT WIN32)
                                         python-scipy,
                                         python-numpy")
 ENDIF()
+
 IF(WIN32 AND NOT UNIX)
     SET(CPACK_GENERATOR "NSIS")
     SET(CPACK_NSIS_DISPLAY_NAME "Calimero")
     SET(CPACK_NSIS_CONTACT "michael.mair@uibk.ac.at")
+
+    IF(NOT ${PYTHONDLLPATH} STREQUAL "")
+        IF(EXISTS "${PYTHONDLLPATH}/python26.dll")
+            MESSAGE(-- PYTHONDLLPATH: ${PYTHONDLLPATH})
+        ELSE()
+            MESSAGE(FATAL_ERROR "Wrong path to python26.dll: Use -DPYTHONDLLPATH=[pathtodll]")
+        ENDIF()
+    ELSE()
+            MESSAGE(FATAL_ERROR "Need path to python26.dll: Use -DPYTHONDLLPATH=[pathtodll]")
+    ENDIF()
+
     INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/_pycalimero.pyd" DESTINATION bin)
     INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/src/python-swig/pycalimero.py" DESTINATION bin)
+    INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/python26.dll" DESTINATION bin)
     
     INSTALL(FILES "${PYTHON_LIBRARIES}" DESTINATION bin)
     MESSAGE(-- PYTHON_LIBRARIES: ${PYTHON_LIBRARIES})
