@@ -234,8 +234,15 @@ bool ExternalParameterRegistry::updateParameters(Domain *domain, const string &t
 
             if(!domain->contains(parametername.toStdString()))
             {
-                destroy(extractedvalues);
-                return false;
+                if(parametername=="iteration")
+                {
+                    continue;
+                }
+                else
+                {
+                    destroy(extractedvalues);
+                    return false;
+                }
             }
 
             if(extractedvalues.find(parametername.toStdString())==extractedvalues.end())
