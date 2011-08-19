@@ -1,0 +1,5 @@
+calimero (1.0.0-1) unstable; urgency=low
+
+  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+
+ -- Michael Mair <csae6550@unknown>  Fri, 19 Aug 2011 14:38:16 +0200

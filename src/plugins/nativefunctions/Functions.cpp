@@ -30,15 +30,21 @@ extern "C"
 
     void CALIMERO_PUBLIC registerCalibrationAlgs(Registry<ICalibrationAlg> *registry)
     {
-        registry->registerFunction(new NativeFunctionFactory<TestCalibrationAlg>());
-        registry->registerFunction(new NativeFunctionFactory<BruteForceSearch>());
+        registry->registerFunction(
+                    new NativeFunctionFactory<TestCalibrationAlg>());
+        registry->registerFunction(
+                    new NativeFunctionFactory<BruteForceSearch>());
     }
 
     void CALIMERO_PUBLIC registerModelSimulations(Registry<IModelSimulator> *registry)
     {
-        registry->registerFunction(new NativeFunctionFactory<ExternalModel>());
-        registry->registerFunction(new NativeFunctionFactory<TestModel>());
-        registry->registerFunction(new NativeFunctionFactory<VectorModel>());
-        registry->registerFunction(new NativeFunctionFactory<Schmutzstoffmodell>());
+        registry->registerFunction(
+                    new NativeFunctionFactory<ExternalModel>());
+        registry->registerFunction(
+                    new NativeFunctionFactory<TestModel>());
+        registry->registerFunction(
+                    new NativeFunctionFactory<VectorModel>());
+        registry->registerFunction(
+                    new NativeFunctionFactory<Schmutzstoffmodell>());
     }
 }
