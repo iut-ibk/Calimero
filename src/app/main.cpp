@@ -113,6 +113,10 @@ int main(int argc, char **argv)
     QApplication::setOrganizationDomain("http://www.uibk.ac.at/umwelttechnik/");
     CalibrationEnv::getInstance()->setCalibration(new Calibration());
 
+    QSettings settings;
+    if(!settings.contains("calimerohome"))
+        settings.setValue("calimerohome","/share/calimero/libs,/bin,/share/calimero/scripts/site-packages,/share/calimero/scripts");
+
     if(vm.count("nogui"))
     {
             if (!vm.count("project")) {
