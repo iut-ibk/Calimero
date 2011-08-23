@@ -114,7 +114,7 @@ int main(int argc, char **argv)
     CalibrationEnv::getInstance()->setCalibration(new Calibration());
 
     QSettings settings;
-    if(!settings.contains("calimerohome"))
+    if(!settings.contains("calimerohome") || settings.value("calimerohome").toString().isEmpty())
         settings.setValue("calimerohome","/share/calimero/libs,/bin,/share/calimero/scripts/site-packages,/share/calimero/scripts");
 
     if(vm.count("nogui"))
