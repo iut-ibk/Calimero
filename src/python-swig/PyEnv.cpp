@@ -41,6 +41,7 @@
 #include <boost/python/scope.hpp>
 #include <IterationResult.h>
 #include <Exception.h>
+#include <QCoreApplication>
 
 #include <swigruntime.h>
 
@@ -101,7 +102,7 @@ PyEnv::PyEnv() {
 
         //redirect stdout and stderr
         boost::format fmt( "import sys\n"
-                           "sys.path.append(\"./\")\n"
+                           "sys.path.append(\"" + QCoreApplication::applicationDirPath().toStdString() + "\")\n"
                            "import pycalimero\n"
                            "class Logger:\n"
                            "    def __init__(self, stdout,error):\n"
