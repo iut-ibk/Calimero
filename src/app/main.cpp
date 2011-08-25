@@ -115,7 +115,7 @@ int main(int argc, char **argv)
 
     QSettings settings;
     if(!settings.contains("calimerohome") || settings.value("calimerohome").toString().isEmpty())
-        settings.setValue("calimerohome","/usr/share/calimero/libs,/usr/bin,/usr/share/calimero/scripts/site-packages,/usr/share/calimero/scripts");
+        settings.setValue("calimerohome","/usr/share/calimero/libs,/usr/share/calimero/scripts/site-packages,/usr/share/calimero/scripts");
 
     if(vm.count("nogui"))
     {
