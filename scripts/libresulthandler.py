@@ -336,3 +336,87 @@ class TimeVariationCurvePlot(pycalimero.IResultHandler):
         
         dialogform.showFigure(fig)
         return True
+
+class ParetoFrontier(pycalimero.IResultHandler):
+    def __init__(self):
+        pycalimero.IResultHandler.__init__(self)
+        self.setDataType("parameter 1", pycalimero.STRING, "")
+        self.setDataType("parameter 2", pycalimero.STRING, "")
+        self.setDataType("title", pycalimero.STRING, "")
+        
+    def run(self, results):
+        par1 = self.getValueOfParameter("parameter 1")
+        par2 = self.getValueOfParameter("parameter 2")
+        title = self.getValueOfParameter("title")
+        
+        if(par1==""):
+            return False
+        
+        if(par2==""):
+            return False
+        
+	x = pycalimero.doublevector();
+	y = pycalimero.doublevector();
+
+	for i in results:
+	    x.append(i.getResults(par1)[0])
+	    y.append(i.getResults(par2)[0])
+
+        dialogform = Dialog(QApplication.activeWindow())
+        fig = Figure((5.0, 4.0), dpi=100)
+        ax = SubplotZero(fig, 1, 1, 1)
+        fig.add_subplot(ax)
+
+        for n in ["top", "right"]:
+            ax.axis[n].set_visible(False)
+            
+        for n in ["bottom", "left"]:
+            ax.axis[n].set_visible(True)   
+        
+        if(not(x.__len__())):
+            return False
+        
+        if(not(y.__len__())):
+            return False
+        
+	ax.plot (x, y, '.')
+        ax.set_title(title)
+        
+        dialogform.showFigure(fig)
+        return True
+
+class ModelTemplateExport(pycalimero.IResultHandler):
+    def __init__(self):
+        pycalimero.IResultHandler.__init__(self)
+        self.setDataType("Template", pycalimero.FILESTRING, "")
+        self.setDataType("Output", pycalimero.FILESTRING, "")
+        self.setDataType("Iteration", pycalimero.UINT, "0")
+        
+    def run(self, results):
+        template = self.getValueOfParameter("Template")
+        path = self.getValueOfParameter("Output")
+        iteration = int(self.getValueOfParameter("Iteration"))
+        
+        if(template==""):
+            return False
+        
+        if(path==""):
+            return False
+
+	if results.__len__() <= iteration:
+            return False
+        
+	ftemplate = open(template, 'r')
+	fpath = open(path, 'w')
+	
+        names = results[iteration].getNamesOfCalibrationParameters()
+        
+	for line in ftemplate:
+		for name in names:
+		    value = results[iteration].getCalibrationParameterResults(name)[0]
+		    line=line.replace('$' + name + '$', str(value))
+
+		fpath.write(line);
+
+	QMessageBox.information(QApplication.activeWindow(),"Message","Export done") 
+        return True
