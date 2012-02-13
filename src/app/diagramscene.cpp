@@ -260,6 +260,9 @@ bool DiagramScene::setMousePosition(qreal x, qreal y)
         QString text = value.keys().at(index) + ": x=" + QString::number(realx) + " y=" +  QString::number((*value[value.keys().at(index)])[realx]);
         legend[index]->setText(text);
     }
+
     return true;
+
+
 
 }

@@ -33,6 +33,7 @@
 #include <QMutex>
 #include <QtCore>
 #include <diagramscene.h>
+#include <QStatusBar>
 
 #define PREC 100
 
@@ -48,6 +49,7 @@ class DiagramGui : public QGraphicsView
         QAction *actionminvar;
         QAction *actioncalvar;
         QMenu *menu;
+        bool updateting;
 
     public:
         DiagramGui(QWidget *parent);
@@ -56,12 +58,25 @@ class DiagramGui : public QGraphicsView
         void resizeEvent ( QResizeEvent * event );
 
     public Q_SLOTS:
-        void showResults(Calibration *calibration);
+        void showResults(Calibration *calibration, QStatusBar *status);
         void menuAction(QAction *a);
         void mouseMoveEvent ( QMouseEvent * event );
 
     protected:
         virtual void changeEvent(QEvent *e);
+};
+
+class DiagramUpdaterThread : public QThread
+{
+private:
+    QMap<QString,QVector<QPointF> > *evalpar;
+    QMap<QString,QVector<QPointF> > *algpar;
+    Calibration *calibration;
+
+public:
+    DiagramUpdaterThread(Calibration *calibration, QMap<QString,QVector<QPointF> > *evalpar, QMap<QString,QVector<QPointF> > *algpar);
+    virtual ~DiagramUpdaterThread();
+    virtual void run();
 };
 
 #endif // DIAGRAMGUI_H_INCLUDED

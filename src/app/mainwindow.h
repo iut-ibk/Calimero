@@ -140,7 +140,7 @@ Q_OBJECT
         void enable_groups();
         void disable_groups();
         void clean_calofun();
-        void updateDiagram(Calibration *calibration); 
+        void updateDiagram(Calibration *calibration, QStatusBar *);
         void running();
         void notrunning();
 };

@@ -38,6 +38,73 @@
 
 using namespace boost;
 
+
+DiagramUpdaterThread::DiagramUpdaterThread(Calibration *calibration, QMap<QString,QVector<QPointF> > *evalpar, QMap<QString,QVector<QPointF> > *algpar)
+{
+    this->calibration=calibration;
+    this->evalpar=evalpar;
+    this->algpar=algpar;
+}
+
+DiagramUpdaterThread::~DiagramUpdaterThread()
+{
+
+}
+
+void DiagramUpdaterThread::run()
+{
+    vector<IterationResult * > resultvec = calibration->getIterationResults();
+    map<int,IterationResult * > results;
+
+    BOOST_FOREACH(IterationResult * res, resultvec)
+            results[res->getIterationNumber()]=res;
+
+    set<string> calibrationparameters = calibration->evalCalibrationParameters();
+    set<string> objectivefunctionparameters = calibration->evalObjectiveFunctionParameters();
+
+    set<string>::iterator iterator;
+
+
+    //calibrationparameters
+    for(iterator=calibrationparameters.begin(); iterator!=calibrationparameters.end(); iterator++)
+    {
+        QVector<QPointF> result;
+        for(uint index = 0; index < results.size(); index++)
+        {
+            if(!results[index])
+                continue;
+
+            if(!results[index]->getCalibrationParameterResults(*iterator).size())
+                continue;
+
+            QPointF tmp(index,results[index]->getCalibrationParameterResults(*iterator)[0]);
+            result.append(tmp);
+        }
+
+        (*algpar)[QString::fromStdString(*iterator)]=result;
+    }
+
+    //objectivefunctionparameters
+    for(iterator=objectivefunctionparameters.begin(); iterator!=objectivefunctionparameters.end(); iterator++)
+    {
+        QVector<QPointF> result;
+        for(uint index = 0; index < results.size(); index++)
+        {
+            if(!results[index])
+                continue;
+
+            if(!results[index]->getObjectiveFunctionParameterResults(*iterator).size())
+                continue;
+
+            QPointF tmp(index,results[index]->getObjectiveFunctionParameterResults(*iterator)[0]);
+            result.append(tmp);
+        }
+
+        (*evalpar)[QString::fromStdString(*iterator)]=result;
+    }
+}
+
+
 DiagramGui::~DiagramGui()
 {
      QObject::disconnect(menu, SIGNAL(triggered(QAction*)), this, SLOT(menuAction(QAction*)));
@@ -55,6 +122,7 @@ DiagramGui::DiagramGui(QWidget *parent) : QGraphicsView(parent)
     //creating cotextmenue
     //setViewport(new QGLWidget);
     //setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing | QPainter::HighQualityAntialiasing | QPainter::NonCosmeticDefaultPen);
+    updateting=false;
     menu = new QMenu(this);
     actionminvar = new QAction(tr("Compare parameters"),menu);
     actioncalvar = new QAction(tr("Calibration parameters"),menu);
@@ -106,72 +174,58 @@ void DiagramGui::menuAction(QAction *a)
     }
 }
 
-void DiagramGui::showResults(Calibration *calibration)
+void DiagramGui::showResults(Calibration *calibration, QStatusBar *status)
 {
-    vector<IterationResult * > resultvec = calibration->getIterationResults();
-    map<int,IterationResult * > results;
-
-    BOOST_FOREACH(IterationResult * res, resultvec)
-            results[res->getIterationNumber()]=res;
-
+    updateting=true;
     QMap<QString,QVector<QPointF> > evalpar;
     QMap<QString,QVector<QPointF> > algpar;
-    set<string> calibrationparameters = calibration->evalCalibrationParameters();
-    set<string> objectivefunctionparameters = calibration->evalObjectiveFunctionParameters();
+    DiagramUpdaterThread *updater = new DiagramUpdaterThread(calibration,&evalpar,&algpar);
+    updater->start();
 
-    set<string>::iterator iterator;
+    QString initmessage = "Update diagram: ";
+    int loading = 0;
+    int maxdots = 10;
+    QTime time;
+    time.start();
 
-    //calibrationparameters
-    for(iterator=calibrationparameters.begin(); iterator!=calibrationparameters.end(); iterator++)
+    while(updater->isRunning())
     {
-        QVector<QPointF> result;
-        for(uint index = 0; index < results.size(); index++)
+        if(time.elapsed() > 500)
         {
-            if(!results[index])
-                continue;
+            QString message = initmessage;
 
-            if(!results[index]->getCalibrationParameterResults(*iterator).size())
-                continue;
+            loading = (loading+1)%maxdots;
 
-            QPointF tmp(index,results[index]->getCalibrationParameterResults(*iterator)[0]);
-            result.append(tmp);
+            for(uint index=0; index < loading; index++)
+                message+=".";
+
+            status->showMessage(message);
+            time.restart();
         }
-
-        algpar[QString::fromStdString(*iterator)]=result;
+        QCoreApplication::processEvents();
     }
-
-    //objectivefunctionparameters
-    for(iterator=objectivefunctionparameters.begin(); iterator!=objectivefunctionparameters.end(); iterator++)
-    {
-        QVector<QPointF> result;
-        for(uint index = 0; index < results.size(); index++)
-        {
-            if(!results[index])
-                continue;
-
-            if(!results[index]->getObjectiveFunctionParameterResults(*iterator).size())
-                continue;
-
-            QPointF tmp(index,results[index]->getObjectiveFunctionParameterResults(*iterator)[0]);
-            result.append(tmp);
-        }
-
-        evalpar[QString::fromStdString(*iterator)]=result;
-    }
-
+    status->showMessage("");
+    delete updater;
 
     calibrationscene->setValues(algpar);
     comparescene->setValues(evalpar);
+    updateting=false;
 }
 
 void DiagramGui::mouseMoveEvent ( QMouseEvent * event )
 {
+    if(updateting)
+        return;
+
     QPointF point = mapToScene(event->pos().x(),event->pos().y());
     static_cast<DiagramScene*>(scene())->setMousePosition(point.x(),point.y());
 }
 
 void DiagramGui::changeEvent(QEvent *e)
 {
+    if(updateting)
+        return;
+
     QGraphicsView::changeEvent(e);
     switch (e->type())
     {

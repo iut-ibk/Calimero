@@ -52,7 +52,7 @@ MainWindow::MainWindow(QWidget *parent, QString load_file ,LogLevel maxlevel) : 
         Log::init(log_updater,maxlevel);
         ui->log_widget->connect(log_updater, SIGNAL(newLogLine(QString)), SLOT(appendPlainText(QString)), Qt::QueuedConnection);
         this->connect(&updatetimer, SIGNAL(timeout()), SLOT(updatetimer_timeout()));
-        ui->diagram_widget->connect(this, SIGNAL(updateDiagram(Calibration *)), SLOT(showResults(Calibration *)), Qt::QueuedConnection);
+        ui->diagram_widget->connect(this, SIGNAL(updateDiagram(Calibration *, QStatusBar *)), SLOT(showResults(Calibration *, QStatusBar *)), Qt::QueuedConnection);
         persistence = new Persistence(CalibrationEnv::getInstance()->getCalibration());
         savefilepath = "";
         init();
@@ -314,6 +314,7 @@ void MainWindow::init()
     loading = false;
     QSettings settings;
     bool memory = settings.value("inmemory",true).toBool();
+
     CalibrationEnv::getInstance()->setInMemory(memory);
 
     if(memory)
@@ -638,8 +639,6 @@ void MainWindow::on_delvar_clicked()
 }
 
 void MainWindow::on_calvarmax_valueChanged(double v) {
-    //if(ui->calvarmin->value() > v)
-    //    ui->calvarmin->setValue(v);
 
     if(!ui->vars->selectedItems().size())
         return;
@@ -664,9 +663,6 @@ void MainWindow::on_calvarstep_valueChanged(double v)
 
 void MainWindow::on_calvarmin_valueChanged(double v )
 {
-    //if(ui->calvarmax->value() < v)
-    //    ui->calvarmax->setValue(v);
-
     if(!ui->vars->selectedItems().size())
         return;
 
@@ -677,6 +673,7 @@ void MainWindow::on_calvarmin_valueChanged(double v )
 
 void MainWindow::on_vardelvalue_clicked()
 {
+
     QList<QTableWidgetItem *> items = ui->varvalues->selectedItems();
     for(int index=0; index < items.size(); index++)
         ui->varvalues->removeRow(items[index]->row());
@@ -1387,14 +1384,14 @@ void MainWindow::updatetimer_timeout()
     {
         updatetimer.stop();
         Q_EMIT notrunning();
-        Q_EMIT updateDiagram(CalibrationEnv::getInstance()->getCalibration());
+        Q_EMIT updateDiagram(CalibrationEnv::getInstance()->getCalibration(),ui->statusbar);
     }
     else
     {
         Q_EMIT running();
 
         if(ui->enableddiagram->isChecked())
-            Q_EMIT updateDiagram(CalibrationEnv::getInstance()->getCalibration());
+            Q_EMIT updateDiagram(CalibrationEnv::getInstance()->getCalibration(),ui->statusbar);
         updatetimer.start(UPDATETIME);
     }
 }
@@ -1488,7 +1485,11 @@ void MainWindow::updateAll()
     resultanalysis->updateAll();
 
     //update iterationresults
-    Q_EMIT updateDiagram(CalibrationEnv::getInstance()->getCalibration());
+    QSettings settings;
+    if(loading && !settings.value("updatediagram",true).toBool())
+        return;
+
+    Q_EMIT updateDiagram(CalibrationEnv::getInstance()->getCalibration(),ui->statusbar);
 }
 
 void MainWindow::on_actionopen_activated()
@@ -1508,7 +1509,9 @@ void MainWindow::on_actionopen_activated()
         CalibrationEnv::getInstance()->getCalibration()->clear();
     }
 
+    loading=true;
     updateAll();
+    loading=false;
 }
 
 void MainWindow::on_actionsaveas_activated()
