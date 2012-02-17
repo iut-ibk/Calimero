@@ -176,6 +176,9 @@ void DiagramGui::menuAction(QAction *a)
 
 void DiagramGui::showResults(Calibration *calibration, QStatusBar *status)
 {
+    if(updateting)
+        return;
+
     updateting=true;
     QMap<QString,QVector<QPointF> > evalpar;
     QMap<QString,QVector<QPointF> > algpar;

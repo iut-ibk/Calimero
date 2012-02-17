@@ -63,6 +63,7 @@ int main(int argc, char **argv)
     desc.add_options()
             ("help,h", "produce help message")
             ("nogui,c", "run calimero in command line mode")
+            ("analyses,a", "run all enabled result analyses after calibration")
             ("log,l", po::value<std::string>(), "write log to specified file")
             ("maxlog,v", po::value<int>(), "max loglevel\n0 all debug\n1 all standard\n2 all warnings\n3 only errors")
             ("project,p", po::value<std::string>(), "project which specifies a calibration");
@@ -136,6 +137,7 @@ int main(int argc, char **argv)
             }
 
             Log::init(new OStreamLogSink(*out), max);
+
             Logger(Debug) << "starting";
 
 
@@ -177,7 +179,18 @@ int main(int argc, char **argv)
                 Xsleep::msleep(1000);
             }
 
+            Logger(Standard) << "Save calibration data";
             persistence.saveCalibration(projectpath);
+            Logger(Standard) << "Calibration data saved";
+
+            if (vm.count("analyses"))
+            {
+                    Logger(Standard) << "Run all enabled result analyses";
+                    CalibrationEnv::getInstance()->runAllEnabledResultHandler();
+                    Logger(Standard) << "Result analyses finished";
+            }
+
+            Logger(Standard) << "Calibration finished";
             Logger(Debug) << "shutting down";
             Log::shutDown();
             return 0;
