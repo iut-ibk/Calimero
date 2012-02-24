@@ -46,8 +46,9 @@ CalimeroDB::CalimeroDB()
 
     if(!CalibrationEnv::getInstance()->inMemory())
     {
-        QFile::remove(QDir::tempPath()+"/calimerodb.cdb");
-        db.setDatabaseName(QDir::tempPath()+"/calimerodb.cdb");
+        QString id = QUuid::createUuid().toString();
+        QFile::remove(QDir::tempPath()+"/calimerodb" + id + ".cdb");
+        db.setDatabaseName(QDir::tempPath()+"/calimerodb" + id + ".cdb");
     }
     else
     {

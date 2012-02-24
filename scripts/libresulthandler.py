@@ -18,6 +18,7 @@ import numpy as np
 import math
 from calimeropublic import findBestIterationNumber
 from matplotlib.pyplot import boxplot
+import string
 
 class Dialog(QDialog):
     def __init__(self,parent=None):
@@ -124,7 +125,7 @@ class SMDotPlot(pycalimero.IResultHandler):
         ax.set_title(title)
         dialogform.showFigure(fig)
         return True
-    
+
 class FindBestResult(pycalimero.IResultHandler):
     def __init__(self):
         pycalimero.IResultHandler.__init__(self)
@@ -355,8 +356,8 @@ class ParetoFrontier(pycalimero.IResultHandler):
         if(par2==""):
             return False
         
-	x = pycalimero.doublevector();
-	y = pycalimero.doublevector();
+        x = pycalimero.doublevector();
+        y = pycalimero.doublevector();
 
 	for i in results:
 	    x.append(i.getResults(par1)[0])
@@ -379,7 +380,7 @@ class ParetoFrontier(pycalimero.IResultHandler):
         if(not(y.__len__())):
             return False
         
-	ax.plot (x, y, '.')
+        ax.plot (x, y, '.')
         ax.set_title(title)
         
         dialogform.showFigure(fig)
@@ -396,27 +397,27 @@ class ModelTemplateExport(pycalimero.IResultHandler):
         template = self.getValueOfParameter("Template")
         path = self.getValueOfParameter("Output")
         iteration = int(self.getValueOfParameter("Iteration"))
-        
+
         if(template==""):
             return False
-        
+
         if(path==""):
             return False
 
-	if results.__len__() <= iteration:
+        if results.__len__() <= iteration:
             return False
-        
-	ftemplate = open(template, 'r')
-	fpath = open(path, 'w')
-	
+
+        ftemplate = open(template, 'r')
+        fpath = open(path, 'w')
+
         names = results[iteration].getNamesOfCalibrationParameters()
-        
-	for line in ftemplate:
-		for name in names:
-		    value = results[iteration].getCalibrationParameterResults(name)[0]
-		    line=line.replace('$' + name + '$', str(value))
 
-		fpath.write(line);
+        for line in ftemplate:
+            for name in names:
+                value = results[iteration].getCalibrationParameterResults(name)[0]
+                line=line.replace('$' + name + '$', str(value))
 
-	QMessageBox.information(QApplication.activeWindow(),"Message","Export done") 
+                fpath.write(line);
+
+        QMessageBox.information(QApplication.activeWindow(),"Message","Export done") 
         return True
