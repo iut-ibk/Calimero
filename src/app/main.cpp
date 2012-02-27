@@ -95,7 +95,7 @@ int main(int argc, char **argv)
             if (l < 0 || l > 3) {
                     cerr << desc << endl;
                     cerr << "log level must be between 0 an 3" << endl;
-                    return -1;
+                    return 0;
             }
             max = LogLevel(l);
     }
@@ -108,7 +108,6 @@ int main(int argc, char **argv)
     }
 
     //try do start app
-    QApplication a(argc, argv);
     QApplication::setApplicationName("Calimero");
     QApplication::setOrganizationName("IUT");
     QApplication::setOrganizationDomain("http://www.uibk.ac.at/umwelttechnik/");
@@ -144,6 +143,9 @@ int main(int argc, char **argv)
             //load scripts
             QSettings settings;
 
+            bool memory = settings.value("inmemory",true).toBool();
+            CalibrationEnv::getInstance()->setInMemory(memory);
+
             QStringList pythonhome = settings.value("pythonhome",QStringList()).toString().replace("\\","/").split(",");
             for (int index = 0; index < pythonhome.size(); index++)
                 PyEnv::getInstance()->addPythonPath(pythonhome.at(index).toStdString());
@@ -168,14 +170,14 @@ int main(int argc, char **argv)
             if(!persistence.loadCalibration(projectpath))
             {
                 Logger(Error) << "Cannot load project";
-                return -1;
+                return 0;
             }
 
             CalibrationEnv::getInstance()->startCalibration();
 
             while(CalibrationEnv::getInstance()->isCalibrationRunning())
             {
-                Logger(Standard) << "Complete Iterations: " << CalibrationEnv::getInstance()->getCalibration()->getIterationResults().size();
+                Logger(Standard) << "Complete Iterations: " << CalibrationEnv::getInstance()->getCalibration()->getNumOfComplete();
                 Xsleep::msleep(1000);
             }
 
@@ -193,10 +195,11 @@ int main(int argc, char **argv)
             Logger(Standard) << "Calibration finished";
             Logger(Debug) << "shutting down";
             Log::shutDown();
-            return 0;
+            return 1;
     }
     else
     {
+        QApplication a(argc, argv);
         MainWindow w(0,projectpath, max);
         w.show();
 
