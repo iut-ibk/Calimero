@@ -119,10 +119,12 @@ int main(int argc, char **argv)
 
     if(vm.count("nogui"))
     {
+            QCoreApplication a(argc, argv);
+
             if (!vm.count("project")) {
                     std::cout << desc << std::endl;
                     std::cerr << "provide a project file" << std::endl;
-                    return -1;
+                    return 0;
             }
 
             ostream *out = &cout;
@@ -130,7 +132,7 @@ int main(int argc, char **argv)
                     std::string log_file = vm["log"].as<std::string>();
                     if (ifstream(log_file.c_str())) {
                             cerr << "file already exists " << log_file << endl;
-                            return -1;
+                            return 0;
                     }
                     out = new ofstream(log_file.c_str());
             }
