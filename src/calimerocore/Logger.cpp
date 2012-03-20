@@ -33,6 +33,8 @@ Logger::Logger(LogLevel level)
  : sink(*Log::getInstance()->sink), level(level) {
         dirty = false;
         this->max = Log::getInstance()->max;
+        this->mutex = new QMutex(QMutex::Recursive);
+
         if (level >= max) {
                 sink << logLevel() << " " << date() << "|";
                 dirty = true;
@@ -42,6 +44,8 @@ Logger::Logger(LogLevel level)
 Logger::~Logger() {
         if (dirty)
                 sink << LSEndl();
+
+        delete mutex;
 }
 
 Logger &Logger::operator <<(LogLevel new_level) {
@@ -52,7 +56,7 @@ Logger &Logger::operator <<(LogLevel new_level) {
 }
 
 Logger &Logger::operator <<(const Variable *var) {
-        QMutexLocker locker(&mutex);
+        QMutexLocker locker(mutex);
         if (level < max) {
                 return *this;
         }
@@ -78,7 +82,7 @@ Logger &Logger::operator <<(const Variable *var) {
 }
 
 Logger &Logger::operator<< (const char* s) {
-        QMutexLocker locker(&mutex);
+        QMutexLocker locker(mutex);
         if (level < max) {
                 return *this;
         }
@@ -88,7 +92,7 @@ Logger &Logger::operator<< (const char* s) {
 }
 
 Logger &Logger::operator<< (const int i) {
-        QMutexLocker locker(&mutex);
+        QMutexLocker locker(mutex);
         if (level < max) {
                 return *this;
         }
@@ -98,7 +102,7 @@ Logger &Logger::operator<< (const int i) {
 }
 
 Logger &Logger::operator<< (const size_t i) {
-        QMutexLocker locker(&mutex);
+        QMutexLocker locker(mutex);
         if (level < max) {
                 return *this;
         }
@@ -108,7 +112,7 @@ Logger &Logger::operator<< (const size_t i) {
 }
 
 Logger &Logger::operator<< (const long i) {
-        QMutexLocker locker(&mutex);
+        QMutexLocker locker(mutex);
         if (level < max) {
                 return *this;
         }
@@ -118,7 +122,7 @@ Logger &Logger::operator<< (const long i) {
 }
 
 Logger &Logger::operator<< (const double f) {
-        QMutexLocker locker(&mutex);
+        QMutexLocker locker(mutex);
         if (level < max) {
                 return *this;
         }
@@ -128,7 +132,7 @@ Logger &Logger::operator<< (const double f) {
 }
 
 Logger &Logger::operator<< (const float f) {
-        QMutexLocker locker(&mutex);
+        QMutexLocker locker(mutex);
         if (level < max) {
                 return *this;
         }
@@ -138,7 +142,7 @@ Logger &Logger::operator<< (const float f) {
 }
 
 Logger &Logger::operator<< (const string &s) {
-        QMutexLocker locker(&mutex);
+        QMutexLocker locker(mutex);
         if (level < max) {
                 return *this;
         }
@@ -148,7 +152,7 @@ Logger &Logger::operator<< (const string &s) {
 }
 
 Logger &Logger::operator<< (const QString &s) {
-        QMutexLocker locker(&mutex);
+        QMutexLocker locker(mutex);
         if (level < max) {
                 return *this;
         }

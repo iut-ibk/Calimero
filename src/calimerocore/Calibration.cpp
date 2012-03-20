@@ -439,7 +439,6 @@ set<string> Calibration::evalCalibrationParameters()
 
 int Calibration::getNumOfComplete()
 {
-    QMutexLocker locker(mutex);
     int result=0;
     std::pair<int,IterationResult * > p;
     BOOST_FOREACH(p, iterationresults)
@@ -450,7 +449,6 @@ int Calibration::getNumOfComplete()
 
 vector<IterationResult *  > Calibration::getIterationResults()
 {
-    QMutexLocker locker(mutex);
     vector<IterationResult *  > result;
     std::pair<int,IterationResult *  >p;
     BOOST_FOREACH(p,iterationresults)

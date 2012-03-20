@@ -57,7 +57,7 @@ private:
         string date() const;
         LogSink &sink;
         LogLevel level, max;
-        QMutex mutex;
+        QMutex *mutex;
         bool dirty;
 };
 
