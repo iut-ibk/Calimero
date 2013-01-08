@@ -82,7 +82,7 @@ IF(WIN32 AND NOT UNIX)
 
     SET(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
         WriteRegStr HKCU \\\"Software\\\\IUT\\\\Calimero\\\" pythonhome \\\"$INSTDIR\\\\bin\\\\DLLs\\\\,$INSTDIR\\\\bin\\\\lib\\\\,$INSTDIR\\\\bin\\\\lib\\\\plat-win\\\\,$INSTDIR\\\\bin\\\\lib\\\\lib-tk\\\\,$INSTDIR\\\\bin\\\\lib\\\\site-packages,$INSTDIR\\\\bin\\\\\\\"
-        WriteRegStr HKCU \\\"Software\\\\IUT\\\\Calimero\\\" calimerohome \\\"$INSTDIR\\\\calimero\\\\,$INSTDIR\\\\calimero\\\\site-packages\\\\\\\"
+        WriteRegStr HKCU \\\"Software\\\\IUT\\\\Calimero\\\" calimerohome \\\"$INSTDIR\\\\share\\\\calimero\\\\libs\\\\,$INSTDIR\\\\share\\\\calimero\\\\scripts\\\\site-packages\\\\,$INSTDIR\\\\share\\\\calimero\\\\scripts\\\\\\\"
 
         CopyFiles \\\"$INSTDIR\\\\bin\\\\DLLs\\\\sqlite3.dll\\\" \\\"$INSTDIR\\\\bin\\\\sqlite3.dll\\\"
         ClearErrors
