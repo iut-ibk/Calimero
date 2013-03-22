@@ -25,12 +25,19 @@
 using namespace std;
 %}
 
-
-
 %include std_vector.i
 %include std_string.i
 %include std_map.i
 #include typemaps.i
+
+enum DATATYPE { STRING = 1,
+                DOUBLE = 2,
+                INT = 3,
+                BOOL = 4,
+                UINT = 5,
+                FILESTRING = 6,
+                DIRSTRING = 7
+              };
 
 namespace std {
     %template(stringvector) vector<string>;
@@ -60,15 +67,6 @@ enum IFUNCTIONTYPE { NOTYPE = -1,
                      MODELSIMULATOR = 2,
                      RESULTFUNCTION = 3
                     };
-
-enum DATATYPE { STRING = 1,
-                DOUBLE = 2,
-                INT = 3,
-                BOOL = 4,
-                UINT = 5,
-                FILESTRING = 6,
-                DIRSTRING = 7
-              };
 
 
 enum  VARTYPE {CALIBRATIONVARIABLE = 0,

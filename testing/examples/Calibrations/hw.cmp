@@ -127,6 +127,9 @@
 	
 		
 		
+	
+		
+		
 	]]></templatestring>
 		<templatemember name="Abfluss"/>
 		<templatemember name="Schmutzstoff"/>
@@ -140,9 +143,16 @@
 			<functionparameter key="objective function parameter" value="MSE"/>
 		</function>
 	</resulthandler>
+	<resulthandler enabled="0" name="Boxplot">
+		<function function="BoxPlot">
+			<functionparameter key="iteration number" value="112"/>
+			<functionparameter key="parameter" value="MSE"/>
+			<functionparameter key="title" value="MSE"/>
+		</function>
+	</resulthandler>
 	<resulthandler enabled="1" name="Calpars">
 		<function function="GetCalibrationParameters">
-			<functionparameter key="Iteration" value="1486"/>
+			<functionparameter key="Iteration" value="112"/>
 		</function>
 	</resulthandler>
 	<iterationresult iterationnumber="0">

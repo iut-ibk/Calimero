@@ -43,11 +43,12 @@
 #include <Exception.h>
 #include <QCoreApplication>
 
-#include <swigruntime.h>
+#include <swigruntime.cpp>
 
-extern "C" {
+/*extern "C" {
 void init_pycalimero(void);
-}
+}*/
+
 
 using namespace boost::python;
 
@@ -90,7 +91,7 @@ PyEnv::PyEnv() {
         if(!Py_IsInitialized()) {
             Py_Initialize();
             SWIG_PYTHON_INITIALIZE_THREADS;
-            init_pycalimero();
+            //init_pycalimero();
             PyThreadState *pts = PyGILState_GetThisThreadState();
             PyEval_ReleaseThread(pts);
         }
