@@ -18,7 +18,7 @@ SET(CMAKE_SWIG_FLAGS "")
 SET_SOURCE_FILES_PROPERTIES(pycalimero.i PROPERTIES CPLUSPLUS ON)
 SET_SOURCE_FILES_PROPERTIES(pycalimero.i PROPERTIES SWIG_FLAGS "-threads")
 
-SWIG_ADD_MODULE(pycalimero python pycalimero.i pycalimeroPYTHON_wrap.cxx)
+SWIG_ADD_MODULE(pycalimero python pycalimero.i)
 SWIG_LINK_LIBRARIES(pycalimero calimerocore ${PYTHON_LIBRARIES})
 
 
@@ -27,7 +27,7 @@ IF(NOT EXISTS swigruntime.h)
     EXECUTE_PROCESS(COMMAND ${SWIG_EXECUTABLE} -python ${SWIG_ARGS} -c++ -threads -external-runtime ${CMAKE_CURRENT_BINARY_DIR}/swigruntime.cpp)
 ENDIF()
 
-FILE(GLOB_RECURSE ENV_FILES *.cpp *.cxx)
+FILE(GLOB_RECURSE ENV_FILES *.cpp)
 INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_DIR})
 
 ADD_LIBRARY(calimeropythonenv SHARED ${ENV_FILES})

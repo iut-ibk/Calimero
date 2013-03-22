@@ -16,7 +16,6 @@
 #include <IterationResult.h>
 #include <Calibration.h>
 #include <CalibrationEnv.h>
-#include <PyEnv.h>
 #include <string>
 #include <vector>
 #include <map>
