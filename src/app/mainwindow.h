@@ -30,9 +30,7 @@
 #include <QObject>
 #include <QListWidgetItem>
 #include <QTimer>
-#include <Persistence.h>
 #include <QCloseEvent>
-#include <Logger.h>
 
 #define DEFAULTUPDATETIME 1000
 
@@ -45,11 +43,12 @@ class Calibration;
 class GuiLogSink;
 class QTableWidgetItem;
 class ResultAnalysisDialog;
+class Persistence;
 
 class MainWindow : public QMainWindow {
 Q_OBJECT
     public:
-        MainWindow(QWidget *parent = 0, QString load_file = "", LogLevel maxlevel = Standard);
+        MainWindow(QWidget *parent = 0, QString load_file = "");
 	virtual ~MainWindow();
         void setupStateMachine();
 	Ui::MainWindow *ui;

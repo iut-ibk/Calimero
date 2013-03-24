@@ -40,6 +40,7 @@
 #include <boost/foreach.hpp>
 #include <boost/program_options.hpp>
 #include <PyEnv.h>
+#include <Persistence.h>
 
 #define DEFAULTLOGLEVEL Standard
 
@@ -202,7 +203,7 @@ int main(int argc, char **argv)
     else
     {
         QApplication a(argc, argv);
-        MainWindow w(0,projectpath, max);
+        MainWindow w(0,projectpath);
         w.show();
 
         return a.exec();

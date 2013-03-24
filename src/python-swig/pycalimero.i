@@ -20,6 +20,7 @@
 #include <vector>
 #include <map>
 #include <iostream>
+#include <PyEnv.h>
 
 using namespace std;
 %}

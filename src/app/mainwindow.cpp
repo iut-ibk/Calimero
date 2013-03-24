@@ -43,13 +43,14 @@
 #include <functionparametersdialog.h>
 #include <resultanalysisdialog.h>
 #include <settingsdialog.h>
+#include <Persistence.h>
 
 
-MainWindow::MainWindow(QWidget *parent, QString load_file ,LogLevel maxlevel) : QMainWindow(parent), ui(new Ui::MainWindow){
+MainWindow::MainWindow(QWidget *parent, QString load_file) : QMainWindow(parent), ui(new Ui::MainWindow){
         ui->setupUi(this);
         setupStateMachine();
         log_updater = new GuiLogSink();
-        Log::init(log_updater,maxlevel);
+        Log::init(log_updater,Standard);
         ui->log_widget->connect(log_updater, SIGNAL(newLogLine(QString)), SLOT(appendPlainText(QString)), Qt::QueuedConnection);
         this->connect(&updatetimer, SIGNAL(timeout()), SLOT(updatetimer_timeout()));
         ui->diagram_widget->connect(this, SIGNAL(updateDiagram(Calibration *, QStatusBar *)), SLOT(showResults(Calibration *, QStatusBar *)), Qt::QueuedConnection);
