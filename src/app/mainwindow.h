@@ -115,14 +115,14 @@ Q_OBJECT
         void on_calstop_clicked();
         void updatetimer_timeout();
         void updateAll();
-        void on_actionopen_activated();
-        void on_actionsaveas_activated();
-        void on_actionsave_activated();
-        void on_actionnew_activated();
-        void on_actionsettings_activated();
-        void on_actionLoad_Python_script_activated();
+        void on_actionopen_triggered();
+        void on_actionsaveas_triggered();
+        void on_actionsave_triggered();
+        void on_actionnew_triggered();
+        void on_actionsettings_triggered();
+        void on_actionLoad_Python_script_triggered();
         void on_resulthandler_clicked();
-        void on_actionSchlie_en_activated();
+        void on_actionSchlie_en_triggered();
         void closeEvent(QCloseEvent *event);
 
     Q_SIGNALS:

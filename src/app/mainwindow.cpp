@@ -1493,7 +1493,7 @@ void MainWindow::updateAll()
     Q_EMIT updateDiagram(CalibrationEnv::getInstance()->getCalibration(),ui->statusbar);
 }
 
-void MainWindow::on_actionopen_activated()
+void MainWindow::on_actionopen_triggered()
 {
     QString fileName = QFileDialog::getOpenFileName(this,tr("Calimero project file"), QDir::homePath(), tr("*.cmp"));
 
@@ -1515,7 +1515,7 @@ void MainWindow::on_actionopen_activated()
     loading=false;
 }
 
-void MainWindow::on_actionsaveas_activated()
+void MainWindow::on_actionsaveas_triggered()
 {
     QString filename = QFileDialog::getSaveFileName(this, tr("Save as"), QDir::homePath()+"/untitled.cmp",tr("Calimero project (*.cmp)"));
 
@@ -1526,13 +1526,13 @@ void MainWindow::on_actionsaveas_activated()
         filename += ".cmp";
 
     savefilepath=filename;
-    on_actionsave_activated();
+    on_actionsave_triggered();
 }
 
-void MainWindow::on_actionsave_activated()
+void MainWindow::on_actionsave_triggered()
 {
     if(savefilepath.isEmpty())
-        return on_actionsaveas_activated();
+        return on_actionsaveas_triggered();
 
     if(!persistence->saveCalibration(savefilepath,ui->statusbar))
         QMessageBox::warning(this,tr("Error"),tr("Could not save current project"));
@@ -1550,7 +1550,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     switch (ret)
     {
         case QMessageBox::Save:{
-           on_actionsave_activated();
+           on_actionsave_triggered();
            event->accept();
            break;
        }
@@ -1566,12 +1566,12 @@ void MainWindow::closeEvent(QCloseEvent *event)
      }
  }
 
-void MainWindow::on_actionSchlie_en_activated()
+void MainWindow::on_actionSchlie_en_triggered()
 {
     QMainWindow::close();
 }
 
-void MainWindow::on_actionLoad_Python_script_activated()
+void MainWindow::on_actionLoad_Python_script_triggered()
 {
     try{
         QSettings settings;
@@ -1596,7 +1596,7 @@ void MainWindow::on_actionLoad_Python_script_activated()
     }
 }
 
-void MainWindow::on_actionnew_activated()
+void MainWindow::on_actionnew_triggered()
 {
     CalibrationEnv::getInstance()->getCalibration()->clear();
     savefilepath="";
@@ -1608,7 +1608,7 @@ void MainWindow::on_resulthandler_clicked()
     resultanalysis->exec();
 }
 
-void MainWindow::on_actionsettings_activated()
+void MainWindow::on_actionsettings_triggered()
 {
     SettingsDialog d(this);
     d.exec();
