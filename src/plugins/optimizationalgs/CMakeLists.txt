@@ -4,11 +4,7 @@ add_library(calimerooptimizationalgs SHARED ${CPP_FILES})
 
 SET_TARGET_PROPERTIES(calimerooptimizationalgs PROPERTIES PREFIX "")
 
-if (${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
-    target_link_libraries(calimerooptimizationalgs calimerocore)
-else()
-    target_link_libraries(calimerooptimizationalgs calimerocore ${Boost_THREAD_LIBRARY})
-endif()
+target_link_libraries(calimerooptimizationalgs calimerocore)
 
 INSTALL(TARGETS calimerooptimizationalgs
         DESTINATION "share/calimero/libs"

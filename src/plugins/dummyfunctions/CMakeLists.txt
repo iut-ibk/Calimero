@@ -4,11 +4,7 @@ add_library(dummyfunctions SHARED ${CPP_FILES})
 
 SET_TARGET_PROPERTIES(dummyfunctions PROPERTIES PREFIX "")
 
-if (${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
-    target_link_libraries(dummyfunctions calimerocore)
-else()
-    target_link_libraries(dummyfunctions calimerocore ${Boost_THREAD_LIBRARY})
-endif()
+target_link_libraries(dummyfunctions calimerocore)
 
 INSTALL(TARGETS dummyfunctions
         DESTINATION "share/calimero/libs"

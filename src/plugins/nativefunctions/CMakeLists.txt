@@ -4,11 +4,8 @@ add_library(calimeronativefunctions SHARED ${CPP_FILES})
 
 SET_TARGET_PROPERTIES(calimeronativefunctions PROPERTIES PREFIX "")
 
-if (${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
-    target_link_libraries(calimeronativefunctions calimerocore)
-else()
-    target_link_libraries(calimeronativefunctions calimerocore ${Boost_THREAD_LIBRARY})
-endif()
+target_link_libraries(calimeronativefunctions calimerocore)
+
 
 INSTALL(TARGETS calimeronativefunctions
         DESTINATION "share/calimero/libs"
