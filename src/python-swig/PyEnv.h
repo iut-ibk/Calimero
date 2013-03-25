@@ -58,6 +58,6 @@ private:
         static PyEnv *instance;
         set<string> loadedmodules;
 };
-bool execIteration(vector<CalibrationVariable*> calibrationparameters);
-void barrier();
+bool CALIMERO_PUBLIC execIteration(vector<CalibrationVariable*> calibrationparameters);
+void CALIMERO_PUBLIC barrier();
 #endif // PYENV_H_INCLUDED
