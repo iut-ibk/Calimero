@@ -26,7 +26,7 @@ FIND_PACKAGE(Qt4 REQUIRED)
 SET(Boost_USE_STATIC_LIBS ON)
 SET(Boost_USE_MULTITHREADED ON)
 SET(Boost_USE_STATIC_RUNTIME OFF)
-FIND_PACKAGE(Boost 1.38.0 COMPONENTS system signals program_options thread date_time filesystem REQUIRED)
+FIND_PACKAGE(Boost 1.38.0 COMPONENTS chrono system signals program_options thread date_time filesystem REQUIRED)
 
 ADD_DEFINITIONS(${Boost_LIB_DIAGNOSTIC_DEFINITIONS})
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
