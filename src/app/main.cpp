@@ -70,10 +70,10 @@ int main(int argc, char **argv)
             ("project,p", po::value<std::string>(), "project which specifies a calibration");
     ;
 
-    boost::program_options::positional_options_description p;
+    po::positional_options_description p;
     p.add("project", 1);
 
-    boost::program_options::variables_map vm;
+    po::variables_map vm;
     try {
             po::store(po::command_line_parser(argc, argv).options(desc).positional(p).run(), vm);
     } catch (po::unknown_option o) {
