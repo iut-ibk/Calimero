@@ -17,14 +17,6 @@ IF(UNIX AND NOT WIN32)
                                         libqt4-svg,
                                         libqt4-sql-sqlite,
                                         libqt4-sql-sqlite2,
-                                        libboost-program-options1.41.0 ,
-                                        libboost-iostreams1.41.0 ,
-                                        libboost-system1.41.0 ,
-                                        libboost-thread1.41.0 ,
-                                        libboost-filesystem1.41.0 ,
-                                        libboost-python1.41.0 ,
-                                        libboost-signals1.41.0 ,
-                                        libboost-math1.41.0,
                                         python2.6,
                                         python-scipy,
                                         python-numpy")
@@ -66,14 +58,7 @@ IF(WIN32 AND NOT UNIX)
         ${QT_BINARY_DIR}/QtGui4.dll
         ${QT_BINARY_DIR}/QtXml4.dll
         ${QT_BINARY_DIR}/QtSvg4.dll
-        ${QT_BINARY_DIR}/QtSql4.dll
-        ${Boost_LIBRARY_DIRS}/boost_signals-*-mt-1_*.dll
-        ${Boost_LIBRARY_DIRS}/boost_thread-*-mt-1_*.dll
-        ${Boost_LIBRARY_DIRS}/boost_python-*-mt-1_*.dll
-        ${Boost_LIBRARY_DIRS}/boost_program_options-*-mt-1_*.dll
-        ${Boost_LIBRARY_DIRS}/boost_date_time-*-mt-1_*.dll
-        ${Boost_LIBRARY_DIRS}/boost_system-*-mt-1_*.dll
-        ${Boost_LIBRARY_DIRS}/boost_filesystem-*-mt-1_*.dll)
+        ${QT_BINARY_DIR}/QtSql4.dll)
 
     INSTALL(FILES ${DLLS} DESTINATION bin)
     INSTALL(FILES ${PYDFILES} DESTINATION calimero)
