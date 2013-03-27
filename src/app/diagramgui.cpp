@@ -209,6 +209,7 @@ void DiagramGui::showResults(Calibration *calibration, QStatusBar *status)
     }
     status->showMessage("");
     delete updater;
+    updater = 0;
 
     calibrationscene->setValues(algpar);
     comparescene->setValues(evalpar);
