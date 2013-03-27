@@ -39,7 +39,7 @@ void FunctionLoader::loadNative(const string &path)
         QFileInfo fileInfo = list.at(i);
         QString file = fileInfo.absoluteFilePath();
 
-        if(!(file.contains(".dll") || file.contains(".so")))
+        if(!(file.contains(".dll") || file.contains(".so") || file.contains(".dylib") ))
             continue;
 
         if(file.contains("manifest"))
