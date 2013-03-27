@@ -33,6 +33,7 @@
 #include <Logger.h>
 #include <boost/shared_ptr.hpp>
 #include <QStringList>
+#include <QMutex>
 
 class ObjectiveFunctionVariable;
 class Variable;
@@ -70,6 +71,7 @@ class CalimeroDB
 {
 private:
     static CalimeroDB* instance;
+    QMutex *dblock;
 private:
     CalimeroDB();
 public:

@@ -37,11 +37,13 @@
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlRecord>
+#include <QMutexLocker>
 
 CalimeroDB* CalimeroDB::instance = 0;
 
 CalimeroDB::CalimeroDB()
 {
+    dblock = new QMutex(QMutex::Recursive);
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
 
     if(!CalibrationEnv::getInstance()->inMemory())
@@ -75,6 +77,7 @@ CalimeroDB::CalimeroDB()
 
 void CalimeroDB::beginTransaction()
 {
+    dblock->lock();
     QSqlQuery query;
     if(!query.exec("BEGIN TRANSACTION"))
          Logger(Error) << "DB error in \"BEGIN TRANSACTION\" statement";
@@ -82,15 +85,19 @@ void CalimeroDB::beginTransaction()
 
 void CalimeroDB::endTransaction()
 {
+    QMutexLocker lock(dblock);
     QSqlQuery query;
     if(!query.exec("END TRANSACTION"))
          Logger(Error) << "DB error in \"END TRANSACTION\" statement";
+    dblock->unlock();
 }
 
 CalimeroDB::~CalimeroDB()
 {
     if(!CalibrationEnv::getInstance()->inMemory())
         QFile::remove(QDir::tempPath()+"/calimerodb.cdb");
+
+    delete dblock;
 }
 
 bool CalimeroDB::saveVector(std::string name, std::vector<double> vector, int iteration)
@@ -102,6 +109,7 @@ bool CalimeroDB::saveVector(std::string name, std::vector<double> vector, int it
     datastream  << QVector<double>::fromStdVector(vector);
     //qba=qba.toHex();
 
+    QMutexLocker lock(dblock);
     QSqlQuery query;
     query.prepare("INSERT INTO calimeroresults (id, iterationnr, val) "
                   "VALUES (?, ?, ?)");
@@ -115,10 +123,12 @@ bool CalimeroDB::saveVector(std::string name, std::vector<double> vector, int it
 
 std::vector<double> CalimeroDB::getVector(std::string name, int iteration)
 {
+    QMutexLocker lock(dblock);
     QString q = "SELECT val FROM calimeroresults WHERE id=\"" + QString::fromStdString(name) + "\" AND iterationnr=" + QString::number(iteration);
     QSqlQuery query(q);
 
-    if(query.next())
+    query.next();
+    if(query.isValid())
     {
         QVector<double> result;
         QByteArray qba = query.value(0).toByteArray();
@@ -136,6 +146,7 @@ std::vector<double> CalimeroDB::getVector(std::string name, int iteration)
 
 bool CalimeroDB::removeVector(std::string name, int iteration)
 {
+    QMutexLocker lock(dblock);
     QString q = "DELETE FROM calimeroresults WHERE id=\"" + QString::fromStdString(name) + "\" AND iterationnr=" + QString::number(iteration);
     QSqlQuery query(q);
     if(!query.exec())
